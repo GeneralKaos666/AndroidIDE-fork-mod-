@@ -12,8 +12,8 @@ import com.github.appintro.internal.viewpager.ViewPagerTransformer
 import kotlin.math.max
 
 /**
- * Class that controls the [ViewPager2] of AppIntro.
- * This is responsible of handling of paging, managing touch and dispatching events.
+ * Class that controls the [ViewPager2] of AppIntro. This is responsible of handling of paging,
+ * managing touch and dispatching events.
  *
  * @property isFullPagingEnabled Enable or disable swiping at all.
  * @property isPermissionSlide If the current slide has permissions.
@@ -21,7 +21,7 @@ import kotlin.math.max
  */
 internal class AppIntroViewPagerController(
     private val viewPager: ViewPager2,
-    private val viewPagerGestureOverlay: GestureOverlayView
+    private val viewPagerGestureOverlay: GestureOverlayView,
 ) {
 
     var isFullPagingEnabled = true
@@ -43,7 +43,7 @@ internal class AppIntroViewPagerController(
             endFakeDrag()
             setCurrentViewPagerItem(
                 position = if (!LayoutUtil.isRtl(context)) currentItem + 1 else currentItem - 1,
-                smoothScrool = true
+                smoothScrool = true,
             )
         }
     }
@@ -54,20 +54,22 @@ internal class AppIntroViewPagerController(
             endFakeDrag()
             setCurrentViewPagerItem(
                 position = if (!LayoutUtil.isRtl(context)) currentItem - 1 else currentItem + 1,
-                smoothScrool = true
+                smoothScrool = true,
             )
         }
     }
 
     fun isFirstSlide(size: Int): Boolean {
         with(viewPager) {
-            return if (LayoutUtil.isRtl(context)) (currentItem - size + 1 == 0) else (currentItem == 0)
+            return if (LayoutUtil.isRtl(context)) (currentItem - size + 1 == 0)
+            else (currentItem == 0)
         }
     }
 
     fun isLastSlide(size: Int): Boolean {
         with(viewPager) {
-            return if (LayoutUtil.isRtl(context)) (currentItem == 0) else (currentItem - size + 1 == 0)
+            return if (LayoutUtil.isRtl(context)) (currentItem == 0)
+            else (currentItem - size + 1 == 0)
         }
     }
 
@@ -78,8 +80,9 @@ internal class AppIntroViewPagerController(
     }
 
     /**
-     * Override is required to trigger [AppIntroBase.OnPageChangeCallback.onPageSelected] for the first page.
-     * This is needed to correctly handle progress button display after rotation on a locked first page.
+     * Override is required to trigger [AppIntroBase.OnPageChangeCallback.onPageSelected] for the
+     * first page. This is needed to correctly handle progress button display after rotation on a
+     * locked first page.
      */
     fun setCurrentViewPagerItem(position: Int, smoothScrool: Boolean = false) {
         with(viewPager) {
@@ -97,11 +100,10 @@ internal class AppIntroViewPagerController(
     }
 
     /**
-     * Checks for illegal sliding attempts.
-     * Every time the user presses the screen, the respective coordinates are stored.
-     * Once the user swipes/stops pressing, the new coordinates are checked against the stored ones.
-     * Therefore [userIllegallyRequestNextPage] is called. If this call detects an illegal swipe,
-     * the respective listener [onNextPageRequestedListener] gets called.
+     * Checks for illegal sliding attempts. Every time the user presses the screen, the respective
+     * coordinates are stored. Once the user swipes/stops pressing, the new coordinates are checked
+     * against the stored ones. Therefore [userIllegallyRequestNextPage] is called. If this call
+     * detects an illegal swipe, the respective listener [onNextPageRequestedListener] gets called.
      */
     private fun canPerformTouchEvent(event: MotionEvent?): Boolean {
         // If paging is disabled we should ignore any viewpager touch
@@ -145,8 +147,8 @@ internal class AppIntroViewPagerController(
     private var lastTouchValue: Float = 0f
 
     /**
-     * Simulate touch events on the ViewPager2 using fakeDrag, since isUserInputEnabled = false
-     * We need this to eventually block user touches in forward if policy is not respected
+     * Simulate touch events on the ViewPager2 using fakeDrag, since isUserInputEnabled = false We
+     * need this to eventually block user touches in forward if policy is not respected
      */
     private fun handleOnTouchEvent(event: MotionEvent?): Boolean {
         if (!canPerformTouchEvent(event)) {
@@ -171,7 +173,8 @@ internal class AppIntroViewPagerController(
                 return true
             }
 
-            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+            MotionEvent.ACTION_CANCEL,
+            MotionEvent.ACTION_UP -> {
                 viewPager.endFakeDrag()
             }
         }
@@ -179,8 +182,8 @@ internal class AppIntroViewPagerController(
     }
 
     /**
-     * Util function to check if the user swiped forward.
-     * The direction of forward is different in RTL mode.
+     * Util function to check if the user swiped forward. The direction of forward is different in
+     * RTL mode.
      */
     private fun isSwipeForward(oldX: Float, newX: Float): Boolean {
         with(viewPager) {
@@ -188,12 +191,11 @@ internal class AppIntroViewPagerController(
         }
     }
 
-    /**
-     * Util function to throttle illegallyRequestedNext to max one request per second.
-     */
+    /** Util function to throttle illegallyRequestedNext to max one request per second. */
     private fun userIllegallyRequestNextPage(): Boolean {
-        if (System.currentTimeMillis() - illegallyRequestedNextPageLastCalled >=
-            ON_ILLEGALLY_REQUESTED_NEXT_PAGE_MAX_INTERVAL
+        if (
+            System.currentTimeMillis() - illegallyRequestedNextPageLastCalled >=
+                ON_ILLEGALLY_REQUESTED_NEXT_PAGE_MAX_INTERVAL
         ) {
             illegallyRequestedNextPageLastCalled = System.currentTimeMillis()
             return true
@@ -203,35 +205,42 @@ internal class AppIntroViewPagerController(
     }
 
     /**
-     * Disables ViewPager swipes and handles manually touch events.
-     * This is because we may want to discard some swipes in a particular direction
-     * if policy doesn't allow that.
+     * Disables ViewPager swipes and handles manually touch events. This is because we may want to
+     * discard some swipes in a particular direction if policy doesn't allow that.
      *
-     * Touch events are then forwarded (if policy allows that) to pager
-     * using fakeDrag feature of ViewPager2.
+     * Touch events are then forwarded (if policy allows that) to pager using fakeDrag feature of
+     * ViewPager2.
      */
     private fun addPagerTouchInterceptor() {
         // disable ViewPager swipe
         // touch events will be forwarded to gesture overlay to check policies
         viewPager.isUserInputEnabled = false
 
-        viewPagerGestureOverlay.addOnGestureListener(object : OnGestureListener {
-            override fun onGestureStarted(overlayView: GestureOverlayView?, event: MotionEvent?) {
-                handleOnTouchEvent(event)
-            }
+        viewPagerGestureOverlay.addOnGestureListener(
+            object : OnGestureListener {
+                override fun onGestureStarted(
+                    overlayView: GestureOverlayView?,
+                    event: MotionEvent?,
+                ) {
+                    handleOnTouchEvent(event)
+                }
 
-            override fun onGesture(overlayView: GestureOverlayView?, event: MotionEvent?) {
-                handleOnTouchEvent(event)
-            }
+                override fun onGesture(overlayView: GestureOverlayView?, event: MotionEvent?) {
+                    handleOnTouchEvent(event)
+                }
 
-            override fun onGestureEnded(overlayView: GestureOverlayView?, event: MotionEvent?) {
-                handleOnTouchEvent(event)
-            }
+                override fun onGestureEnded(overlayView: GestureOverlayView?, event: MotionEvent?) {
+                    handleOnTouchEvent(event)
+                }
 
-            override fun onGestureCancelled(overlayView: GestureOverlayView?, event: MotionEvent?) {
-                handleOnTouchEvent(event)
+                override fun onGestureCancelled(
+                    overlayView: GestureOverlayView?,
+                    event: MotionEvent?,
+                ) {
+                    handleOnTouchEvent(event)
+                }
             }
-        })
+        )
     }
 
     internal fun reCenterCurrentSlide() {
@@ -252,15 +261,11 @@ internal class AppIntroViewPagerController(
     }
 
     fun setAppIntroPageTransformer(appIntroTransformer: AppIntroPageTransformerType) {
-        with(viewPager) {
-            setPageTransformer(ViewPagerTransformer(appIntroTransformer))
-        }
+        with(viewPager) { setPageTransformer(ViewPagerTransformer(appIntroTransformer)) }
     }
 
     fun setPageTransformer(pageTransformer: ViewPager2.PageTransformer?) {
-        with(viewPager) {
-            setPageTransformer(pageTransformer)
-        }
+        with(viewPager) { setPageTransformer(pageTransformer) }
     }
 
     fun setOffscreenPageLimit(offscreenPageLimit: Int) {

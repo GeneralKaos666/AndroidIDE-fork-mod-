@@ -28,18 +28,18 @@ import io.github.rosemoe.sora.widget.SymbolPairMatch.SymbolPair.SymbolPairEx
  */
 internal open class CommonSymbolPairs : SymbolPairMatch() {
 
-  private val isSelected =
-    object : SymbolPairEx {
-      override fun shouldDoAutoSurround(content: Content?): Boolean {
-        return content?.cursor?.isSelected ?: false
-      }
-    }
+    private val isSelected =
+        object : SymbolPairEx {
+            override fun shouldDoAutoSurround(content: Content?): Boolean {
+                return content?.cursor?.isSelected ?: false
+            }
+        }
 
-  init {
-    super.putPair('{', SymbolPair("{", "}"))
-    super.putPair('(', SymbolPair("(", ")"))
-    super.putPair('[', SymbolPair("[", "]"))
-    super.putPair('"', SymbolPair("\"", "\"", isSelected))
-    super.putPair('\'', SymbolPair("'", "'", isSelected))
-  }
+    init {
+        super.putPair('{', SymbolPair("{", "}"))
+        super.putPair('(', SymbolPair("(", ")"))
+        super.putPair('[', SymbolPair("[", "]"))
+        super.putPair('"', SymbolPair("\"", "\"", isSelected))
+        super.putPair('\'', SymbolPair("'", "'", isSelected))
+    }
 }

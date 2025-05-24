@@ -30,12 +30,12 @@ import java.io.Serializable
  * @author Akash Yadav
  */
 open class BasicProjectMetadata(
-  val name: String?,
-  val projectPath: String,
-  val projectDir: File,
-  val buildDir: File
+    val name: String?,
+    val projectPath: String,
+    val projectDir: File,
+    val buildDir: File,
 ) : Serializable {
 
-  protected val gsonType: String = javaClass.name
-  protected val serialVersionUID = 1L
+    protected val gsonType: String = javaClass.name
+    protected val serialVersionUID = 1L
 }

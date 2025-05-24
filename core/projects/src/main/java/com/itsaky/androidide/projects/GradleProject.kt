@@ -23,8 +23,10 @@ import java.io.File
 import java.util.concurrent.CompletableFuture
 
 /**
- * A Gradle project model which is identical to [IGradleProject][com.itsaky.androidide.tooling.api.IGradleProject]. This project module caches all the data
- * from an [IGradleProject][com.itsaky.androidide.tooling.api.IGradleProject] eliminating the use of [CompletableFuture] s.
+ * A Gradle project model which is identical to
+ * [IGradleProject][com.itsaky.androidide.tooling.api.IGradleProject]. This project module caches
+ * all the data from an [IGradleProject][com.itsaky.androidide.tooling.api.IGradleProject]
+ * eliminating the use of [CompletableFuture] s.
  *
  * @param name The display name of the project.
  * @param description The project description.
@@ -37,15 +39,15 @@ import java.util.concurrent.CompletableFuture
  * @author Akash Yadav
  */
 open class GradleProject(
-  val name: String,
-  val description: String,
-  val path: String,
-  val projectDir: File,
-  val buildDir: File,
-  val buildScript: File,
-  val tasks: List<GradleTask>
+    val name: String,
+    val description: String,
+    val path: String,
+    val projectDir: File,
+    val buildDir: File,
+    val buildScript: File,
+    val tasks: List<GradleTask>,
 ) {
 
-  var type: ProjectType = ProjectType.Gradle
-    protected set
+    var type: ProjectType = ProjectType.Gradle
+        protected set
 }

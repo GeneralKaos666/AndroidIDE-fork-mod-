@@ -27,15 +27,15 @@ import com.itsaky.androidide.uidesigner.drawable.UiViewLayeredForeground
 import com.itsaky.androidide.utils.resolveAttr
 
 fun layeredForeground(context: Context, drawable: Drawable): Drawable {
-  return UiViewLayeredForeground(context, drawable)
+    return UiViewLayeredForeground(context, drawable)
 }
 
 @JvmOverloads
 fun bgDesignerView(
-  context: Context,
-  color: Int = context.resolveAttr(R.attr.colorOutline)
+    context: Context,
+    color: Int = context.resolveAttr(R.attr.colorOutline),
 ): Drawable? {
-  return getDrawable(context, R.drawable.bg_designer_view)?.apply {
-    colorFilter = PorterDuffColorFilter(color, SRC_ATOP)
-  }
+    return getDrawable(context, R.drawable.bg_designer_view)?.apply {
+        colorFilter = PorterDuffColorFilter(color, SRC_ATOP)
+    }
 }

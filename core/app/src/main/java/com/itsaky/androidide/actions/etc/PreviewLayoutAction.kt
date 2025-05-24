@@ -36,78 +36,81 @@ import java.io.File
 /** @author Akash Yadav */
 class PreviewLayoutAction(context: Context, override val order: Int) : EditorRelatedAction() {
 
-  override val id: String = "ide.editor.previewLayout"
+    override val id: String = "ide.editor.previewLayout"
 
-  override var requiresUIThread: Boolean = false
+    override var requiresUIThread: Boolean = false
 
-  init {
-    label = context.getString(R.string.title_preview_layout)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_preview_layout)
-  }
-
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-
-    val viewModel = data.requireActivity().editorViewModel
-    if (viewModel.isInitializing) {
-      visible = true
-      enabled = false
-      return
+    init {
+        label = context.getString(R.string.title_preview_layout)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_preview_layout)
     }
 
-    if (!visible) {
-      return
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
+
+        val viewModel = data.requireActivity().editorViewModel
+        if (viewModel.isInitializing) {
+            visible = true
+            enabled = false
+            return
+        }
+
+        if (!visible) {
+            return
+        }
+
+        val editor = data.requireEditor()
+        val file = editor.file!!
+
+        val isXml = file.name.endsWith(".xml")
+
+        if (!isXml) {
+            markInvisible()
+            return
+        }
+
+        val type =
+            try {
+                extractPathData(file).type
+            } catch (err: Throwable) {
+                markInvisible()
+                return
+            }
+
+        visible = type == LAYOUT
+        enabled = visible
     }
 
-    val editor = data.requireEditor()
-    val file = editor.file!!
-
-    val isXml = file.name.endsWith(".xml")
-
-    if (!isXml) {
-      markInvisible()
-      return
+    override fun getShowAsActionFlags(data: ActionData): Int {
+        val activity = data.getActivity() ?: return super.getShowAsActionFlags(data)
+        return if (KeyboardUtils.isSoftInputVisible(activity)) {
+            MenuItem.SHOW_AS_ACTION_IF_ROOM
+        } else {
+            MenuItem.SHOW_AS_ACTION_ALWAYS
+        }
     }
 
-    val type = try {
-      extractPathData(file).type
-    } catch (err: Throwable) {
-      markInvisible()
-      return
+    override suspend fun execAction(data: ActionData): Boolean {
+        val activity = data.requireActivity()
+        activity.saveAll()
+        return true
     }
 
-    visible = type == LAYOUT
-    enabled = visible
-  }
-
-  override fun getShowAsActionFlags(data: ActionData): Int {
-    val activity = data.getActivity() ?: return super.getShowAsActionFlags(data)
-    return if (KeyboardUtils.isSoftInputVisible(activity)) {
-      MenuItem.SHOW_AS_ACTION_IF_ROOM
-    } else {
-      MenuItem.SHOW_AS_ACTION_ALWAYS
+    override fun postExec(data: ActionData, result: Any) {
+        val activity = data.requireActivity()
+        activity.previewLayout(data.requireEditor().file!!)
     }
-  }
 
-  override suspend fun execAction(data: ActionData): Boolean {
-    val activity = data.requireActivity()
-    activity.saveAll()
-    return true
-  }
+    private fun EditorHandlerActivity.previewLayout(file: File) {
+        val intent = Intent(this, UIDesignerActivity::class.java)
+        intent.putExtra(UIDesignerActivity.EXTRA_FILE, file.absolutePath)
+        uiDesignerResultLauncher?.launch(intent)
+    }
 
-  override fun postExec(data: ActionData, result: Any) {
-    val activity = data.requireActivity()
-    activity.previewLayout(data.requireEditor().file!!)
-  }
-
-  private fun EditorHandlerActivity.previewLayout(file: File) {
-    val intent = Intent(this, UIDesignerActivity::class.java)
-    intent.putExtra(UIDesignerActivity.EXTRA_FILE, file.absolutePath)
-    uiDesignerResultLauncher?.launch(intent)
-  }
-
-  private fun ActionData.requireEditor(): IDEEditor {
-    return this.getEditor() ?: throw IllegalArgumentException(
-      "An editor instance is required but none was provided")
-  }
+    private fun ActionData.requireEditor(): IDEEditor {
+        return this.getEditor()
+            ?: throw IllegalArgumentException(
+                "An editor instance is required but none was provided"
+            )
+    }
 }

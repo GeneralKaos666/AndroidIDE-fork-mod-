@@ -18,9 +18,9 @@
 package com.itsaky.androidide.shell
 
 import com.itsaky.androidide.utils.Environment
-import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.withContext
 
 /**
  * Process builder for executing commands.
@@ -28,38 +28,33 @@ import kotlin.coroutines.CoroutineContext
  * @author Akash Yadav
  */
 data class ProcessBuilderImpl(
-  override var command: List<String> = emptyList(),
-  override var environment: Map<String, String> = emptyMap(),
-  override var workingDirectory: File? = null,
-  override var redirectErrorStream: Boolean = false
+    override var command: List<String> = emptyList(),
+    override var environment: Map<String, String> = emptyMap(),
+    override var workingDirectory: File? = null,
+    override var redirectErrorStream: Boolean = false,
 ) : IProcessBuilderInternal {
 
-  override fun startAsync(): Process {
-    require(command.isNotEmpty()) {
-      "Cannot start process. No commands provided."
+    override fun startAsync(): Process {
+        require(command.isNotEmpty()) { "Cannot start process. No commands provided." }
+
+        if (workingDirectory == null) {
+            workingDirectory = Environment.HOME
+        }
+
+        require(workingDirectory?.isDirectory == true) { "Working directory does not exist." }
+
+        return ProcessBuilder().run {
+            command(command)
+            directory(workingDirectory)
+            redirectErrorStream(redirectErrorStream)
+            environment().putAll(environment)
+            start()
+        }
     }
 
-    if (workingDirectory == null) {
-      workingDirectory = Environment.HOME
+    override suspend fun start(context: CoroutineContext): Int {
+        return withContext(context) {
+            @Suppress("BlockingMethodInNonBlockingContext") startAsync().waitFor()
+        }
     }
-
-    require(workingDirectory?.isDirectory == true) {
-      "Working directory does not exist."
-    }
-
-    return ProcessBuilder().run {
-      command(command)
-      directory(workingDirectory)
-      redirectErrorStream(redirectErrorStream)
-      environment().putAll(environment)
-      start()
-    }
-  }
-
-  override suspend fun start(context: CoroutineContext): Int {
-    return withContext(context) {
-      @Suppress("BlockingMethodInNonBlockingContext")
-      startAsync().waitFor()
-    }
-  }
 }

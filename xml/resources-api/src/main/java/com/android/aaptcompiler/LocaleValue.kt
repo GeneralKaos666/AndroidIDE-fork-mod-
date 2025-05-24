@@ -24,16 +24,19 @@ class LocaleValue {
         set(word) {
             field = word.lowercase()
         }
+
     // Region should be stored completely as upper case.
     var region: String = ""
         set(word) {
             field = word.uppercase()
         }
+
     // Script needs to start with a capital letter, and the rest needs to be lower case.
     var script: String = ""
         set(word) {
             field = word.replaceFirstChar { it.titlecase() }
         }
+
     // Variant is left as-is.
     var variant: String = ""
 
@@ -51,9 +54,9 @@ class LocaleValue {
 
                 // It's also possible that the region is also set in the next word.
                 if (index + 1 < parts.size) {
-                    val maybeRegion = parts[index+1]
+                    val maybeRegion = parts[index + 1]
                     if (maybeRegion.startsWith('r') && maybeRegion.length == 3) {
-                        region = maybeRegion.substring(1)// skip the 'r'
+                        region = maybeRegion.substring(1) // skip the 'r'
                         // We consumed two parts, so return 2.
                         return 2
                     }
@@ -76,7 +79,8 @@ class LocaleValue {
         if (script.isNotEmpty()) {
             if (script.length > config.localeScript.size) {
                 throw IllegalStateException(
-                    "Locale script '$script' exceeds ${config.localeScript.size} characters.")
+                    "Locale script '$script' exceeds ${config.localeScript.size} characters."
+                )
             }
             script.toByteArray().copyInto(config.localeScript, 0, 0, script.length)
         }
@@ -84,7 +88,8 @@ class LocaleValue {
         if (variant.isNotEmpty()) {
             if (variant.length > config.localeVariant.size) {
                 throw IllegalStateException(
-                    "Locale variant '$variant' exceeds ${config.localeVariant.size} characters.")
+                    "Locale variant '$variant' exceeds ${config.localeVariant.size} characters."
+                )
             }
             variant.toByteArray().copyInto(config.localeVariant, 0, 0, variant.length)
         }
@@ -102,7 +107,8 @@ class LocaleValue {
                 language = subTags[0]
 
                 when (subTags[1].length) {
-                    2, 3 -> region = subTags[1]
+                    2,
+                    3 -> region = subTags[1]
                     4 -> {
                         if (subTags[1][0].isDigit()) {
                             // This is a variant
@@ -121,7 +127,8 @@ class LocaleValue {
 
                 // The second is a script or a region code.
                 when (subTags[1].length) {
-                    2, 3 -> region = subTags[1]
+                    2,
+                    3 -> region = subTags[1]
                     4 -> script = subTags[1]
                     else -> return false
                 }

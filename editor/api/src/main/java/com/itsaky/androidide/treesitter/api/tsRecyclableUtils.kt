@@ -20,12 +20,13 @@ package com.itsaky.androidide.treesitter.api
 import com.itsaky.androidide.utils.RecyclableObjectPool
 
 /**
- * Returns this [RecyclableObjectPool.Recyclable] object to the pool from the [TreeSitterObjectPoolProvider].
+ * Returns this [RecyclableObjectPool.Recyclable] object to the pool from the
+ * [TreeSitterObjectPoolProvider].
  *
  * @see TreeSitterObjectPoolProvider.requirePool
  */
 internal inline fun <reified T : RecyclableObjectPool.Recyclable> T.returnToPool() {
-  TreeSitterObjectPoolProvider.requirePool<T>().recycle(this)
+    TreeSitterObjectPoolProvider.requirePool<T>().recycle(this)
 }
 
 /**
@@ -34,5 +35,5 @@ internal inline fun <reified T : RecyclableObjectPool.Recyclable> T.returnToPool
  * @see TreeSitterObjectPoolProvider.requirePool
  */
 internal inline fun <reified T : RecyclableObjectPool.Recyclable> obtainFromPool(): T {
-  return TreeSitterObjectPoolProvider.requirePool<T>().obtain()
+    return TreeSitterObjectPoolProvider.requirePool<T>().obtain()
 }

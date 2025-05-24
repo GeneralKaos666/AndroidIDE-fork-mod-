@@ -28,31 +28,31 @@ import com.itsaky.androidide.inflater.IViewGroup.OnHierarchyChangeListener
  */
 class ImmutableViewGroupImpl(private val src: IViewGroup) : IViewGroup by src {
 
-  override fun addChild(view: IView) {
-    throw UnsupportedOperationException("Immutable!")
-  }
+    override fun addChild(view: IView) {
+        throw UnsupportedOperationException("Immutable!")
+    }
 
-  override fun addChild(index: Int, view: IView) {
-    throw UnsupportedOperationException("Immutable!")
-  }
+    override fun addChild(index: Int, view: IView) {
+        throw UnsupportedOperationException("Immutable!")
+    }
 
-  override fun removeChild(view: IView) {
-    throw UnsupportedOperationException("Immutable!")
-  }
+    override fun removeChild(view: IView) {
+        throw UnsupportedOperationException("Immutable!")
+    }
 
-  override fun removeChild(index: Int) {
-    throw UnsupportedOperationException("Immutable!")
-  }
+    override fun removeChild(index: Int) {
+        throw UnsupportedOperationException("Immutable!")
+    }
 
-  override fun set(index: Int, view: IView): IView {
-    throw UnsupportedOperationException("Immutable!")
-  }
+    override fun set(index: Int, view: IView): IView {
+        throw UnsupportedOperationException("Immutable!")
+    }
 
-  override fun addOnHierarchyChangeListener(listener: OnHierarchyChangeListener) {
-    throw UnsupportedOperationException("Immutable!")
-  }
+    override fun addOnHierarchyChangeListener(listener: OnHierarchyChangeListener) {
+        throw UnsupportedOperationException("Immutable!")
+    }
 
-  override fun removeOnHierarchyChangeListener(listener: OnHierarchyChangeListener) {
-    throw UnsupportedOperationException("Immutable!")
-  }
+    override fun removeOnHierarchyChangeListener(listener: OnHierarchyChangeListener) {
+        throw UnsupportedOperationException("Immutable!")
+    }
 }

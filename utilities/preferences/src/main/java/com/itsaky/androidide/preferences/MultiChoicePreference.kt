@@ -31,20 +31,17 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  */
 abstract class MultiChoicePreference : ChoiceBasedDialogPreference(), PreferenceChoices {
 
-  override fun onConfigureDialogChoices(
-    preference: Preference,
-    dialog: MaterialAlertDialogBuilder,
-    entries: Array<PreferenceChoices.Entry>,
-    selections: BooleanArray
-  ) {
+    override fun onConfigureDialogChoices(
+        preference: Preference,
+        dialog: MaterialAlertDialogBuilder,
+        entries: Array<PreferenceChoices.Entry>,
+        selections: BooleanArray,
+    ) {
 
-    val labels = Array(entries.size) { entries[it].label }
+        val labels = Array(entries.size) { entries[it].label }
 
-    dialog.setMultiChoiceItems(
-      labels,
-      selections
-    ) { _, which, checked ->
-      onSelectionChanged(preference, entries[which], which, checked)
+        dialog.setMultiChoiceItems(labels, selections) { _, which, checked ->
+            onSelectionChanged(preference, entries[which], which, checked)
+        }
     }
-  }
 }

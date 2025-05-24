@@ -24,32 +24,34 @@ import com.itsaky.androidide.templates.base.util.SourceWriter
 import com.itsaky.androidide.templates.base.util.withXmlDecl
 
 internal inline fun AndroidModuleTemplateBuilder.writeMainActivity(
-  writer: SourceWriter, crossinline ktSrc: () -> String, crossinline javaSrc: () -> String
+    writer: SourceWriter,
+    crossinline ktSrc: () -> String,
+    crossinline javaSrc: () -> String,
 ) {
-  val className = "MainActivity"
-  writer.apply {
-    if (data.language == Language.Kotlin) {
-      val src = ktSrc()
-      if (src.isNotBlank()) {
-        writeKtSrc(data.packageName, className, source = src)
-      }
-    } else {
-      val src = javaSrc()
-      if (src.isNotBlank()) {
-        writeJavaSrc(packageName = data.packageName, className = className,
-          source = src)
-      }
+    val className = "MainActivity"
+    writer.apply {
+        if (data.language == Language.Kotlin) {
+            val src = ktSrc()
+            if (src.isNotBlank()) {
+                writeKtSrc(data.packageName, className, source = src)
+            }
+        } else {
+            val src = javaSrc()
+            if (src.isNotBlank()) {
+                writeJavaSrc(packageName = data.packageName, className = className, source = src)
+            }
+        }
     }
-  }
 
-  manifest {
-    addActivity(
-      ManifestActivity(name = className, isExported = true, isLauncher = true))
-  }
+    manifest {
+        addActivity(ManifestActivity(name = className, isExported = true, isLauncher = true))
+    }
 }
 
 internal fun emptyValuesFile(): String {
-  return """
+    return """
 <resources></resources>
-  """.trim().withXmlDecl()
+  """
+        .trim()
+        .withXmlDecl()
 }

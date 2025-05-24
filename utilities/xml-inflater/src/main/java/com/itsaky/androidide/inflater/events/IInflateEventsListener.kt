@@ -24,10 +24,10 @@ package com.itsaky.androidide.inflater.events
  */
 interface IInflateEventsListener {
 
-  /**
-   * Called when an event occurs. The [event] parameter contains more information about the event.
-   *
-   * @param event The event.
-   */
-  fun onEvent(event: IInflationEvent<*>)
+    /**
+     * Called when an event occurs. The [event] parameter contains more information about the event.
+     *
+     * @param event The event.
+     */
+    fun onEvent(event: IInflationEvent<*>)
 }

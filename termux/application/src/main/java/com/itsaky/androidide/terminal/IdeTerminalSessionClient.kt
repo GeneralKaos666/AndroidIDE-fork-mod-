@@ -27,19 +27,18 @@ import com.termux.terminal.TerminalSessionClient
  *
  * @author Akash Yadav
  */
-class IdeTerminalSessionClient(
-  activity: TerminalActivity
-) : TermuxTerminalSessionActivityClient(activity) {
+class IdeTerminalSessionClient(activity: TerminalActivity) :
+    TermuxTerminalSessionActivityClient(activity) {
 
-  override fun onSessionFinished(finishedSession: TerminalSession) {
-    val termuxSession = mActivity?.termuxService?.getTermuxSessionForTerminalSession(
-      finishedSession)
-    if (termuxSession != null && termuxSession is IdesetupSession) {
-      // if the finished session was performing tools installation
-      // then set the result code for the installation process
-      mActivity.setResult(finishedSession.exitStatus)
+    override fun onSessionFinished(finishedSession: TerminalSession) {
+        val termuxSession =
+            mActivity?.termuxService?.getTermuxSessionForTerminalSession(finishedSession)
+        if (termuxSession != null && termuxSession is IdesetupSession) {
+            // if the finished session was performing tools installation
+            // then set the result code for the installation process
+            mActivity.setResult(finishedSession.exitStatus)
+        }
+
+        super.onSessionFinished(finishedSession)
     }
-
-    super.onSessionFinished(finishedSession)
-  }
 }

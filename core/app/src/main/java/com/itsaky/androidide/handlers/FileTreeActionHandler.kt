@@ -36,10 +36,10 @@ import com.itsaky.androidide.utils.ApkInstaller
 import com.itsaky.androidide.utils.InstallationResultHandler
 import com.itsaky.androidide.utils.flashError
 import com.unnamed.b.atv.model.TreeNode
+import java.io.File
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode.MAIN
-import java.io.File
 
 /**
  * Handles events related to files in filetree.
@@ -49,118 +49,121 @@ import java.io.File
 @Suppress("unused")
 class FileTreeActionHandler : BaseEventHandler() {
 
-  private var lastHeld: TreeNode? = null
+    private var lastHeld: TreeNode? = null
 
-  companion object {
+    companion object {
 
-    const val TAG_FILE_OPTIONS_FRAGMENT = "file_options_fragment"
-    const val MB_10: Long = 10 * 1024 * 1024
-  }
-
-  @Subscribe(threadMode = MAIN)
-  fun onFileClicked(event: FileClickEvent) {
-    if (!checkIsEditorActivity(event)) {
-      logCannotHandle(event)
-      return
+        const val TAG_FILE_OPTIONS_FRAGMENT = "file_options_fragment"
+        const val MB_10: Long = 10 * 1024 * 1024
     }
 
-    if (event.file.isDirectory) {
-      return
+    @Subscribe(threadMode = MAIN)
+    fun onFileClicked(event: FileClickEvent) {
+        if (!checkIsEditorActivity(event)) {
+            logCannotHandle(event)
+            return
+        }
+
+        if (event.file.isDirectory) {
+            return
+        }
+
+        val context = event[Context::class.java]!! as EditorHandlerActivity
+        context.binding.root.closeDrawer(GravityCompat.START)
+        if (event.file.name.endsWith(".apk")) {
+            ApkInstaller.installApk(
+                context,
+                InstallationResultHandler.createEditorActivitySender(context),
+                event.file,
+                context.installationSessionCallback(),
+            )
+            return
+        }
+
+        if (MB_10 < event.file.length()) {
+            flashError("File is too big!")
+            log.warn(
+                "Cannot open {} as it is too big. File size: {} bytes",
+                event.file,
+                event.file.length(),
+            )
+            return
+        }
+
+        context.openFile(event.file)
     }
 
-    val context = event[Context::class.java]!! as EditorHandlerActivity
-    context.binding.root.closeDrawer(GravityCompat.START)
-    if (event.file.name.endsWith(".apk")) {
-      ApkInstaller.installApk(
-        context,
-        InstallationResultHandler.createEditorActivitySender(context),
-        event.file,
-        context.installationSessionCallback()
-      )
-      return
+    @Subscribe(threadMode = MAIN)
+    fun onFileLongClicked(event: FileLongClickEvent) {
+        if (!checkIsEditorActivity(event)) {
+            logCannotHandle(event)
+            return
+        }
+
+        this.lastHeld = event[TreeNode::class.java]
+        val context = event[Context::class.java]!! as EditorHandlerActivity
+        createFileOptionsFragment(context, event.file)
+            .show(context.supportFragmentManager, TAG_FILE_OPTIONS_FRAGMENT)
     }
 
-    if (MB_10 < event.file.length()) {
-      flashError("File is too big!")
-      log.warn(
-        "Cannot open {} as it is too big. File size: {} bytes", event.file, event.file.length())
-      return
+    private fun createFileOptionsFragment(
+        context: EditorHandlerActivity,
+        file: File,
+    ): OptionsListFragment {
+        val fragment = OptionsListFragment()
+        val registry = ActionsRegistry.getInstance()
+        val actions = registry.getActions(EDITOR_FILE_TREE)
+        val data = ActionData()
+        data.apply {
+            put(Context::class.java, context)
+            put(File::class.java, file)
+            put(TreeNode::class.java, lastHeld)
+        }
+
+        for (action in actions.values) {
+
+            check(action !is ActionMenu) { "File tree actions do not support action menus" }
+
+            action.prepare(data)
+            if (!action.enabled || !action.visible) {
+                continue
+            }
+
+            fragment.addOption(
+                SheetOption(action.id, action.icon, action.label, file).apply { this.extra = data }
+            )
+        }
+
+        return fragment
     }
 
-    context.openFile(event.file)
-  }
+    @Subscribe(threadMode = MAIN)
+    internal fun onFileOptionClicked(event: FileContextMenuItemClickEvent) {
+        val option = event.option
+        if (option.extra !is ActionData) {
+            return
+        }
 
-  @Subscribe(threadMode = MAIN)
-  fun onFileLongClicked(event: FileLongClickEvent) {
-    if (!checkIsEditorActivity(event)) {
-      logCannotHandle(event)
-      return
+        val data = option.extra!! as ActionData
+        val registry = ActionsRegistry.getInstance() as DefaultActionsRegistry
+        val action = registry.findAction(EDITOR_FILE_TREE, option.id)
+
+        checkNotNull(action) {
+            "Invalid FileContextMenuItemClickEvent received. No action item registered with id '${option.id}'"
+        }
+
+        registry.executeAction(action, data)
     }
 
-    this.lastHeld = event[TreeNode::class.java]
-    val context = event[Context::class.java]!! as EditorHandlerActivity
-    createFileOptionsFragment(context, event.file)
-      .show(context.supportFragmentManager, TAG_FILE_OPTIONS_FRAGMENT)
-  }
-
-  private fun createFileOptionsFragment(
-    context: EditorHandlerActivity,
-    file: File
-  ): OptionsListFragment {
-    val fragment = OptionsListFragment()
-    val registry = ActionsRegistry.getInstance()
-    val actions = registry.getActions(EDITOR_FILE_TREE)
-    val data = ActionData()
-    data.apply {
-      put(Context::class.java, context)
-      put(File::class.java, file)
-      put(TreeNode::class.java, lastHeld)
+    private fun requestFileListing() {
+        EventBus.getDefault().post(ListProjectFilesRequestEvent())
     }
 
-    for (action in actions.values) {
-
-      check(action !is ActionMenu) { "File tree actions do not support action menus" }
-
-      action.prepare(data)
-      if (!action.enabled || !action.visible) {
-        continue
-      }
-
-      fragment.addOption(
-        SheetOption(action.id, action.icon, action.label, file).apply { this.extra = data }
-      )
+    private fun requestExpandHeldNode() {
+        requestExpandNode(lastHeld!!)
     }
 
-    return fragment
-  }
-
-  @Subscribe(threadMode = MAIN)
-  internal fun onFileOptionClicked(event: FileContextMenuItemClickEvent) {
-    val option = event.option
-    if (option.extra !is ActionData) {
-      return
+    private fun requestExpandNode(node: TreeNode) {
+        EventBus.getDefault().post(ExpandTreeNodeRequestEvent(node))
     }
-
-    val data = option.extra!! as ActionData
-    val registry = ActionsRegistry.getInstance() as DefaultActionsRegistry
-    val action = registry.findAction(EDITOR_FILE_TREE, option.id)
-
-    checkNotNull(action) {
-      "Invalid FileContextMenuItemClickEvent received. No action item registered with id '${option.id}'"
-    }
-
-    registry.executeAction(action, data)
-  }
-
-  private fun requestFileListing() {
-    EventBus.getDefault().post(ListProjectFilesRequestEvent())
-  }
-
-  private fun requestExpandHeldNode() {
-    requestExpandNode(lastHeld!!)
-  }
-
-  private fun requestExpandNode(node: TreeNode) {
-    EventBus.getDefault().post(ExpandTreeNodeRequestEvent(node))
-  }
 }

@@ -23,9 +23,9 @@ import com.itsaky.androidide.lsp.java.utils.FindHelper
 import com.itsaky.androidide.models.Location
 import com.itsaky.androidide.models.Position
 import com.itsaky.androidide.progress.ICancelChecker
+import java.nio.file.Path
 import jdkx.lang.model.element.Element
 import openjdk.source.util.Trees
-import java.nio.file.Path
 
 /**
  * Provides definition for local elements.
@@ -33,28 +33,32 @@ import java.nio.file.Path
  * @author Akash Yadav
  */
 class LocalDefinitionProvider(
-  position: Position,
-  completingFile: Path,
-  compiler: JavaCompilerService,
-  settings: IServerSettings, cancelChecker: ICancelChecker,
+    position: Position,
+    completingFile: Path,
+    compiler: JavaCompilerService,
+    settings: IServerSettings,
+    cancelChecker: ICancelChecker,
 ) : IJavaDefinitionProvider(position, completingFile, compiler, settings, cancelChecker) {
 
-  override fun doFindDefinition(element: Element): List<Location> {
-    return compiler.compile(file).get {
-      val trees = Trees.instance(it.task)
-      val path = trees.getPath(element)
-      if (path == null) {
-        log.error("TreePath of element is null. Cannot find definition. Element is {}", element)
-        return@get emptyList<Location>()
-      }
+    override fun doFindDefinition(element: Element): List<Location> {
+        return compiler.compile(file).get {
+            val trees = Trees.instance(it.task)
+            val path = trees.getPath(element)
+            if (path == null) {
+                log.error(
+                    "TreePath of element is null. Cannot find definition. Element is {}",
+                    element,
+                )
+                return@get emptyList<Location>()
+            }
 
-      var name = element.simpleName
-      if (name.contentEquals("<init>")) {
-        name = element.enclosingElement.simpleName
-      }
+            var name = element.simpleName
+            if (name.contentEquals("<init>")) {
+                name = element.enclosingElement.simpleName
+            }
 
-      abortIfCancelled()
-      return@get listOf(FindHelper.location(it, path, name))
+            abortIfCancelled()
+            return@get listOf(FindHelper.location(it, path, name))
+        }
     }
-  }
 }

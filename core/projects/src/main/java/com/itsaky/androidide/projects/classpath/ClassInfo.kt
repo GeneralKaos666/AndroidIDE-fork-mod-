@@ -25,56 +25,64 @@ package com.itsaky.androidide.projects.classpath
 @Suppress("DataClassPrivateConstructor")
 data class ClassInfo
 private constructor(
-  val name: String,
-  val simpleName: String,
-  val packageName: String,
-  val isTopLevel: Boolean,
-  val isAnonymous: Boolean,
-  val isLocal: Boolean,
-  val isInner: Boolean
+    val name: String,
+    val simpleName: String,
+    val packageName: String,
+    val isTopLevel: Boolean,
+    val isAnonymous: Boolean,
+    val isLocal: Boolean,
+    val isInner: Boolean,
 ) {
 
-  companion object {
+    companion object {
 
-    @JvmStatic
-    fun create(name: String): ClassInfo? {
-      val isTopLevel = name.indexOf('$') == -1
+        @JvmStatic
+        fun create(name: String): ClassInfo? {
+            val isTopLevel = name.indexOf('$') == -1
 
-      val simpleName =
-        if (!isTopLevel) {
-          name.substringAfterLast('$')
-        } else if (name.indexOf('.') != -1) {
-          name.substringAfterLast('.')
-        } else {
-          name
+            val simpleName =
+                if (!isTopLevel) {
+                    name.substringAfterLast('$')
+                } else if (name.indexOf('.') != -1) {
+                    name.substringAfterLast('.')
+                } else {
+                    name
+                }
+
+            if (simpleName.isBlank()) {
+                return null
+            }
+
+            val packageName =
+                if (name.contains('.')) {
+                    name.substringBeforeLast('.')
+                } else {
+                    name
+                }
+
+            val isAnonymous = simpleName.isDigitsOnly()
+            val isLocal = simpleName[0].isDigit() && simpleName.contains(Regex("[A-Za-z]"))
+            val isInner = !isTopLevel && !isLocal && !isAnonymous
+
+            return ClassInfo(
+                name,
+                simpleName,
+                packageName,
+                isTopLevel,
+                isAnonymous,
+                isLocal,
+                isInner,
+            )
         }
 
-      if (simpleName.isBlank()) {
-        return null
-      }
+        private fun CharSequence.isDigitsOnly(): Boolean {
+            for (char in this) {
+                if (!char.isDigit()) {
+                    return false
+                }
+            }
 
-      val packageName =
-        if (name.contains('.')) {
-          name.substringBeforeLast('.')
-        } else {
-          name
+            return true
         }
-
-      val isAnonymous = simpleName.isDigitsOnly()
-      val isLocal = simpleName[0].isDigit() && simpleName.contains(Regex("[A-Za-z]"))
-      val isInner = !isTopLevel && !isLocal && !isAnonymous
-
-      return ClassInfo(name, simpleName, packageName, isTopLevel, isAnonymous, isLocal, isInner)
     }
-
-    private fun CharSequence.isDigitsOnly(): Boolean {
-      for (char in this) {
-        if (!char.isDigit()) {
-          return false
-        }
-      }
-
-      return true
-    }
-  }
 }

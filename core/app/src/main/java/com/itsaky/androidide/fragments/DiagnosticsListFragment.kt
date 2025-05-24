@@ -24,12 +24,12 @@ import com.itsaky.androidide.adapters.DiagnosticsAdapter
 
 class DiagnosticsListFragment : RecyclerViewFragment<DiagnosticsAdapter>() {
 
-  override fun onCreateAdapter(): RecyclerView.Adapter<*> {
-    return DiagnosticsAdapter(ArrayList(), null)
-  }
+    override fun onCreateAdapter(): RecyclerView.Adapter<*> {
+        return DiagnosticsAdapter(ArrayList(), null)
+    }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    emptyStateViewModel.emptyMessage.value = getString(R.string.msg_emptyview_diagnostics)
-  }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        emptyStateViewModel.emptyMessage.value = getString(R.string.msg_emptyview_diagnostics)
+    }
 }

@@ -30,23 +30,23 @@ import com.itsaky.androidide.resources.R
  * @author Akash Yadav
  */
 class FormatCodeAction(context: Context, override val order: Int) : EditorRelatedAction() {
-  override val id: String = "ide.editor.code.text.format"
-  override var location: ActionItem.Location = ActionItem.Location.EDITOR_TEXT_ACTIONS
+    override val id: String = "ide.editor.code.text.format"
+    override var location: ActionItem.Location = ActionItem.Location.EDITOR_TEXT_ACTIONS
 
-  init {
-    label = context.getString(R.string.title_format_code)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_format_code)
-  }
-
-  override suspend fun execAction(data: ActionData): Any {
-    val editor = data.getEditor()!!
-    val cursor = editor.text.cursor
-
-    if (cursor.isSelected) {
-      editor.formatCodeAsync(cursor.left(), cursor.right())
-    } else {
-      editor.formatCodeAsync()
+    init {
+        label = context.getString(R.string.title_format_code)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_format_code)
     }
-    return true
-  }
+
+    override suspend fun execAction(data: ActionData): Any {
+        val editor = data.getEditor()!!
+        val cursor = editor.text.cursor
+
+        if (cursor.isSelected) {
+            editor.formatCodeAsync(cursor.left(), cursor.right())
+        } else {
+            editor.formatCodeAsync()
+        }
+        return true
+    }
 }

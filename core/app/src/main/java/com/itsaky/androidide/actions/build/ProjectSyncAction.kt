@@ -31,20 +31,20 @@ import com.itsaky.androidide.resources.R.string
  */
 class ProjectSyncAction(context: Context, override val order: Int) : BaseBuildAction() {
 
-  override val id: String = "ide.editor.syncProject"
-  override var requiresUIThread = false
+    override val id: String = "ide.editor.syncProject"
+    override var requiresUIThread = false
 
-  init {
-    label = context.getString(string.title_sync_project)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_sync)
-  }
+    init {
+        label = context.getString(string.title_sync_project)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_sync)
+    }
 
-  override suspend fun execAction(data: ActionData): Any {
-    return data.requireActivity().saveAll(requestSync = false)
-  }
+    override suspend fun execAction(data: ActionData): Any {
+        return data.requireActivity().saveAll(requestSync = false)
+    }
 
-  override fun postExec(data: ActionData, result: Any) {
-    val activity = data.requireActivity()
-    activity.initializeProject()
-  }
+    override fun postExec(data: ActionData, result: Any) {
+        val activity = data.requireActivity()
+        activity.initializeProject()
+    }
 }

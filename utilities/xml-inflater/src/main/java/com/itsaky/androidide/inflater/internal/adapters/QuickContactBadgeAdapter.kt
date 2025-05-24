@@ -33,13 +33,13 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(QuickContactBadge::class)
 @IncludeInDesigner(group = WIDGETS)
 open class QuickContactBadgeAdapter<T : QuickContactBadge> : ImageViewAdapter<T>() {
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(
-        QuickContactBadge::class.java,
-        string.widget_quick_contact_badge,
-        drawable.ic_widget_quick_contact_badge
-      )
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                QuickContactBadge::class.java,
+                string.widget_quick_contact_badge,
+                drawable.ic_widget_quick_contact_badge,
+            )
+        )
+    }
 }

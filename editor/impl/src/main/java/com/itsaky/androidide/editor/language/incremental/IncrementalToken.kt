@@ -28,21 +28,33 @@ import org.antlr.v4.runtime.TokenSource
  */
 class IncrementalToken(val token: Token) : Token {
 
-  @JvmField var type = token.type
-  @JvmField var startIndex = token.startIndex
-  @JvmField var incomplete = false
+    @JvmField var type = token.type
+    @JvmField var startIndex = token.startIndex
+    @JvmField var incomplete = false
 
-  override fun getText(): String = token.text
-  override fun getType() = type
-  override fun getLine() = token.line
-  override fun getCharPositionInLine() = token.charPositionInLine
-  override fun getChannel() = token.channel
-  override fun getTokenIndex() = token.tokenIndex
-  override fun getStartIndex() = startIndex
-  override fun getStopIndex() = token.stopIndex
-  override fun getTokenSource(): TokenSource = token.tokenSource
-  override fun getInputStream(): CharStream = token.inputStream
-  override fun equals(other: Any?) = token == other
-  override fun hashCode() = token.hashCode()
-  override fun toString() = token.toString()
+    override fun getText(): String = token.text
+
+    override fun getType() = type
+
+    override fun getLine() = token.line
+
+    override fun getCharPositionInLine() = token.charPositionInLine
+
+    override fun getChannel() = token.channel
+
+    override fun getTokenIndex() = token.tokenIndex
+
+    override fun getStartIndex() = startIndex
+
+    override fun getStopIndex() = token.stopIndex
+
+    override fun getTokenSource(): TokenSource = token.tokenSource
+
+    override fun getInputStream(): CharStream = token.inputStream
+
+    override fun equals(other: Any?) = token == other
+
+    override fun hashCode() = token.hashCode()
+
+    override fun toString() = token.toString()
 }

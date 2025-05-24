@@ -33,86 +33,88 @@ import io.github.rosemoe.sora.text.TextRange
  * @author Akash Yadav
  */
 class LSPFormatter(val server: ILanguageServer? = null) : AsyncFormatter() {
-  
-  override fun formatAsync(text: Content, cursorRange: TextRange): TextRange {
-    return doFormat(text, cursorRange)
-  }
 
-  override fun formatRegionAsync(
-    text: Content,
-    rangeToFormat: TextRange,
-    cursorRange: TextRange
-  ): TextRange {
-    return doFormat(text, cursorRange, rangeToFormat)
-  }
-
-  private fun doFormat(
-    text: Content,
-    cursorRange: TextRange,
-    rangeToFormat: TextRange? = null
-  ): TextRange {
-    if (server == null) {
-      return cursorRange
+    override fun formatAsync(text: Content, cursorRange: TextRange): TextRange {
+        return doFormat(text, cursorRange)
     }
 
-    val range =
-      (rangeToFormat?.asRange() ?: text.wholeRange()).apply {
-        start.apply {
-          index = (if (line == 0 && column == 0) 0 else text.getCharIndex(line, column))
+    override fun formatRegionAsync(
+        text: Content,
+        rangeToFormat: TextRange,
+        cursorRange: TextRange,
+    ): TextRange {
+        return doFormat(text, cursorRange, rangeToFormat)
+    }
+
+    private fun doFormat(
+        text: Content,
+        cursorRange: TextRange,
+        rangeToFormat: TextRange? = null,
+    ): TextRange {
+        if (server == null) {
+            return cursorRange
         }
-        end.apply { index = (if (line == 0 && column == 0) 0 else text.getCharIndex(line, column)) }
-      }
-    val result = server.formatCode(FormatCodeParams(text, range))
 
-    if (!result.hasEdits() ) {
-      // Deselect the selected content
-      return TextRange(cursorRange.start, cursorRange.start)
-    }
+        val range =
+            (rangeToFormat?.asRange() ?: text.wholeRange()).apply {
+                start.apply {
+                    index = (if (line == 0 && column == 0) 0 else text.getCharIndex(line, column))
+                }
+                end.apply {
+                    index = (if (line == 0 && column == 0) 0 else text.getCharIndex(line, column))
+                }
+            }
+        val result = server.formatCode(FormatCodeParams(text, range))
 
-    if (result.isIndexed) {
-      result.indexedTextEdits.forEach { text.replace(it.start, it.end, it.newText) }
-    } else {
-      result.edits.forEach {
-        text.replace(
-          it.range.start.line,
-          it.range.start.column,
-          it.range.end.line,
-          it.range.end.column,
-          it.newText
-        )
-      }
+        if (!result.hasEdits()) {
+            // Deselect the selected content
+            return TextRange(cursorRange.start, cursorRange.start)
+        }
+
+        if (result.isIndexed) {
+            result.indexedTextEdits.forEach { text.replace(it.start, it.end, it.newText) }
+        } else {
+            result.edits.forEach {
+                text.replace(
+                    it.range.start.line,
+                    it.range.start.column,
+                    it.range.end.line,
+                    it.range.end.column,
+                    it.newText,
+                )
+            }
+        }
+        // Deselect the selected content
+        return TextRange(cursorRange.start, cursorRange.start)
     }
-    // Deselect the selected content
-    return TextRange(cursorRange.start, cursorRange.start)
-  }
 }
 
 private fun CodeFormatResult.hasEdits() =
-  this.indexedTextEdits.isNotEmpty() || this.edits.isNotEmpty()
+    this.indexedTextEdits.isNotEmpty() || this.edits.isNotEmpty()
 
 private fun TextRange.asRange(): Range {
-  return Range().also {
-    it.start = this.start.asPosition()
-    it.end = this.end.asPosition()
-  }
+    return Range().also {
+        it.start = this.start.asPosition()
+        it.end = this.end.asPosition()
+    }
 }
 
 private fun Content.wholeRange(): Range {
-  return Range(Position(0, 0), Position(lineCount - 1, getColumnCount(lineCount - 1)))
+    return Range(Position(0, 0), Position(lineCount - 1, getColumnCount(lineCount - 1)))
 }
 
 private fun CharPosition.asPosition(): Position {
-  return Position(this.line, this.column, this.index)
+    return Position(this.line, this.column, this.index)
 }
 
 private fun Range.asTextRange(): TextRange {
-  return TextRange(this.start.asCharPosition(), this.end.asCharPosition())
+    return TextRange(this.start.asCharPosition(), this.end.asCharPosition())
 }
 
 private fun Position.asCharPosition(): CharPosition {
-  return CharPosition().also {
-    it.line = this.line
-    it.column = this.column
-    it.index = this.index
-  }
+    return CharPosition().also {
+        it.line = this.line
+        it.column = this.column
+        it.index = this.index
+    }
 }

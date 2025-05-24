@@ -35,6 +35,7 @@ import com.itsaky.androidide.projects.IProjectManager
 import com.itsaky.androidide.resources.R.string
 import com.itsaky.androidide.utils.flashError
 import io.github.rosemoe.sora.widget.CodeEditor
+import java.util.concurrent.CompletableFuture
 import openjdk.source.tree.ClassTree
 import openjdk.source.tree.VariableTree
 import openjdk.source.util.TreePath
@@ -46,7 +47,6 @@ import openjdk.tools.javac.tree.JCTree
 import openjdk.tools.javac.tree.TreeInfo
 import openjdk.tools.javac.util.ListBuffer
 import org.slf4j.LoggerFactory
-import java.util.concurrent.CompletableFuture
 
 /**
  * Allows the user to select fields and generate a constructor which has parameters same as the
@@ -58,121 +58,127 @@ import java.util.concurrent.CompletableFuture
  */
 class GenerateConstructorAction : FieldBasedAction() {
 
-  override val titleTextRes: Int = string.action_generate_constructor
-  override val id: String = "ide.editor.lsp.java.generator.constructor"
-  override var label: String = ""
+    override val titleTextRes: Int = string.action_generate_constructor
+    override val id: String = "ide.editor.lsp.java.generator.constructor"
+    override var label: String = ""
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(GenerateConstructorAction::class.java)
-  }
+        private val log = LoggerFactory.getLogger(GenerateConstructorAction::class.java)
+    }
 
-  override fun onGetFields(fields: List<String>, data: ActionData) {
-    showFieldSelector(fields, data) { selected ->
-      CompletableFuture.runAsync { generateConstructor(data, selected) }
-        .whenComplete { _, error ->
-          if (error != null) {
-            log.error("Unable to generate constructor for the selected fields", error)
-            flashError(string.msg_cannot_generate_constructor)
-          }
+    override fun onGetFields(fields: List<String>, data: ActionData) {
+        showFieldSelector(fields, data) { selected ->
+            CompletableFuture.runAsync { generateConstructor(data, selected) }
+                .whenComplete { _, error ->
+                    if (error != null) {
+                        log.error("Unable to generate constructor for the selected fields", error)
+                        flashError(string.msg_cannot_generate_constructor)
+                    }
+                }
         }
     }
-  }
 
-  private fun generateConstructor(data: ActionData, selected: MutableSet<String>) {
-    val compiler =
-      JavaCompilerProvider.get(
-        IProjectManager.getInstance().getWorkspace()?.findModuleForFile(data.requireFile(), false)
-          ?: return
-      )
-    val range = data[com.itsaky.androidide.models.Range::class.java]!!
-    val file = data.requirePath()
+    private fun generateConstructor(data: ActionData, selected: MutableSet<String>) {
+        val compiler =
+            JavaCompilerProvider.get(
+                IProjectManager.getInstance()
+                    .getWorkspace()
+                    ?.findModuleForFile(data.requireFile(), false) ?: return
+            )
+        val range = data[com.itsaky.androidide.models.Range::class.java]!!
+        val file = data.requirePath()
 
-    compiler.compile(file).run { task ->
-      val triple = findFields(task, file, range)
-      val typeFinder = triple.first
-      val type = triple.second
-      val fields = triple.third
+        compiler.compile(file).run { task ->
+            val triple = findFields(task, file, range)
+            val typeFinder = triple.first
+            val type = triple.second
+            val fields = triple.third
 
-      fields.removeIf { !selected.contains("${it.name}: ${it.type}") }
+            fields.removeIf { !selected.contains("${it.name}: ${it.type}") }
 
-      log.debug("Creating toString() method with fields: {}", fields.map { it.name })
+            log.debug("Creating toString() method with fields: {}", fields.map { it.name })
 
-      generateForFields(data, task, type, fields.map { TreePath(typeFinder.path, it) })
-    }
-  }
-
-  private fun generateForFields(
-    data: ActionData,
-    task: CompileTask,
-    type: ClassTree,
-    paths: List<TreePath>
-  ) {
-    val editor = data[CodeEditor::class.java]!!
-    val trees = JavacTrees.instance(task.task)
-    val sym = TreeInfo.symbolFor(type as JCTree) as ClassSymbol
-    val varTypes = mapTypes(paths)
-    val varNames = paths.map { it.leaf as VariableTree }.map { it.name.toString() }
-
-    if (paths.isEmpty() || trees.findConstructor(sym, varTypes) != null) {
-      log.warn(
-        "A constructor with same parameter types is already available in class {}", type.simpleName
-      )
-      flashError(data[Context::class.java]!!.getString(string.msg_constructor_available))
-      return
+            generateForFields(data, task, type, fields.map { TreePath(typeFinder.path, it) })
+        }
     }
 
-    val stopWatch = com.itsaky.androidide.utils.StopWatch("generateConstructorForFields()")
-    val constructor =
-      newConstructor(type.simpleName.toString(), varTypes.toTypedArray(), varNames.toTypedArray())
-    val body = constructor.createBody()
-    for (varName in varNames) {
-      body.addStatement(StaticJavaParser.parseStatement("this.$varName = $varName;"))
+    private fun generateForFields(
+        data: ActionData,
+        task: CompileTask,
+        type: ClassTree,
+        paths: List<TreePath>,
+    ) {
+        val editor = data[CodeEditor::class.java]!!
+        val trees = JavacTrees.instance(task.task)
+        val sym = TreeInfo.symbolFor(type as JCTree) as ClassSymbol
+        val varTypes = mapTypes(paths)
+        val varNames = paths.map { it.leaf as VariableTree }.map { it.name.toString() }
+
+        if (paths.isEmpty() || trees.findConstructor(sym, varTypes) != null) {
+            log.warn(
+                "A constructor with same parameter types is already available in class {}",
+                type.simpleName,
+            )
+            flashError(data[Context::class.java]!!.getString(string.msg_constructor_available))
+            return
+        }
+
+        val stopWatch = com.itsaky.androidide.utils.StopWatch("generateConstructorForFields()")
+        val constructor =
+            newConstructor(
+                type.simpleName.toString(),
+                varTypes.toTypedArray(),
+                varNames.toTypedArray(),
+            )
+        val body = constructor.createBody()
+        for (varName in varNames) {
+            body.addStatement(StaticJavaParser.parseStatement("this.$varName = $varName;"))
+        }
+
+        stopWatch.lap("Constructor generated")
+        log.info("Inserting constructor into editor...")
+
+        val insertAt = EditHelper.insertAfter(task.task, task.root(), paths.last().leaf)
+        val indent = EditHelper.indent(task.task, task.root(), paths.last().leaf)
+        var text = constructor.toString()
+        text = text.replace("\n", "\n${indentationString(indent)}")
+        text += "\n"
+
+        ThreadUtils.runOnUiThread {
+            editor.text.insert(insertAt.line, insertAt.column, text)
+            editor.formatCodeAsync()
+            stopWatch.log()
+        }
     }
 
-    stopWatch.lap("Constructor generated")
-    log.info("Inserting constructor into editor...")
+    private fun newConstructor(
+        name: String,
+        paramTypes: Array<Type>,
+        paramNames: Array<String>,
+    ): ConstructorDeclaration {
+        val constructor = ConstructorDeclaration()
+        constructor.setName(name)
+        constructor.addModifier(Modifier.Keyword.PUBLIC)
 
-    val insertAt = EditHelper.insertAfter(task.task, task.root(), paths.last().leaf)
-    val indent = EditHelper.indent(task.task, task.root(), paths.last().leaf)
-    var text = constructor.toString()
-    text = text.replace("\n", "\n${indentationString(indent)}")
-    text += "\n"
+        for (i in paramTypes.indices) {
+            val paramType = paramTypes[i]
+            val paramName = paramNames[i]
 
-    ThreadUtils.runOnUiThread {
-      editor.text.insert(insertAt.line, insertAt.column, text)
-      editor.formatCodeAsync()
-      stopWatch.log()
-    }
-  }
+            constructor.addParameter(NO_PACKAGE.print(paramType), paramName)
+        }
 
-  private fun newConstructor(
-    name: String,
-    paramTypes: Array<Type>,
-    paramNames: Array<String>
-  ): ConstructorDeclaration {
-    val constructor = ConstructorDeclaration()
-    constructor.setName(name)
-    constructor.addModifier(Modifier.Keyword.PUBLIC)
-
-    for (i in paramTypes.indices) {
-      val paramType = paramTypes[i]
-      val paramName = paramNames[i]
-
-      constructor.addParameter(NO_PACKAGE.print(paramType), paramName)
+        return constructor
     }
 
-    return constructor
-  }
+    private fun mapTypes(paths: List<TreePath>): openjdk.tools.javac.util.List<Type> {
+        val buffer = ListBuffer<Type>()
+        for (path in paths) {
+            val leaf = path.leaf
+            val sym = TreeInfo.symbolFor(leaf as JCTree) as VarSymbol
+            buffer.add(sym.type)
+        }
 
-  private fun mapTypes(paths: List<TreePath>): openjdk.tools.javac.util.List<Type> {
-    val buffer = ListBuffer<Type>()
-    for (path in paths) {
-      val leaf = path.leaf
-      val sym = TreeInfo.symbolFor(leaf as JCTree) as VarSymbol
-      buffer.add(sym.type)
+        return buffer.toList()
     }
-
-    return buffer.toList()
-  }
 }

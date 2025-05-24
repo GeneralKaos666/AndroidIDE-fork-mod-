@@ -29,38 +29,38 @@ import java.io.File
  * @author Akash Yadav
  */
 class AndroidProjectMetadata(
-  name: String?,
-  path: String,
-  projectDir: File,
-  buildDir: File,
-  description: String?,
-  buildScript: File,
-  type: ProjectType,
-  val androidType: AndroidProjectType,
-  val flags: DefaultAndroidGradlePluginProjectFlags,
-  val javaCompileOptions: DefaultJavaCompileOptions,
-  val viewBindingOptions: DefaultViewBindingOptions,
-  val resourcePrefix: String?,
-  val namespace: String?,
-  val androidTestNamespace: String?,
-  val testFixtureNamespace: String?,
-  override val classesJar: File?
-) : ProjectMetadata(name, path, projectDir, buildDir, description, buildScript, type),
-  IModuleMetadata {
+    name: String?,
+    path: String,
+    projectDir: File,
+    buildDir: File,
+    description: String?,
+    buildScript: File,
+    type: ProjectType,
+    val androidType: AndroidProjectType,
+    val flags: DefaultAndroidGradlePluginProjectFlags,
+    val javaCompileOptions: DefaultJavaCompileOptions,
+    val viewBindingOptions: DefaultViewBindingOptions,
+    val resourcePrefix: String?,
+    val namespace: String?,
+    val androidTestNamespace: String?,
+    val testFixtureNamespace: String?,
+    override val classesJar: File?,
+) :
+    ProjectMetadata(name, path, projectDir, buildDir, description, buildScript, type),
+    IModuleMetadata {
 
-  constructor(
-    base: ProjectMetadata,
-    androidType: AndroidProjectType,
-    flags: DefaultAndroidGradlePluginProjectFlags,
-    javaCompileOptiosn: DefaultJavaCompileOptions,
-    viewBindingOptions: DefaultViewBindingOptions,
-    resourcePrefix: String?,
-    namespace: String?,
-    androidTestNamespace: String?,
-    testFixtureNamespace: String?,
-    classesJar: File?) :
-
-      this(
+    constructor(
+        base: ProjectMetadata,
+        androidType: AndroidProjectType,
+        flags: DefaultAndroidGradlePluginProjectFlags,
+        javaCompileOptiosn: DefaultJavaCompileOptions,
+        viewBindingOptions: DefaultViewBindingOptions,
+        resourcePrefix: String?,
+        namespace: String?,
+        androidTestNamespace: String?,
+        testFixtureNamespace: String?,
+        classesJar: File?,
+    ) : this(
         base.name,
         base.projectPath,
         base.projectDir,
@@ -76,8 +76,8 @@ class AndroidProjectMetadata(
         namespace,
         androidTestNamespace,
         testFixtureNamespace,
-        classesJar
-      )
+        classesJar,
+    )
 }
 
 typealias AndroidProjectType = com.android.builder.model.v2.ide.ProjectType

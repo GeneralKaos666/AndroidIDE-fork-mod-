@@ -30,33 +30,31 @@ import java.io.InputStream
  */
 class TemplateRecipeExecutor : RecipeExecutor {
 
-  private val application: IDEApplication
-    get() = IDEApplication.instance
+    private val application: IDEApplication
+        get() = IDEApplication.instance
 
-  override fun copy(source: File, dest: File) {
-    source.copyTo(dest)
-  }
-
-  override fun save(source: String, dest: File) {
-    dest.parentFile?.mkdirs()
-    dest.writeText(source)
-  }
-
-  override fun openAsset(path: String): InputStream {
-    try {
-      return application.assets.open(path)
-    } catch (e: Exception) {
-      throw RuntimeException(e)
+    override fun copy(source: File, dest: File) {
+        source.copyTo(dest)
     }
-  }
 
-  override fun copyAsset(path: String, dest: File) {
-    openAsset(path).use {
-      it.copyTo(dest.outputStream())
+    override fun save(source: String, dest: File) {
+        dest.parentFile?.mkdirs()
+        dest.writeText(source)
     }
-  }
 
-  override fun copyAssetsRecursively(path: String, destDir: File) {
-    ResourceUtils.copyFileFromAssets(path, destDir.absolutePath)
-  }
+    override fun openAsset(path: String): InputStream {
+        try {
+            return application.assets.open(path)
+        } catch (e: Exception) {
+            throw RuntimeException(e)
+        }
+    }
+
+    override fun copyAsset(path: String, dest: File) {
+        openAsset(path).use { it.copyTo(dest.outputStream()) }
+    }
+
+    override fun copyAssetsRecursively(path: String, destDir: File) {
+        ResourceUtils.copyFileFromAssets(path, destDir.absolutePath)
+    }
 }

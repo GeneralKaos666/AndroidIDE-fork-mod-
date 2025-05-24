@@ -28,46 +28,46 @@ import com.itsaky.androidide.projects.builder.BuildService
 import com.itsaky.androidide.projects.util.findAppModule
 import com.itsaky.androidide.testing.tooling.ToolingApiTestLauncher
 import com.itsaky.androidide.testing.tooling.models.ToolingApiTestLauncherParams
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.runBlocking
 import org.junit.Ignore
 import org.robolectric.Robolectric
-import java.util.concurrent.atomic.AtomicBoolean
 
 @Ignore("Test utility provider")
 object XmlInflaterTest {
 
-  private var init = AtomicBoolean(false)
-  internal val activity by lazy { Robolectric.buildActivity(AppCompatActivity::class.java).get() }
+    private var init = AtomicBoolean(false)
+    internal val activity by lazy { Robolectric.buildActivity(AppCompatActivity::class.java).get() }
 
-  fun initIfNeeded() {
-    if (init.get()) {
-      return
+    fun initIfNeeded() {
+        if (init.get()) {
+            return
+        }
+
+        val params = ToolingApiTestLauncherParams()
+        ToolingApiTestLauncher.launchServer(params) {
+            assertThat(result?.isSuccessful).isTrue()
+
+            Lookup.getDefault().register(BuildService.KEY_PROJECT_PROXY, project)
+
+            val projectManager = IProjectManager.getInstance()
+            projectManager.openProject(params.projectDir.toFile())
+
+            runBlocking { projectManager.setupProject(project) }
+
+            init.set(true)
+        }
     }
-
-    val params = ToolingApiTestLauncherParams()
-    ToolingApiTestLauncher.launchServer(params) {
-      assertThat(result?.isSuccessful).isTrue()
-
-      Lookup.getDefault().register(BuildService.KEY_PROJECT_PROXY, project)
-
-      val projectManager = IProjectManager.getInstance()
-      projectManager.openProject(params.projectDir.toFile())
-
-      runBlocking { projectManager.setupProject(project) }
-
-      init.set(true)
-    }
-  }
 }
 
 fun inflaterTest(block: (AndroidModule) -> Unit) {
-  XmlInflaterTest.initIfNeeded()
-  val app = findAppModule()!!
-  startParse(app)
-  block(app)
-  endParse()
+    XmlInflaterTest.initIfNeeded()
+    val app = findAppModule()!!
+    startParse(app)
+    block(app)
+    endParse()
 }
 
 fun requiresActivity(block: AppCompatActivity.() -> Unit) {
-  XmlInflaterTest.activity.block()
+    XmlInflaterTest.activity.block()
 }

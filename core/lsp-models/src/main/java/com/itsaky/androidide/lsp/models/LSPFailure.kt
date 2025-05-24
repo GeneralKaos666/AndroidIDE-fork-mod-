@@ -31,6 +31,6 @@ data class LSPFailure(val type: FailureType, val error: Throwable)
  */
 enum class FailureType {
 
-  /** Completion failure. */
-  COMPLETION
+    /** Completion failure. */
+    COMPLETION
 }

@@ -35,47 +35,45 @@ import org.gradle.api.Project
  */
 class SigningConfigPlugin : Plugin<Project> {
 
-  override fun apply(target: Project) {
-    target.run {
+    override fun apply(target: Project) {
+        target.run {
+            if (isFDroidBuild) {
+                logger.warn("!!! Do not apply ${javaClass.simpleName} when building or F-Droid.")
+                return
+            }
 
-      if (isFDroidBuild) {
-        logger.warn("!!! Do not apply ${javaClass.simpleName} when building or F-Droid.")
-        return
-      }
+            downloadSigningKey()
 
-      downloadSigningKey()
+            val signingKey = signingKey.get().asFile
+            if (!signingKey.exists()) {
+                logger.warn("Signing key not found. Debug signing will be used.")
+                return
+            }
 
-      val signingKey = signingKey.get().asFile
-      if (!signingKey.exists()) {
-        logger.warn("Signing key not found. Debug signing will be used.")
-        return
-      }
+            // Create and apply the signing config
+            extensions.getByType(BaseExtension::class.java).let { extension ->
+                // Keystore credentials
+                val alias = getEnvOrProp(KEY_ALIAS)
+                val storePass = getEnvOrProp(KEY_STORE_PASS)
+                val keyPass = getEnvOrProp(KEY_PASS)
 
-      // Create and apply the signing config
-      extensions.getByType(BaseExtension::class.java).let { extension ->
-        // Keystore credentials
-        val alias = getEnvOrProp(KEY_ALIAS)
-        val storePass = getEnvOrProp(KEY_STORE_PASS)
-        val keyPass = getEnvOrProp(KEY_PASS)
+                if (alias != null && storePass != null && keyPass != null && signingKey.exists()) {
+                    val config =
+                        extension.signingConfigs.create("common") {
+                            storeFile = signingKey
+                            keyAlias = alias
+                            storePassword = storePass
+                            keyPassword = keyPass
+                        }
 
-        if (alias != null && storePass != null && keyPass != null && signingKey.exists()) {
-          val config = extension.signingConfigs.create("common") {
-            storeFile = signingKey
-            keyAlias = alias
-            storePassword = storePass
-            keyPassword = keyPass
-          }
-
-          extension.buildTypes.forEach { buildType ->
-            buildType.signingConfig = config
-          }
-        } else {
-          logger.warn(
-            "Signing info not configured. keystoreFile=$signingKey[exists=${signingKey.exists()}]"
-          )
-          null
+                    extension.buildTypes.forEach { buildType -> buildType.signingConfig = config }
+                } else {
+                    logger.warn(
+                        "Signing info not configured. keystoreFile=$signingKey[exists=${signingKey.exists()}]"
+                    )
+                    null
+                }
+            }
         }
-      }
     }
-  }
 }

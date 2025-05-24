@@ -29,26 +29,26 @@ import openjdk.tools.javac.util.Context
  * @author Akash Yadav
  */
 class JavaCompilerConfig(context: Context) {
-  init {
-    context.put(compilerConfigKey, this)
-  }
-
-  var files: Collection<JavaFileObject>? = null
-  var completionInfo: CompletionInfo? = null
-
-  companion object {
-
-    @JvmField val compilerConfigKey = Context.Key<JavaCompilerConfig>()
-
-    @JvmStatic
-    fun instance(context: Context): JavaCompilerConfig {
-      var instance = context.get(compilerConfigKey)
-      if (instance == null) {
-        instance = JavaCompilerConfig(context)
-      }
-      return instance
+    init {
+        context.put(compilerConfigKey, this)
     }
-  }
+
+    var files: Collection<JavaFileObject>? = null
+    var completionInfo: CompletionInfo? = null
+
+    companion object {
+
+        @JvmField val compilerConfigKey = Context.Key<JavaCompilerConfig>()
+
+        @JvmStatic
+        fun instance(context: Context): JavaCompilerConfig {
+            var instance = context.get(compilerConfigKey)
+            if (instance == null) {
+                instance = JavaCompilerConfig(context)
+            }
+            return instance
+        }
+    }
 }
 
 /**

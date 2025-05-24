@@ -22,67 +22,67 @@ import com.itsaky.androidide.models.JdkDistribution
 import com.itsaky.androidide.preferences.internal.BuildPreferences
 import com.itsaky.androidide.utils.Environment
 import com.itsaky.androidide.utils.JdkUtils
-import org.slf4j.LoggerFactory
 import java.io.File
+import org.slf4j.LoggerFactory
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 @AutoService(IJdkDistributionProvider::class)
 class JdkDistributionProviderImpl : IJdkDistributionProvider {
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(JdkDistributionProviderImpl::class.java)
-  }
-
-  private var _installedDistributions: List<JdkDistribution>? = null
-
-  override val installedDistributions: List<JdkDistribution>
-    get() = _installedDistributions ?: emptyList()
-
-  override fun loadDistributions() {
-    _installedDistributions = doLoadDistributions()
-  }
-
-  private fun doLoadDistributions(): List<JdkDistribution> {
-    return JdkUtils.findJavaInstallations().also { distributions ->
-
-      // set the default value for the 'javaHome' preference
-      if (BuildPreferences.javaHome.isBlank() && distributions.isNotEmpty()) {
-        var defaultDist = distributions.find {
-          it.javaVersion.startsWith(IJdkDistributionProvider.DEFAULT_JAVA_VERSION)
-        }
-
-        if (defaultDist == null) {
-          // if JDK 17 is not installed, use the first available installation
-          defaultDist = distributions[0]
-        }
-
-        BuildPreferences.javaHome = defaultDist.javaHome
-      }
-
-      val home = File(BuildPreferences.javaHome)
-      val java = File(home, "bin/java")
-
-      // the previously selected JDK distribution does not exist
-      // check if we have other distributions installed
-      if (!home.exists() || !java.exists() || !java.isFile) {
-        if (distributions.isNotEmpty()) {
-          log.warn(
-            "Previously selected java.home does not exists! Falling back to ${distributions[0]}...")
-          BuildPreferences.javaHome = distributions[0].javaHome
-        }
-      }
-
-      if (!java.canExecute()) {
-        java.setExecutable(true)
-      }
-
-      log.debug("Setting Environment.JAVA_HOME to {}", BuildPreferences.javaHome)
-
-      Environment.JAVA_HOME = File(BuildPreferences.javaHome)
-      Environment.JAVA = Environment.JAVA_HOME.resolve("bin/java")
+        private val log = LoggerFactory.getLogger(JdkDistributionProviderImpl::class.java)
     }
-  }
+
+    private var _installedDistributions: List<JdkDistribution>? = null
+
+    override val installedDistributions: List<JdkDistribution>
+        get() = _installedDistributions ?: emptyList()
+
+    override fun loadDistributions() {
+        _installedDistributions = doLoadDistributions()
+    }
+
+    private fun doLoadDistributions(): List<JdkDistribution> {
+        return JdkUtils.findJavaInstallations().also { distributions ->
+
+            // set the default value for the 'javaHome' preference
+            if (BuildPreferences.javaHome.isBlank() && distributions.isNotEmpty()) {
+                var defaultDist =
+                    distributions.find {
+                        it.javaVersion.startsWith(IJdkDistributionProvider.DEFAULT_JAVA_VERSION)
+                    }
+
+                if (defaultDist == null) {
+                    // if JDK 17 is not installed, use the first available installation
+                    defaultDist = distributions[0]
+                }
+
+                BuildPreferences.javaHome = defaultDist.javaHome
+            }
+
+            val home = File(BuildPreferences.javaHome)
+            val java = File(home, "bin/java")
+
+            // the previously selected JDK distribution does not exist
+            // check if we have other distributions installed
+            if (!home.exists() || !java.exists() || !java.isFile) {
+                if (distributions.isNotEmpty()) {
+                    log.warn(
+                        "Previously selected java.home does not exists! Falling back to ${distributions[0]}..."
+                    )
+                    BuildPreferences.javaHome = distributions[0].javaHome
+                }
+            }
+
+            if (!java.canExecute()) {
+                java.setExecutable(true)
+            }
+
+            log.debug("Setting Environment.JAVA_HOME to {}", BuildPreferences.javaHome)
+
+            Environment.JAVA_HOME = File(BuildPreferences.javaHome)
+            Environment.JAVA = Environment.JAVA_HOME.resolve("bin/java")
+        }
+    }
 }

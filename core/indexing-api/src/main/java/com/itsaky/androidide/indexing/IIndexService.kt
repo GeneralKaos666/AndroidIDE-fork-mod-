@@ -18,8 +18,8 @@
 package com.itsaky.androidide.indexing
 
 import com.itsaky.androidide.projects.IWorkspace
-import kotlinx.coroutines.Deferred
 import java.io.File
+import kotlinx.coroutines.Deferred
 
 /**
  * An index service is responsible for indexing symbols.
@@ -28,24 +28,24 @@ import java.io.File
  */
 interface IIndexService {
 
-  /**
-   * The display name of the service.
-   */
-  val displayName: String
+    /** The display name of the service. */
+    val displayName: String
 
-  /**
-   * Called to scan files that need to be indexed by this index service.
-   *
-   * @param workspace The root workspace model which can be used to query the workspace properties.
-   * @return A [Deferred] collection of files that need to be indexed.
-   */
-  fun scanFiles(workspace: IWorkspace): Collection<File>
+    /**
+     * Called to scan files that need to be indexed by this index service.
+     *
+     * @param workspace The root workspace model which can be used to query the workspace
+     *   properties.
+     * @return A [Deferred] collection of files that need to be indexed.
+     */
+    fun scanFiles(workspace: IWorkspace): Collection<File>
 
-  /**
-   * Called to index the given files.
-   *
-   * @param workspace The root workspace model which can be used to query the workspace properties.
-   * @param files The files to index.
-   */
-  suspend fun indexFiles(workspace: IWorkspace, files: Collection<File>)
+    /**
+     * Called to index the given files.
+     *
+     * @param workspace The root workspace model which can be used to query the workspace
+     *   properties.
+     * @param files The files to index.
+     */
+    suspend fun indexFiles(workspace: IWorkspace, files: Collection<File>)
 }

@@ -26,30 +26,27 @@ import com.itsaky.androidide.templates.TemplateRecipeConfigurator
 import com.itsaky.androidide.templates.TemplateRecipeFinalizer
 import com.itsaky.androidide.templates.TemplateRecipeResult
 
-sealed class PrePostRecipeTemplateBuilder<R : TemplateRecipeResult> :
-  TemplateBuilder<R>() {
+sealed class PrePostRecipeTemplateBuilder<R : TemplateRecipeResult> : TemplateBuilder<R>() {
 
-  @PublishedApi
-  internal var preRecipe: TemplateRecipeConfigurator = {}
+    @PublishedApi internal var preRecipe: TemplateRecipeConfigurator = {}
 
-  @PublishedApi
-  internal var postRecipe: TemplateRecipeFinalizer = {}
+    @PublishedApi internal var postRecipe: TemplateRecipeFinalizer = {}
 
-  private var _recipe: TemplateRecipe<R>? = null
+    private var _recipe: TemplateRecipe<R>? = null
 
-  val isRecipeSet: Boolean
-    get() = _recipe != null
+    val isRecipeSet: Boolean
+        get() = _recipe != null
 
-  override var recipe: TemplateRecipe<R>?
-    get() = TemplateRecipe {
-      preRecipe(it)
-      val result = (_recipe ?: EMPTY_RECIPE).execute(it)
-      postRecipe(it)
-      result
-    }
-    set(value) {
-      _recipe = value
-    }
+    override var recipe: TemplateRecipe<R>?
+        get() = TemplateRecipe {
+            preRecipe(it)
+            val result = (_recipe ?: EMPTY_RECIPE).execute(it)
+            postRecipe(it)
+            result
+        }
+        set(value) {
+            _recipe = value
+        }
 }
 
 /**
@@ -57,17 +54,15 @@ sealed class PrePostRecipeTemplateBuilder<R : TemplateRecipeResult> :
  * @property data The project template data.
  */
 sealed class ExecutorDataTemplateBuilder<R : TemplateRecipeResult, D : TemplateData> :
-  PrePostRecipeTemplateBuilder<R>() {
+    PrePostRecipeTemplateBuilder<R>() {
 
-  @PublishedApi
-  internal var _executor: RecipeExecutor? = null
+    @PublishedApi internal var _executor: RecipeExecutor? = null
 
-  @PublishedApi
-  internal var _data: D? = null
+    @PublishedApi internal var _data: D? = null
 
-  val executor: RecipeExecutor
-    get() = checkNotNull(_executor)
+    val executor: RecipeExecutor
+        get() = checkNotNull(_executor)
 
-  val data: D
-    get() = checkNotNull(_data)
+    val data: D
+        get() = checkNotNull(_data)
 }

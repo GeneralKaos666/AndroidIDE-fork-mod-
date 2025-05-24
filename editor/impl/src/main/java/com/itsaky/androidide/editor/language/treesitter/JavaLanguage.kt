@@ -36,38 +36,37 @@ import io.github.rosemoe.sora.widget.SymbolPairMatch
  * @author Akash Yadav
  */
 class JavaLanguage(context: Context) :
-  TreeSitterLanguage(context, TSLanguageJava.getInstance(), TS_TYPE) {
+    TreeSitterLanguage(context, TSLanguageJava.getInstance(), TS_TYPE) {
 
-  companion object {
+    companion object {
 
-    const val TS_TYPE = "java"
+        const val TS_TYPE = "java"
 
-    @JvmField
-    val FACTORY = Factory { JavaLanguage(it) }
-  }
-
-  override val languageServer: ILanguageServer?
-    get() = ILanguageServerRegistry.getDefault().getServer(JavaLanguageServer.SERVER_ID)
-
-  override fun checkIsCompletionChar(c: Char): Boolean {
-    return MyCharacter.isJavaIdentifierPart(c) || c == '.'
-  }
-
-  override fun getInterruptionLevel(): Int {
-    return INTERRUPTION_LEVEL_SLIGHT
-  }
-
-  override fun getSymbolPairs(): SymbolPairMatch {
-    return JavaSymbolPairs()
-  }
-
-  override fun createNewlineHandlers(): Array<TSBracketsHandler> {
-    return arrayOf(TSCStyleBracketsHandler(this))
-  }
-
-  internal open class JavaSymbolPairs : CommonSymbolPairs() {
-    init {
-      super.putPair('<', SymbolPair("<", ">"))
+        @JvmField val FACTORY = Factory { JavaLanguage(it) }
     }
-  }
+
+    override val languageServer: ILanguageServer?
+        get() = ILanguageServerRegistry.getDefault().getServer(JavaLanguageServer.SERVER_ID)
+
+    override fun checkIsCompletionChar(c: Char): Boolean {
+        return MyCharacter.isJavaIdentifierPart(c) || c == '.'
+    }
+
+    override fun getInterruptionLevel(): Int {
+        return INTERRUPTION_LEVEL_SLIGHT
+    }
+
+    override fun getSymbolPairs(): SymbolPairMatch {
+        return JavaSymbolPairs()
+    }
+
+    override fun createNewlineHandlers(): Array<TSBracketsHandler> {
+        return arrayOf(TSCStyleBracketsHandler(this))
+    }
+
+    internal open class JavaSymbolPairs : CommonSymbolPairs() {
+        init {
+            super.putPair('<', SymbolPair("<", ">"))
+        }
+    }
 }

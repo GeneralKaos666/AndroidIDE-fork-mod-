@@ -34,71 +34,81 @@ import com.itsaky.androidide.templates.Template
  * @author Akash Yadav
  */
 class TemplateListAdapter(
-  templates: List<Template<*>>,
-  private val onClick: ((Template<*>, ViewHolder) -> Unit)? = null
+    templates: List<Template<*>>,
+    private val onClick: ((Template<*>, ViewHolder) -> Unit)? = null,
 ) : RecyclerView.Adapter<ViewHolder>() {
 
-  private val templates = templates.toMutableList()
+    private val templates = templates.toMutableList()
 
-  class ViewHolder(internal val binding: LayoutTemplateListItemBinding) :
-    RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(internal val binding: LayoutTemplateListItemBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-    return ViewHolder(LayoutTemplateListItemBinding.inflate(
-      LayoutInflater.from(parent.context),
-      parent,
-      false
-    ))
-  }
-
-  override fun getItemCount(): Int {
-    return templates.size
-  }
-
-  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    holder.binding.apply {
-      val template = templates[position]
-      if (template == Template.EMPTY) {
-        root.visibility = View.INVISIBLE
-        return@apply
-      }
-      templateName.setText(template.templateName)
-      templateIcon.setImageResource(template.thumb)
-      templateIcon.shapeAppearanceModel =
-        templateIcon.shapeAppearanceModel.toBuilder()
-          .setAllCorners(CornerFamily.ROUNDED, ConvertUtils.dp2px(8f).toFloat())
-          .build()
-
-      root.setOnClickListener {
-        onClick?.invoke(template, holder)
-      }
-    }
-  }
-
-  internal fun fillDiff(extras: Int) {
-    val count = itemCount
-    for (i in 1..extras) {
-      templates.add(Template.EMPTY)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(
+            LayoutTemplateListItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false,
+            )
+        )
     }
 
-    val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-      override fun getOldListSize(): Int {
-        return count
-      }
+    override fun getItemCount(): Int {
+        return templates.size
+    }
 
-      override fun getNewListSize(): Int {
-        return count + extras
-      }
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.binding.apply {
+            val template = templates[position]
+            if (template == Template.EMPTY) {
+                root.visibility = View.INVISIBLE
+                return@apply
+            }
+            templateName.setText(template.templateName)
+            templateIcon.setImageResource(template.thumb)
+            templateIcon.shapeAppearanceModel =
+                templateIcon.shapeAppearanceModel
+                    .toBuilder()
+                    .setAllCorners(CornerFamily.ROUNDED, ConvertUtils.dp2px(8f).toFloat())
+                    .build()
 
-      override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return newItemPosition < count && oldItemPosition == newItemPosition
-      }
+            root.setOnClickListener { onClick?.invoke(template, holder) }
+        }
+    }
 
-      override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return areItemsTheSame(oldItemPosition, newItemPosition)
-      }
-    })
+    internal fun fillDiff(extras: Int) {
+        val count = itemCount
+        for (i in 1..extras) {
+            templates.add(Template.EMPTY)
+        }
 
-    diff.dispatchUpdatesTo(this)
-  }
+        val diff =
+            DiffUtil.calculateDiff(
+                object : DiffUtil.Callback() {
+                    override fun getOldListSize(): Int {
+                        return count
+                    }
+
+                    override fun getNewListSize(): Int {
+                        return count + extras
+                    }
+
+                    override fun areItemsTheSame(
+                        oldItemPosition: Int,
+                        newItemPosition: Int,
+                    ): Boolean {
+                        return newItemPosition < count && oldItemPosition == newItemPosition
+                    }
+
+                    override fun areContentsTheSame(
+                        oldItemPosition: Int,
+                        newItemPosition: Int,
+                    ): Boolean {
+                        return areItemsTheSame(oldItemPosition, newItemPosition)
+                    }
+                }
+            )
+
+        diff.dispatchUpdatesTo(this)
+    }
 }

@@ -41,61 +41,48 @@ const val LAUNCH_TIMEOUT = 5000L
  * @param fromLauncher Whether the application must be launched from the Android launcher.
  * @param clearTasks Whether the application's previous tasks must be cleared.
  */
-fun launchAndroidIDE(
-  fromLauncher: Boolean = true,
-  clearTasks: Boolean = true,
-): UiDevice {
-  val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+fun launchAndroidIDE(fromLauncher: Boolean = true, clearTasks: Boolean = true): UiDevice {
+    val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
-  if (fromLauncher) {
-    device.pressHome()
+    if (fromLauncher) {
+        device.pressHome()
 
-    val launcherPackage = device.launcherPackageName
-    assertThat(launcherPackage).isNotNull()
+        val launcherPackage = device.launcherPackageName
+        assertThat(launcherPackage).isNotNull()
 
-    device.wait(
-      Until.hasObject(By.pkg(launcherPackage).depth(0)),
-      LAUNCH_TIMEOUT
-    )
-  }
-
-  // Launch the app
-  val context = ApplicationProvider.getApplicationContext<Context>()
-  val intent = context.packageManager.getLaunchIntentForPackage(BuildInfo.PACKAGE_NAME)
-  assertThat(intent).isNotNull()
-
-  if (clearTasks) {
-    intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-  }
-
-  context.startActivity(intent)
-
-  // Wait for the app to appear
-  device.wait(
-    Until.hasObject(By.pkg(BuildInfo.PACKAGE_NAME).depth(0)),
-    LAUNCH_TIMEOUT
-  )
-
-  return device
-}
-
-/**
- * Get the first activity in the given [stage].
- */
-fun <T : Activity> getActivityInStage(stage: Stage): T? {
-  var activity: T? = null
-  InstrumentationRegistry.getInstrumentation().runOnMainSync {
-    val activities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(stage)
-    if (activities.isNotEmpty()) {
-      activity = uncheckedCast(activities.first())
+        device.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)), LAUNCH_TIMEOUT)
     }
-  }
 
-  return activity
+    // Launch the app
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val intent = context.packageManager.getLaunchIntentForPackage(BuildInfo.PACKAGE_NAME)
+    assertThat(intent).isNotNull()
+
+    if (clearTasks) {
+        intent!!.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+    }
+
+    context.startActivity(intent)
+
+    // Wait for the app to appear
+    device.wait(Until.hasObject(By.pkg(BuildInfo.PACKAGE_NAME).depth(0)), LAUNCH_TIMEOUT)
+
+    return device
 }
 
-/**
- * @see UiDeviceAccessor.getUiAutomation
- */
+/** Get the first activity in the given [stage]. */
+fun <T : Activity> getActivityInStage(stage: Stage): T? {
+    var activity: T? = null
+    InstrumentationRegistry.getInstrumentation().runOnMainSync {
+        val activities = ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(stage)
+        if (activities.isNotEmpty()) {
+            activity = uncheckedCast(activities.first())
+        }
+    }
+
+    return activity
+}
+
+/** @see UiDeviceAccessor.getUiAutomation */
 val UiDevice.uiAutomation: UiAutomation
-  get() = UiDeviceAccessor.getUiAutomation(this)
+    get() = UiDeviceAccessor.getUiAutomation(this)

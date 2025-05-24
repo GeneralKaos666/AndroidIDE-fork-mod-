@@ -29,7 +29,7 @@ import org.greenrobot.eventbus.EventBus
  * @author Akash Yadav
  */
 class InstallationResultReceiver : BroadcastReceiver() {
-  override fun onReceive(context: Context, intent: Intent) {
-    EventBus.getDefault().post(InstallationResultEvent(intent))
-  }
+    override fun onReceive(context: Context, intent: Intent) {
+        EventBus.getDefault().post(InstallationResultEvent(intent))
+    }
 }

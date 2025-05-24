@@ -23,61 +23,61 @@ import com.blankj.utilcode.util.ActivityUtils
 import com.itsaky.androidide.flashbar.Flashbar
 
 fun flashbarBuilder(): Flashbar.Builder? {
-  return withActivity { flashbarBuilder() }
+    return withActivity { flashbarBuilder() }
 }
 
 fun flashMessage(msg: String?, type: FlashType) {
-  withActivity { flashMessage(msg, type) }
+    withActivity { flashMessage(msg, type) }
 }
 
 fun flashMessage(@StringRes msg: Int, type: FlashType) {
-  withActivity { flashMessage(msg, type) }
+    withActivity { flashMessage(msg, type) }
 }
 
 fun flashSuccess(msg: String?) {
-  withActivity { flashSuccess(msg) }
+    withActivity { flashSuccess(msg) }
 }
 
 fun flashSuccess(@StringRes msg: Int) {
-  withActivity { flashSuccess(msg) }
+    withActivity { flashSuccess(msg) }
 }
 
 fun flashError(msg: String?) {
-  withActivity { flashError(msg) }
+    withActivity { flashError(msg) }
 }
 
 fun flashError(@StringRes msg: Int) {
-  withActivity { flashError(msg) }
+    withActivity { flashError(msg) }
 }
 
 fun flashInfo(msg: String?) {
-  withActivity { flashInfo(msg) }
+    withActivity { flashInfo(msg) }
 }
 
 fun flashInfo(@StringRes msg: Int) {
-  withActivity { flashInfo(msg) }
+    withActivity { flashInfo(msg) }
 }
 
 @JvmOverloads
 fun <R> flashProgress(
-  configure: (Flashbar.Builder.() -> Unit)? = null,
-  action: (Flashbar) -> R?
-) : R? {
-  return withActivity { flashProgress(configure, action) }
+    configure: (Flashbar.Builder.() -> Unit)? = null,
+    action: (Flashbar) -> R?,
+): R? {
+    return withActivity { flashProgress(configure, action) }
 }
 
 private fun <T> withActivity(action: Activity.() -> T?): T? {
-  return ActivityUtils.getTopActivity()?.let { it.action() }
-    ?: run {
-      ILogger.ROOT.warn("Cannot show flashbar message. Cannot get top activity.")
-      null
-    }
+    return ActivityUtils.getTopActivity()?.let { it.action() }
+        ?: run {
+            ILogger.ROOT.warn("Cannot show flashbar message. Cannot get top activity.")
+            null
+        }
 }
 
 /** The type of flashbar message. */
 enum class FlashType {
 
-  ERROR,
-  INFO,
-  SUCCESS
+    ERROR,
+    INFO,
+    SUCCESS,
 }

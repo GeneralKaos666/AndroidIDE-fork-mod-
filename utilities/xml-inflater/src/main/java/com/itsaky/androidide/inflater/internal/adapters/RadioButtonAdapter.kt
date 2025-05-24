@@ -34,9 +34,13 @@ import com.itsaky.androidide.resources.R.string
 @IncludeInDesigner(group = WIDGETS)
 open class RadioButtonAdapter<T : RadioButton> : CompoundButtonAdapter<T>() {
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(RadioButton::class.java, string.widget_radio_button, drawable.ic_widget_radio_button)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                RadioButton::class.java,
+                string.widget_radio_button,
+                drawable.ic_widget_radio_button,
+            )
+        )
+    }
 }

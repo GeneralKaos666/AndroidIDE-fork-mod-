@@ -21,30 +21,26 @@ import com.itsaky.androidide.treesitter.TSLookaheadIterator
 import com.itsaky.androidide.utils.DefaultRecyclable
 import com.itsaky.androidide.utils.RecyclableObjectPool
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 class TreeSitterLookaheadIterator @JvmOverloads internal constructor(pointer: Long = 0) :
-  TSLookaheadIterator(pointer), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
+    TSLookaheadIterator(pointer), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
 
-  companion object {
+    companion object {
 
-    @JvmStatic
-    fun obtain(pointer: Long): TreeSitterLookaheadIterator {
-      return obtainFromPool<TreeSitterLookaheadIterator>().apply {
-        nativeObject = pointer
-      }
+        @JvmStatic
+        fun obtain(pointer: Long): TreeSitterLookaheadIterator {
+            return obtainFromPool<TreeSitterLookaheadIterator>().apply { nativeObject = pointer }
+        }
     }
-  }
 
-  override fun close() {
-    super.close()
-    recycle()
-  }
+    override fun close() {
+        super.close()
+        recycle()
+    }
 
-  override fun recycle() {
-    this.nativeObject = 0
-    this.langName = null
-    returnToPool()
-  }
+    override fun recycle() {
+        this.nativeObject = 0
+        this.langName = null
+        returnToPool()
+    }
 }

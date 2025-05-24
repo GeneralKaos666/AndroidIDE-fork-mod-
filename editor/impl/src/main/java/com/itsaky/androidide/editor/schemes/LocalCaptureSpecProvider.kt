@@ -27,39 +27,39 @@ import org.slf4j.LoggerFactory
  */
 object LocalCaptureSpecProvider {
 
-  private val log = LoggerFactory.getLogger(LocalCaptureSpecProvider::class.java)
+    private val log = LoggerFactory.getLogger(LocalCaptureSpecProvider::class.java)
 
-  @JvmStatic
-  fun newLocalCaptureSpec(type: String): LocalsCaptureSpec {
-    val lang =
-      IDEColorSchemeProvider.getColorSchemeForType(type)?.languages?.get(type)
-        ?: run {
-          log.error(
-            "Cannot create LocalsCaptureSpec. Failed to load current color scheme. Falling back to default implementation"
-          )
-          return LocalsCaptureSpec.DEFAULT
+    @JvmStatic
+    fun newLocalCaptureSpec(type: String): LocalsCaptureSpec {
+        val lang =
+            IDEColorSchemeProvider.getColorSchemeForType(type)?.languages?.get(type)
+                ?: run {
+                    log.error(
+                        "Cannot create LocalsCaptureSpec. Failed to load current color scheme. Falling back to default implementation"
+                    )
+                    return LocalsCaptureSpec.DEFAULT
+                }
+        return object : LocalsCaptureSpec() {
+
+            override fun isDefinitionCapture(captureName: String): Boolean {
+                return lang.isLocalDef(captureName)
+            }
+
+            override fun isDefinitionValueCapture(captureName: String): Boolean {
+                return lang.isLocalDefVal(captureName)
+            }
+
+            override fun isReferenceCapture(captureName: String): Boolean {
+                return lang.isLocalRef(captureName)
+            }
+
+            override fun isScopeCapture(captureName: String): Boolean {
+                return lang.isLocalScope(captureName)
+            }
+
+            override fun isMembersScopeCapture(captureName: String): Boolean {
+                return lang.isMembersScope(captureName)
+            }
         }
-    return object : LocalsCaptureSpec() {
-
-      override fun isDefinitionCapture(captureName: String): Boolean {
-        return lang.isLocalDef(captureName)
-      }
-
-      override fun isDefinitionValueCapture(captureName: String): Boolean {
-        return lang.isLocalDefVal(captureName)
-      }
-
-      override fun isReferenceCapture(captureName: String): Boolean {
-        return lang.isLocalRef(captureName)
-      }
-
-      override fun isScopeCapture(captureName: String): Boolean {
-        return lang.isLocalScope(captureName)
-      }
-
-      override fun isMembersScopeCapture(captureName: String): Boolean {
-        return lang.isMembersScope(captureName)
-      }
     }
-  }
 }

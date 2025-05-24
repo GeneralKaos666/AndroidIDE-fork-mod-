@@ -33,26 +33,26 @@ import com.itsaky.androidide.uidesigner.R.string
  */
 class ShowHierarchyAction(context: Context) : UiDesignerAction() {
 
-  override val id: String = "ide.uidesigner.showHierarchy"
+    override val id: String = "ide.uidesigner.showHierarchy"
 
-  init {
-    label = context.getString(string.action_show_hierarchy)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_tree)
-  }
-
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-    if (!data.hasRequiredData(Context::class.java, Fragment::class.java)) {
-      markInvisible()
-      return
+    init {
+        label = context.getString(string.action_show_hierarchy)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_tree)
     }
 
-    visible = true
-    enabled = true
-  }
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
+        if (!data.hasRequiredData(Context::class.java, Fragment::class.java)) {
+            markInvisible()
+            return
+        }
 
-  override suspend fun execAction(data: ActionData): Boolean {
-    data.requireActivity().openHierarchyView()
-    return true
-  }
+        visible = true
+        enabled = true
+    }
+
+    override suspend fun execAction(data: ActionData): Boolean {
+        data.requireActivity().openHierarchyView()
+        return true
+    }
 }

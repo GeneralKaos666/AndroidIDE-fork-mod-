@@ -4,9 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.view.View
 
-/**
- * Util object for interacting with Layouts
- */
+/** Util object for interacting with Layouts */
 internal object LayoutUtil {
 
     @JvmStatic

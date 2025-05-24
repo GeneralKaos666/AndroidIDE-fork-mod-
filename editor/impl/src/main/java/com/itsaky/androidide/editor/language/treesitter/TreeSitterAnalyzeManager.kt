@@ -28,28 +28,26 @@ import io.github.rosemoe.sora.lang.styling.Styles
  *
  * @author Akash Yadav
  */
-class TreeSitterAnalyzeManager(
-  languageSpec: TsLanguageSpec,
-  theme: TsTheme
-) : TsAnalyzeManager(languageSpec, theme) {
+class TreeSitterAnalyzeManager(languageSpec: TsLanguageSpec, theme: TsTheme) :
+    TsAnalyzeManager(languageSpec, theme) {
 
-  override var styles: Styles = Styles()
-    set(value) {
-      field = value
-      resetSpanFactory(value, langScheme)
+    override var styles: Styles = Styles()
+        set(value) {
+            field = value
+            resetSpanFactory(value, langScheme)
+        }
+
+    internal var langScheme: LanguageScheme? = null
+        set(value) {
+            field = value
+            resetSpanFactory(styles, value)
+        }
+
+    init {
+        resetSpanFactory(styles, langScheme)
     }
 
-  internal var langScheme: LanguageScheme? = null
-    set(value) {
-      field = value
-      resetSpanFactory(styles, value)
+    private fun resetSpanFactory(styles: Styles, langScheme: LanguageScheme?) {
+        spanFactory = TreeSitterSpanFactory(reference, languageSpec.tsQuery, styles, langScheme)
     }
-
-  init {
-    resetSpanFactory(styles, langScheme)
-  }
-
-  private fun resetSpanFactory(styles: Styles, langScheme: LanguageScheme?) {
-    spanFactory = TreeSitterSpanFactory(reference, languageSpec.tsQuery, styles, langScheme)
-  }
 }

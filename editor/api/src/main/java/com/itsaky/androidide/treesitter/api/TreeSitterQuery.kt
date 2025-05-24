@@ -21,33 +21,28 @@ import com.itsaky.androidide.treesitter.TSQuery
 import com.itsaky.androidide.utils.DefaultRecyclable
 import com.itsaky.androidide.utils.RecyclableObjectPool
 
-/**
- * @author Akash Yadav
- */
-class TreeSitterQuery @JvmOverloads internal constructor(
-  pointer: Long = 0
-) : TSQuery(pointer), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
+/** @author Akash Yadav */
+class TreeSitterQuery @JvmOverloads internal constructor(pointer: Long = 0) :
+    TSQuery(pointer), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
 
-  companion object {
+    companion object {
 
-    @JvmStatic
-    fun obtain(pointer: Long): TreeSitterQuery {
-      return obtainFromPool<TreeSitterQuery>().apply {
-        this.nativeObject = pointer
-      }
+        @JvmStatic
+        fun obtain(pointer: Long): TreeSitterQuery {
+            return obtainFromPool<TreeSitterQuery>().apply { this.nativeObject = pointer }
+        }
     }
-  }
 
-  override fun close() {
-    super.close()
-    recycle()
-  }
+    override fun close() {
+        super.close()
+        recycle()
+    }
 
-  override fun recycle() {
-    this.nativeObject = 0
-    this.captureNames = null
-    this.errorOffset = 0
-    this.errorType = 0
-    returnToPool()
-  }
+    override fun recycle() {
+        this.nativeObject = 0
+        this.captureNames = null
+        this.errorOffset = 0
+        this.errorType = 0
+        returnToPool()
+    }
 }

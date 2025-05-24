@@ -28,7 +28,7 @@ package com.itsaky.androidide.uidesigner.undo
 abstract class ViewAction
 @JvmOverloads
 constructor(
-  val child: com.itsaky.androidide.inflater.IView,
-  val parent: com.itsaky.androidide.inflater.IViewGroup,
-  var index: Int = parent.indexOfChild(child)
+    val child: com.itsaky.androidide.inflater.IView,
+    val parent: com.itsaky.androidide.inflater.IViewGroup,
+    var index: Int = parent.indexOfChild(child),
 ) : IUiAction

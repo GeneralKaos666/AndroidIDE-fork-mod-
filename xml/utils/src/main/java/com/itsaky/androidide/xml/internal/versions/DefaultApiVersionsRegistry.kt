@@ -22,9 +22,9 @@ import com.google.auto.service.AutoService
 import com.itsaky.androidide.xml.versions.ApiVersion
 import com.itsaky.androidide.xml.versions.ApiVersions
 import com.itsaky.androidide.xml.versions.ApiVersionsRegistry
-import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
+import org.slf4j.LoggerFactory
 
 /**
  * Default implementation of [ApiVersionsRegistry].
@@ -35,83 +35,82 @@ import java.util.concurrent.ConcurrentHashMap
 @VisibleForTesting
 class DefaultApiVersionsRegistry : ApiVersionsRegistry {
 
-  private val versions = ConcurrentHashMap<String, ApiVersions>()
+    private val versions = ConcurrentHashMap<String, ApiVersions>()
 
-  companion object {
-    private val log = LoggerFactory.getLogger(DefaultApiVersionsRegistry::class.java)
-  }
-
-  override var isLoggingEnabled: Boolean = true
-
-  override fun forPlatformDir(platform: File): ApiVersions? {
-    var version = versions[platform.path]
-    if (version != null) {
-      return version
+    companion object {
+        private val log = LoggerFactory.getLogger(DefaultApiVersionsRegistry::class.java)
     }
 
-    version = readApiVersions(platform) ?: return null
-    versions[platform.path] = version
-    return version
-  }
+    override var isLoggingEnabled: Boolean = true
 
-  private fun readApiVersions(platform: File): ApiVersions? {
-    val versionsFile = File(platform, "data/api-versions.xml")
-    if (!versionsFile.exists() || !versionsFile.isFile) {
-      return null
+    override fun forPlatformDir(platform: File): ApiVersions? {
+        var version = versions[platform.path]
+        if (version != null) {
+            return version
+        }
+
+        version = readApiVersions(platform) ?: return null
+        versions[platform.path] = version
+        return version
     }
 
-    if (isLoggingEnabled) {
-      log.info("Creating API versions table for platform dir: $platform")
+    private fun readApiVersions(platform: File): ApiVersions? {
+        val versionsFile = File(platform, "data/api-versions.xml")
+        if (!versionsFile.exists() || !versionsFile.isFile) {
+            return null
+        }
+
+        if (isLoggingEnabled) {
+            log.info("Creating API versions table for platform dir: $platform")
+        }
+
+        return versionsFile.inputStream().buffered().use { inputStream ->
+            // we do not implement the parsing logic in the registry itself for thread safety
+            val versions = DefaultApiVersions()
+            val parser = ApiVersionsParserInternal(versions)
+            parser.parse(inputStream)
+            versions
+        }
     }
 
-    return versionsFile.inputStream().buffered().use { inputStream ->
-      // we do not implement the parsing logic in the registry itself for thread safety
-      val versions = DefaultApiVersions()
-      val parser = ApiVersionsParserInternal(versions)
-      parser.parse(inputStream)
-      versions
-    }
-  }
-
-  override fun clear() {
-    versions.clear()
-  }
-
-  private class ApiVersionsParserInternal(
-    private val currentApiVersions: DefaultApiVersions
-  ) : ApiVersionsParser() {
-    override fun isDuplicateClass(name: String): Boolean {
-      return currentApiVersions.containsClass(name)
+    override fun clear() {
+        versions.clear()
     }
 
-    override fun isDuplicateMember(className: String, memberName: String): Boolean {
-      return currentApiVersions.containsClassMember(className, memberName)
+    private class ApiVersionsParserInternal(private val currentApiVersions: DefaultApiVersions) :
+        ApiVersionsParser() {
+        override fun isDuplicateClass(name: String): Boolean {
+            return currentApiVersions.containsClass(name)
+        }
+
+        override fun isDuplicateMember(className: String, memberName: String): Boolean {
+            return currentApiVersions.containsClassMember(className, memberName)
+        }
+
+        override fun consumeClassVersionInfo(name: String, apiVersion: ApiVersion) {
+            if (apiVersion.isSinceInception()) {
+                return
+            }
+            currentApiVersions.putClass(name, apiVersion)
+        }
+
+        override fun consumeMemberVersionInfo(
+            className: String,
+            member: String,
+            memberType: String,
+            apiVersion: ApiVersion,
+        ) {
+            if (apiVersion.isSinceInception()) {
+                return
+            }
+
+            var identifier = member
+            if (memberType == TAG_METHOD) {
+                // strip return type to save some memory
+                identifier = member.substring(0, member.lastIndexOf(')') + 1)
+            }
+
+            currentApiVersions.putMember(className, identifier, apiVersion)
+        }
     }
-
-    override fun consumeClassVersionInfo(name: String, apiVersion: ApiVersion) {
-      if (apiVersion.isSinceInception()) {
-        return
-      }
-      currentApiVersions.putClass(name, apiVersion)
-    }
-
-    override fun consumeMemberVersionInfo(
-      className: String,
-      member: String,
-      memberType: String,
-      apiVersion: ApiVersion
-    ) {
-      if (apiVersion.isSinceInception()) {
-        return
-      }
-
-      var identifier = member
-      if (memberType == TAG_METHOD) {
-        // strip return type to save some memory
-        identifier = member.substring(0, member.lastIndexOf(')') + 1)
-      }
-
-      currentApiVersions.putMember(className, identifier, apiVersion)
-    }
-  }
 }

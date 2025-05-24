@@ -21,33 +21,30 @@ package com.itsaky.androidide.models
  *
  * @author Akash Yadav
  */
-open class Symbol @JvmOverloads constructor(
-  open val label: String,
-  open val commit: String,
-  open val offset: Int = 1
-) {
-  @JvmOverloads
-  constructor(both: String, offset: Int = 1) : this(both, both, offset)
+open class Symbol
+@JvmOverloads
+constructor(open val label: String, open val commit: String, open val offset: Int = 1) {
+    @JvmOverloads constructor(both: String, offset: Int = 1) : this(both, both, offset)
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is Symbol) return false
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Symbol) return false
 
-    if (label != other.label) return false
-    if (commit != other.commit) return false
-    if (offset != other.offset) return false
+        if (label != other.label) return false
+        if (commit != other.commit) return false
+        if (offset != other.offset) return false
 
-    return true
-  }
+        return true
+    }
 
-  override fun hashCode(): Int {
-    var result = label.hashCode()
-    result = 31 * result + commit.hashCode()
-    result = 31 * result + offset
-    return result
-  }
+    override fun hashCode(): Int {
+        var result = label.hashCode()
+        result = 31 * result + commit.hashCode()
+        result = 31 * result + offset
+        return result
+    }
 
-  override fun toString(): String {
-    return "Symbol(label='$label', commit='$commit', offset=$offset)"
-  }
+    override fun toString(): String {
+        return "Symbol(label='$label', commit='$commit', offset=$offset)"
+    }
 }

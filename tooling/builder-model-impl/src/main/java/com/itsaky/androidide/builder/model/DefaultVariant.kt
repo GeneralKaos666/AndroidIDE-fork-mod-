@@ -25,19 +25,19 @@ import java.io.Serializable
 /** @author Akash Yadav */
 class DefaultVariant : Variant, Serializable {
 
-  private val serialVersionUID = 1L
-  @Deprecated("Contained in deviceTestArtifacts")
-  override var androidTestArtifact: DefaultAndroidArtifact? = null
-  override var displayName: String = ""
-  override var isInstantAppCompatible: Boolean = false
-  override var desugaredMethods: List<File> = emptyList()
-  override var mainArtifact: DefaultAndroidArtifact = DefaultAndroidArtifact()
-  override var name: String = ""
-  override var testFixturesArtifact: DefaultAndroidArtifact? = null
-  override var testedTargetVariant: DefaultTestedTargetVariant? = null
-  @Deprecated("Contained in hostTestArtifacts")
-  override var unitTestArtifact: DefaultJavaArtifact? = null
-  override val runTestInSeparateProcess: Boolean = false
-  override val deviceTestArtifacts: Map<String, AndroidArtifact> = emptyMap()
-  override val hostTestArtifacts: Map<String, JavaArtifact> = emptyMap()
+    private val serialVersionUID = 1L
+    @Deprecated("Contained in deviceTestArtifacts")
+    override var androidTestArtifact: DefaultAndroidArtifact? = null
+    override var displayName: String = ""
+    override var isInstantAppCompatible: Boolean = false
+    override var desugaredMethods: List<File> = emptyList()
+    override var mainArtifact: DefaultAndroidArtifact = DefaultAndroidArtifact()
+    override var name: String = ""
+    override var testFixturesArtifact: DefaultAndroidArtifact? = null
+    override var testedTargetVariant: DefaultTestedTargetVariant? = null
+    @Deprecated("Contained in hostTestArtifacts")
+    override var unitTestArtifact: DefaultJavaArtifact? = null
+    override val runTestInSeparateProcess: Boolean = false
+    override val deviceTestArtifacts: Map<String, AndroidArtifact> = emptyMap()
+    override val hostTestArtifacts: Map<String, JavaArtifact> = emptyMap()
 }

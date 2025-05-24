@@ -29,84 +29,79 @@ import com.itsaky.androidide.databinding.ActivityContributorsBinding
 import com.itsaky.androidide.utils.getConnectionInfo
 import com.itsaky.androidide.viewmodel.ContributorsViewModel
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 class ContributorsActivity : EdgeToEdgeIDEActivity() {
 
-  private var _binding: ActivityContributorsBinding? = null
-  private val binding: ActivityContributorsBinding
-    get() = checkNotNull(_binding) {
-      "Activity has been destroyed"
+    private var _binding: ActivityContributorsBinding? = null
+    private val binding: ActivityContributorsBinding
+        get() = checkNotNull(_binding) { "Activity has been destroyed" }
+
+    private val viewModel by viewModels<ContributorsViewModel>()
+
+    override fun bindLayout(): View {
+        _binding = ActivityContributorsBinding.inflate(layoutInflater)
+        return binding.root
     }
 
-  private val viewModel by viewModels<ContributorsViewModel>()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-  override fun bindLayout(): View {
-    _binding = ActivityContributorsBinding.inflate(layoutInflater)
-    return binding.root
-  }
+        binding.apply {
+            setSupportActionBar(toolbar)
+            supportActionBar!!.setTitle(R.string.title_contributors)
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
+            githubContributors.apply { sectionTitle.setText(R.string.title_github_contributors) }
 
-    binding.apply {
-      setSupportActionBar(toolbar)
-      supportActionBar!!.setTitle(R.string.title_contributors)
-      supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-      toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+            translationContributors.apply {
+                sectionTitle.setText(R.string.title_crowdin_translators)
+            }
 
-      githubContributors.apply {
-        sectionTitle.setText(R.string.title_github_contributors)
-      }
-
-      translationContributors.apply {
-        sectionTitle.setText(R.string.title_crowdin_translators)
-      }
-
-      noConnection.root.setText(R.string.msg_no_internet)
-      loadingProgress.isVisible = false
-    }
-
-    viewModel._crowdinTranslators.observe(this) { translators ->
-      binding.translationContributors.sectionItems.adapter = ContributorsGridAdapter(translators)
-    }
-
-    viewModel._githubContributors.observe(this) { githubContributors ->
-      binding.githubContributors.sectionItems.adapter = ContributorsGridAdapter(githubContributors)
-    }
-
-    val connectionInfo = getConnectionInfo(this)
-    binding.apply {
-      noConnection.root.isVisible = !connectionInfo.isConnected
-      githubContributorsCard.isVisible = connectionInfo.isConnected
-      translationContributorsCard.isVisible = connectionInfo.isConnected
-
-      if (connectionInfo.isConnected) {
-        viewModel.observeLoadingState(this@ContributorsActivity) { isLoading ->
-          binding.loadingProgress.isVisible = isLoading
+            noConnection.root.setText(R.string.msg_no_internet)
+            loadingProgress.isVisible = false
         }
 
-        viewModel.fetchAll()
-      }
+        viewModel._crowdinTranslators.observe(this) { translators ->
+            binding.translationContributors.sectionItems.adapter =
+                ContributorsGridAdapter(translators)
+        }
+
+        viewModel._githubContributors.observe(this) { githubContributors ->
+            binding.githubContributors.sectionItems.adapter =
+                ContributorsGridAdapter(githubContributors)
+        }
+
+        val connectionInfo = getConnectionInfo(this)
+        binding.apply {
+            noConnection.root.isVisible = !connectionInfo.isConnected
+            githubContributorsCard.isVisible = connectionInfo.isConnected
+            translationContributorsCard.isVisible = connectionInfo.isConnected
+
+            if (connectionInfo.isConnected) {
+                viewModel.observeLoadingState(this@ContributorsActivity) { isLoading ->
+                    binding.loadingProgress.isVisible = isLoading
+                }
+
+                viewModel.fetchAll()
+            }
+        }
     }
-  }
 
-  override fun onApplySystemBarInsets(insets: Insets) {
-    super.onApplySystemBarInsets(insets)
-    binding.toolbar.apply {
-      setPaddingRelative(
-        paddingStart + insets.left,
-        paddingTop,
-        paddingEnd + insets.right,
-        paddingBottom
-      )
+    override fun onApplySystemBarInsets(insets: Insets) {
+        super.onApplySystemBarInsets(insets)
+        binding.toolbar.apply {
+            setPaddingRelative(
+                paddingStart + insets.left,
+                paddingTop,
+                paddingEnd + insets.right,
+                paddingBottom,
+            )
+        }
     }
-  }
 
-  override fun onDestroy() {
-    super.onDestroy()
-    _binding = null
-  }
-
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 }

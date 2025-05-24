@@ -26,14 +26,14 @@ import java.net.URI
  * @author Akash Yadav
  */
 class TSParseCache(maxSize: Int) : LruCache<URI, TSParseResult>(maxSize) {
-  
-  override fun entryRemoved(
-    evicted: Boolean,
-    key: URI,
-    oldValue: TSParseResult,
-    newValue: TSParseResult?
-  ) {
-    // Release the tree instance
-    oldValue.tree.close()
-  }
+
+    override fun entryRemoved(
+        evicted: Boolean,
+        key: URI,
+        oldValue: TSParseResult,
+        newValue: TSParseResult?,
+    ) {
+        // Release the tree instance
+        oldValue.tree.close()
+    }
 }

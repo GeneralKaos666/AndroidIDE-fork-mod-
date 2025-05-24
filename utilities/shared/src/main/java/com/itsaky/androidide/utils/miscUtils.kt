@@ -19,5 +19,5 @@ package com.itsaky.androidide.utils
 
 @Suppress("UNCHECKED_CAST")
 fun <T> uncheckedCast(obj: Any): T {
-  return obj as T
+    return obj as T
 }

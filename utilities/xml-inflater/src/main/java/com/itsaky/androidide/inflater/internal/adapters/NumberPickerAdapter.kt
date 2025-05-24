@@ -33,13 +33,13 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(NumberPicker::class)
 @IncludeInDesigner(group = WIDGETS)
 open class NumberPickerAdapter<T : NumberPicker> : LinearLayoutAdapter<T>() {
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(
-        NumberPicker::class.java,
-        string.widget_number_picker,
-        drawable.ic_widget_number_picker
-      )
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                NumberPicker::class.java,
+                string.widget_number_picker,
+                drawable.ic_widget_number_picker,
+            )
+        )
+    }
 }

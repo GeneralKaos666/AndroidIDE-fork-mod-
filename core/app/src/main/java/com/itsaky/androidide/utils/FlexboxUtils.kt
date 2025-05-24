@@ -22,42 +22,42 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayoutManager
 import kotlin.math.ceil
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 object FlexboxUtils {
 
-  @JvmStatic
-  inline fun <T: RecyclerView.Adapter<*>> createGlobalLayoutListenerToDistributeFlexboxItemsEvenly(
-    crossinline adapterProvider: () -> T?,
-    crossinline layoutManagerProvider: () -> FlexboxLayoutManager?,
-    crossinline fillDiff: (T, diff: Int) -> Unit
-  ): ViewTreeObserver.OnGlobalLayoutListener {
+    @JvmStatic
+    inline fun <
+        T : RecyclerView.Adapter<*>
+    > createGlobalLayoutListenerToDistributeFlexboxItemsEvenly(
+        crossinline adapterProvider: () -> T?,
+        crossinline layoutManagerProvider: () -> FlexboxLayoutManager?,
+        crossinline fillDiff: (T, diff: Int) -> Unit,
+    ): ViewTreeObserver.OnGlobalLayoutListener {
 
-    return object : ViewTreeObserver.OnGlobalLayoutListener {
-      override fun onGlobalLayout() {
+        return object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
 
-        val adapter = adapterProvider() ?: return
-        val layoutManager = layoutManagerProvider() ?: return
+                val adapter = adapterProvider() ?: return
+                val layoutManager = layoutManagerProvider() ?: return
 
-        val columns = layoutManager.flexLinesInternal.firstOrNull()?.itemCount ?: 0
-        if (columns == 0) {
-          return
+                val columns = layoutManager.flexLinesInternal.firstOrNull()?.itemCount ?: 0
+                if (columns == 0) {
+                    return
+                }
+
+                val itemCount = adapter.itemCount
+                val rows = ceil(itemCount.toFloat() / columns.toFloat()).toInt()
+                if (itemCount % columns == 0) {
+                    return
+                }
+
+                val diff = rows * columns - itemCount
+                if (diff <= 0) {
+                    return
+                }
+
+                fillDiff(adapter, diff)
+            }
         }
-
-        val itemCount = adapter.itemCount
-        val rows = ceil(itemCount.toFloat() / columns.toFloat()).toInt()
-        if (itemCount % columns == 0) {
-          return
-        }
-
-        val diff = rows * columns - itemCount
-        if (diff <= 0) {
-          return
-        }
-
-        fillDiff(adapter, diff)
-      }
     }
-  }
 }

@@ -39,47 +39,46 @@ import com.itsaky.androidide.templates.impl.tabbedActivity.tabbedActivityProject
 @AutoService(ITemplateProvider::class)
 class TemplateProviderImpl : ITemplateProvider {
 
-  private val templates = mutableMapOf<String, Template<*>>()
+    private val templates = mutableMapOf<String, Template<*>>()
 
-  init {
-    initializeTemplates()
-  }
-
-  private fun templates() =
-    //@formatter:off
-    arrayOf(
-      noActivityProjectTemplate(),
-      emptyActivityProject(),
-      basicActivityProject(),
-      navDrawerActivityProject(),
-      bottomNavActivityProject(),
-      tabbedActivityProject(),
-      noAndroidXActivityProject(),
-      composeActivityProject()
-    )
-
-  private fun initializeTemplates() {
-    templates().forEach { template ->
-      templates[template.templateId] = template
+    init {
+        initializeTemplates()
     }
-  }
-  //@formatter:on
 
-  override fun getTemplates(): List<Template<*>> {
-    return ImmutableList.copyOf(templates.values)
-  }
+    private fun templates() =
+        // @formatter:off
+        arrayOf(
+            noActivityProjectTemplate(),
+            emptyActivityProject(),
+            basicActivityProject(),
+            navDrawerActivityProject(),
+            bottomNavActivityProject(),
+            tabbedActivityProject(),
+            noAndroidXActivityProject(),
+            composeActivityProject(),
+        )
 
-  override fun getTemplate(templateId: String): Template<*>? {
-    return templates[templateId]
-  }
+    private fun initializeTemplates() {
+        templates().forEach { template -> templates[template.templateId] = template }
+    }
 
-  override fun reload() {
-    release()
-    initializeTemplates()
-  }
+    // @formatter:on
 
-  override fun release() {
-    templates.forEach { it.value.release() }
-    templates.clear()
-  }
+    override fun getTemplates(): List<Template<*>> {
+        return ImmutableList.copyOf(templates.values)
+    }
+
+    override fun getTemplate(templateId: String): Template<*>? {
+        return templates[templateId]
+    }
+
+    override fun reload() {
+        release()
+        initializeTemplates()
+    }
+
+    override fun release() {
+        templates.forEach { it.value.release() }
+        templates.clear()
+    }
 }

@@ -24,30 +24,22 @@ package com.itsaky.androidide.templates
  */
 interface Widget<T> {
 
-  fun release()
+    fun release()
 }
 
-/**
- * Widget for the given [parameter].
- */
+/** Widget for the given [parameter]. */
 sealed class ParameterWidget<T>(val parameter: Parameter<T>) : Widget<T> {
 
-  override fun release() {
-    parameter.release()
-  }
+    override fun release() {
+        parameter.release()
+    }
 }
 
-/**
- * Widget for a [StringParameter]. Creates a text field for the parameter.
- */
+/** Widget for a [StringParameter]. Creates a text field for the parameter. */
 class TextFieldWidget(p: StringParameter) : ParameterWidget<String>(p)
 
-/**
- * Widget for a [BooleanParameter]. Creates a checkbox for the parameter.
- */
+/** Widget for a [BooleanParameter]. Creates a checkbox for the parameter. */
 class CheckBoxWidget(p: BooleanParameter) : ParameterWidget<Boolean>(p)
 
-/**
- * Widget for an [EnumParameter]. Creates a spinner for the parameter.
- */
+/** Widget for an [EnumParameter]. Creates a spinner for the parameter. */
 class SpinnerWidget<T : Enum<*>>(p: EnumParameter<T>) : ParameterWidget<T>(p)

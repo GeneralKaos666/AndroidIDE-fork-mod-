@@ -17,14 +17,12 @@
 
 package com.itsaky.androidide.xml.res
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 interface ISearchResult {
 
-  val tablePackage: IResourceTablePackage
+    val tablePackage: IResourceTablePackage
 
-  val group: IResourceGroup
+    val group: IResourceGroup
 
-  val entry: IResourceEntry
+    val entry: IResourceEntry
 }

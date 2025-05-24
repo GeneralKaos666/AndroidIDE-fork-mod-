@@ -18,9 +18,9 @@
 package com.itsaky.androidide.javac.services.fs
 
 import com.itsaky.androidide.utils.VMUtils
+import java.nio.file.Path
 import openjdk.tools.javac.file.CacheFSInfo
 import org.slf4j.LoggerFactory
-import java.nio.file.Path
 
 /**
  * Singleton class for [CacheFSInfo] to avoid reading attributes of same file multiple times.
@@ -29,34 +29,32 @@ import java.nio.file.Path
  */
 object CacheFSInfoSingleton : CacheFSInfo() {
 
-  const val TEST_PROP_ENABLED_ON_JVM = "ide.testing.javac.fsCache.isEnabledOnJVM"
-  private val log = LoggerFactory.getLogger(CacheFSInfoSingleton::class.java)
+    const val TEST_PROP_ENABLED_ON_JVM = "ide.testing.javac.fsCache.isEnabledOnJVM"
+    private val log = LoggerFactory.getLogger(CacheFSInfoSingleton::class.java)
 
-  /**
-   * Caches information about the given [Path].
-   */
-  @JvmOverloads
-  fun cache(file: Path, cacheJarClasspath: Boolean = true) {
+    /** Caches information about the given [Path]. */
+    @JvmOverloads
+    fun cache(file: Path, cacheJarClasspath: Boolean = true) {
 
-    if (System.getProperty(TEST_PROP_ENABLED_ON_JVM, null) != "true") {
-      if (VMUtils.isJvm()) {
-        return
-      }
+        if (System.getProperty(TEST_PROP_ENABLED_ON_JVM, null) != "true") {
+            if (VMUtils.isJvm()) {
+                return
+            }
+        }
+
+        try {
+            // Cache canonical path
+            getCanonicalFile(file)
+
+            // Cache attributes
+            getAttributes(file)
+
+            // Cache jar classpath if requested
+            if (cacheJarClasspath) {
+                getJarClassPath(file)
+            }
+        } catch (err: Throwable) {
+            log.warn("Failed to cache jar file: {}", file, err)
+        }
     }
-
-    try {
-      // Cache canonical path
-      getCanonicalFile(file)
-
-      // Cache attributes
-      getAttributes(file)
-
-      // Cache jar classpath if requested
-      if (cacheJarClasspath) {
-        getJarClassPath(file)
-      }
-    } catch (err: Throwable) {
-      log.warn("Failed to cache jar file: {}", file, err)
-    }
-  }
 }

@@ -27,11 +27,11 @@ import com.itsaky.androidide.inflater.AttributeHandlerScope
  */
 abstract class AbsSeekBarAdapter<T : AbsSeekBar> : ProgressBarAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("thumbTint") { view.thumbTintList = parseColorStateList(context, value) }
-    create("thumbTintMode") { view.thumbTintMode = parsePorterDuffMode(value) }
-    create("tickMarkTint") { view.tickMarkTintList = parseColorStateList(context, value) }
-    create("tickMarkTintMode") { view.tickMarkTintMode = parsePorterDuffMode(value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("thumbTint") { view.thumbTintList = parseColorStateList(context, value) }
+        create("thumbTintMode") { view.thumbTintMode = parsePorterDuffMode(value) }
+        create("tickMarkTint") { view.tickMarkTintList = parseColorStateList(context, value) }
+        create("tickMarkTintMode") { view.tickMarkTintMode = parsePorterDuffMode(value) }
+    }
 }

@@ -27,9 +27,9 @@ import java.util.concurrent.CompletableFuture
  */
 interface IModuleProject : IGradleProject {
 
-  /**
-   * Get the classpaths for this module project. The returned list always included the
-   * `classes.jar`.
-   */
-  fun getClasspaths(): CompletableFuture<List<File>>
+    /**
+     * Get the classpaths for this module project. The returned list always included the
+     * `classes.jar`.
+     */
+    fun getClasspaths(): CompletableFuture<List<File>>
 }

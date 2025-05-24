@@ -18,35 +18,37 @@
 package com.itsaky.androidide.utils
 
 /**
- * Parses the given [hex color string][hexColor] and returns the [Long] representing
- * the color.
+ * Parses the given [hex color string][hexColor] and returns the [Long] representing the color.
  *
  * @param hexColor The color string.
  * @return The parsed color value.
  * @throws IllegalArgumentException If there was an error parsing the hex color.
  */
-fun parseHexColor(hexColor: String) : Long {
-  var str = hexColor
-  if (str[0] == '#') {
-    str = str.substring(1)
-  }
-  return try {
-    if (str.length == 3) {
-      // HEX color is in the form of #FFF
-      // convert it to #FFFFFF format (6 character long)
-      val r = str[0]
-      val g = str[1]
-      val b = str[2]
-      str = "$r$r$g$g$b$b"
+fun parseHexColor(hexColor: String): Long {
+    var str = hexColor
+    if (str[0] == '#') {
+        str = str.substring(1)
     }
+    return try {
+        if (str.length == 3) {
+            // HEX color is in the form of #FFF
+            // convert it to #FFFFFF format (6 character long)
+            val r = str[0]
+            val g = str[1]
+            val b = str[2]
+            str = "$r$r$g$g$b$b"
+        }
 
-    if (str.length == 6) {
-      // Prepend alpha value
-      str = "FF${str}"
+        if (str.length == 6) {
+            // Prepend alpha value
+            str = "FF${str}"
+        }
+
+        java.lang.Long.parseLong(str, 16)
+    } catch (e: Exception) {
+        throw IllegalArgumentException(
+            "Failed to parse hex color. color=$hexColor, processedColorString=$str",
+            e,
+        )
     }
-
-    java.lang.Long.parseLong(str, 16)
-  } catch (e: Exception) {
-    throw IllegalArgumentException("Failed to parse hex color. color=$hexColor, processedColorString=$str", e)
-  }
 }

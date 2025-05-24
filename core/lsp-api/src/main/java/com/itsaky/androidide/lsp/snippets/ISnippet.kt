@@ -24,15 +24,15 @@ package com.itsaky.androidide.lsp.snippets
  */
 interface ISnippet {
 
-  /** The prefix for the snippet. */
-  val prefix: String
+    /** The prefix for the snippet. */
+    val prefix: String
 
-  /** A short description about the snippet. */
-  val description: String
+    /** A short description about the snippet. */
+    val description: String
 
-  /**
-   * The snippet body. Each element in this array represents a line of code. The lines are joined
-   * and indented before inserting the text.
-   */
-  val body: Array<String>
+    /**
+     * The snippet body. Each element in this array represents a line of code. The lines are joined
+     * and indented before inserting the text.
+     */
+    val body: Array<String>
 }

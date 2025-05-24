@@ -25,32 +25,26 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Generates the Gradle init script for AndroidIDE.
- */
+/** Generates the Gradle init script for AndroidIDE. */
 abstract class GenerateInitScriptTask : DefaultTask() {
 
-  @get:Input
-  abstract val downloadVersion: Property<String>
+    @get:Input abstract val downloadVersion: Property<String>
 
-  @get:Input
-  abstract val mavenGroupId: Property<String>
+    @get:Input abstract val mavenGroupId: Property<String>
 
-  @get:OutputDirectory
-  abstract val outputDir: DirectoryProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
 
-  @TaskAction
-  fun generate() {
+    @TaskAction
+    fun generate() {
 
-    val outFile = this.outputDir.file("data/common/androidide.init.gradle")
-      .also {
-        it.get().asFile.parentFile.mkdirs()
-      }
+        val outFile =
+            this.outputDir.file("data/common/androidide.init.gradle").also {
+                it.get().asFile.parentFile.mkdirs()
+            }
 
-    outFile.get().asFile.bufferedWriter().use {
-
-      it.write(
-        """
+        outFile.get().asFile.bufferedWriter().use {
+            it.write(
+                """
       initscript {
           repositories {
               // Always specify the snapshots repository first
@@ -78,9 +72,9 @@ abstract class GenerateInitScriptTask : DefaultTask() {
       
       apply plugin: com.itsaky.androidide.gradle.AndroidIDEInitScriptPlugin
     """
-          .trimIndent().trim()
-      )
+                    .trimIndent()
+                    .trim()
+            )
+        }
     }
-  }
-
 }

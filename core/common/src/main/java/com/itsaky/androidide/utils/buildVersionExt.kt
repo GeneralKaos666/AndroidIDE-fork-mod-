@@ -20,21 +20,14 @@ package com.itsaky.androidide.utils
 import android.os.Build
 import androidx.annotation.ChecksSdkIntAtLeast
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
+@ChecksSdkIntAtLeast(Build.VERSION_CODES.P) fun isAtLeastP() = isAtLeast(Build.VERSION_CODES.P)
 
-@ChecksSdkIntAtLeast(Build.VERSION_CODES.P)
-fun isAtLeastP() = isAtLeast(Build.VERSION_CODES.P)
+@ChecksSdkIntAtLeast(Build.VERSION_CODES.Q) fun isAtLeastQ() = isAtLeast(Build.VERSION_CODES.Q)
 
-@ChecksSdkIntAtLeast(Build.VERSION_CODES.Q)
-fun isAtLeastQ() = isAtLeast(Build.VERSION_CODES.Q)
+@ChecksSdkIntAtLeast(Build.VERSION_CODES.R) fun isAtLeastR() = isAtLeast(Build.VERSION_CODES.R)
 
-@ChecksSdkIntAtLeast(Build.VERSION_CODES.R)
-fun isAtLeastR() = isAtLeast(Build.VERSION_CODES.R)
-
-@ChecksSdkIntAtLeast(Build.VERSION_CODES.S)
-fun isAtLeastS() = isAtLeast(Build.VERSION_CODES.S)
+@ChecksSdkIntAtLeast(Build.VERSION_CODES.S) fun isAtLeastS() = isAtLeast(Build.VERSION_CODES.S)
 
 @ChecksSdkIntAtLeast(Build.VERSION_CODES.TIRAMISU)
 fun isAtLeastT() = isAtLeast(Build.VERSION_CODES.TIRAMISU)
@@ -43,4 +36,4 @@ fun isAtLeastT() = isAtLeast(Build.VERSION_CODES.TIRAMISU)
 fun isAtLeastU() = isAtLeast(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 
 @ChecksSdkIntAtLeast(parameter = 0)
-fun isAtLeast(version: Int) : Boolean = Build.VERSION.SDK_INT >= version
+fun isAtLeast(version: Int): Boolean = Build.VERSION.SDK_INT >= version

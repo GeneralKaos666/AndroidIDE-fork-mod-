@@ -19,39 +19,39 @@ package com.itsaky.androidide.utils
 
 object KotlinClassBuilder {
 
-  @JvmStatic
-  fun createClass(packageName: String, className: String): String {
-    return """
+    @JvmStatic
+    fun createClass(packageName: String, className: String): String {
+        return """
     package $packageName
     
     class $className {}
     """
-      .trimIndent()
-  }
+            .trimIndent()
+    }
 
-  @JvmStatic
-  fun createInterface(packageName: String, className: String): String {
-    return """
+    @JvmStatic
+    fun createInterface(packageName: String, className: String): String {
+        return """
     package $packageName
     
     interface $className {}
     """
-      .trimIndent()
-  }
+            .trimIndent()
+    }
 
-  @JvmStatic
-  fun createEnum(packageName: String, className: String): String {
-    return """
+    @JvmStatic
+    fun createEnum(packageName: String, className: String): String {
+        return """
     package $packageName
     
     enum class $className {}
     """
-      .trimIndent()
-  }
+            .trimIndent()
+    }
 
-  @JvmStatic
-  fun createActivity(packageName: String, className: String): String {
-    return """
+    @JvmStatic
+    fun createActivity(packageName: String, className: String): String {
+        return """
     package $packageName
     
     import android.os.Bundle
@@ -63,6 +63,6 @@ object KotlinClassBuilder {
       }
     }
     """
-      .trimIndent()
-  }
+            .trimIndent()
+    }
 }

@@ -35,16 +35,16 @@ import com.itsaky.androidide.logging.encoder.IDELogFormatEncoder
 @Suppress("UNUSED")
 class IDELoggingConfigurator : ContextAwareBase(), Configurator {
 
-  override fun configure(context: LoggerContext): Configurator.ExecutionStatus {
-    addInfo("Setting up logging configuration")
+    override fun configure(context: LoggerContext): Configurator.ExecutionStatus {
+        addInfo("Setting up logging configuration")
 
-    val appender = LogcatAppender()
-    appender.encoder = IDELogFormatEncoder()
-    appender.start()
+        val appender = LogcatAppender()
+        appender.encoder = IDELogFormatEncoder()
+        appender.start()
 
-    val rootLogger = context.getLogger(Logger.ROOT_LOGGER_NAME)
-    rootLogger.addAppender(appender)
+        val rootLogger = context.getLogger(Logger.ROOT_LOGGER_NAME)
+        rootLogger.addAppender(appender)
 
-    return Configurator.ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY
-  }
+        return Configurator.ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY
+    }
 }

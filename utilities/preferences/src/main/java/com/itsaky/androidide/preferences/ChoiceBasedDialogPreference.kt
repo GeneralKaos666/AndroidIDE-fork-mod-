@@ -29,47 +29,50 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  */
 abstract class ChoiceBasedDialogPreference : DialogPreference(), PreferenceChoices {
 
-  private var choices = emptyArray<PreferenceChoices.Entry>()
+    private var choices = emptyArray<PreferenceChoices.Entry>()
 
-  final override fun onConfigureDialog(preference: Preference, dialog: MaterialAlertDialogBuilder) {
-    choices = getEntries(preference)
+    final override fun onConfigureDialog(
+        preference: Preference,
+        dialog: MaterialAlertDialogBuilder,
+    ) {
+        choices = getEntries(preference)
 
-    val selections = BooleanArray(choices.size) { choices[it].isChecked }
-    onConfigureDialogChoices(preference, dialog, choices, selections)
+        val selections = BooleanArray(choices.size) { choices[it].isChecked }
+        onConfigureDialogChoices(preference, dialog, choices, selections)
 
-    dialog.setPositiveButton(android.R.string.ok) { dialogInterface, _ ->
-      dialogInterface.dismiss()
-      onChoicesConfirmed(preference, choices)
+        dialog.setPositiveButton(android.R.string.ok) { dialogInterface, _ ->
+            dialogInterface.dismiss()
+            onChoicesConfirmed(preference, choices)
+        }
+
+        dialog.setNegativeButton(android.R.string.cancel) { dialogInterface, _ ->
+            dialogInterface.dismiss()
+            onChoicesCancelled(preference)
+        }
     }
 
-    dialog.setNegativeButton(android.R.string.cancel) { dialogInterface, _ ->
-      dialogInterface.dismiss()
-      onChoicesCancelled(preference)
+    @CallSuper
+    override fun onSelectionChanged(
+        preference: Preference,
+        entry: PreferenceChoices.Entry,
+        position: Int,
+        isSelected: Boolean,
+    ) {
+        entry._isChecked = isSelected
     }
-  }
 
-  @CallSuper
-  override fun onSelectionChanged(
-    preference: Preference,
-    entry: PreferenceChoices.Entry,
-    position: Int,
-    isSelected: Boolean
-  ) {
-    entry._isChecked = isSelected
-  }
+    /** Configure the dialog choices. */
+    protected abstract fun onConfigureDialogChoices(
+        preference: Preference,
+        dialog: MaterialAlertDialogBuilder,
+        entries: Array<PreferenceChoices.Entry>,
+        selections: BooleanArray,
+    )
 
-  /**
-   * Configure the dialog choices.
-   */
-  protected abstract fun onConfigureDialogChoices(
-    preference: Preference,
-    dialog: MaterialAlertDialogBuilder,
-    entries: Array<PreferenceChoices.Entry>,
-    selections: BooleanArray
-  )
+    override fun onChoicesConfirmed(
+        preference: Preference,
+        entries: Array<PreferenceChoices.Entry>,
+    ) {}
 
-  override fun onChoicesConfirmed(preference: Preference, entries: Array<PreferenceChoices.Entry>) {
-  }
-
-  override fun onChoicesCancelled(preference: Preference) {}
+    override fun onChoicesCancelled(preference: Preference) {}
 }

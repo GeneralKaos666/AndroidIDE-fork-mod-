@@ -24,43 +24,43 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 internal object Contributors {
 
-  private val log = LoggerFactory.getLogger(Contributors::class.java)
+    private val log = LoggerFactory.getLogger(Contributors::class.java)
 
-  @JvmStatic
-  suspend inline fun <reified Service, reified Model : Contributor> getAllContributors(
-    baseUrl: String,
-    crossinline action: (Service) -> Call<List<Model>>
-  ): List<Model> {
-    val retrofit = Retrofit.Builder()
-      .baseUrl(baseUrl)
-      .addConverterFactory(GsonConverterFactory.create())
-      .build()
+    @JvmStatic
+    suspend inline fun <reified Service, reified Model : Contributor> getAllContributors(
+        baseUrl: String,
+        crossinline action: (Service) -> Call<List<Model>>,
+    ): List<Model> {
+        val retrofit =
+            Retrofit.Builder()
+                .baseUrl(baseUrl)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
 
-    val service = retrofit.create(Service::class.java)
-    return withContext(Dispatchers.IO) {
-      try {
-        val response = action(service).execute()
-        if (!response.isSuccessful) {
-          log.error(
-            "Failed to get contributors list [${Model::class.java.name}], request unsuccessful",
-            response.errorBody()?.string() ?: "(empty error response)"
-          )
-          return@withContext emptyList()
+        val service = retrofit.create(Service::class.java)
+        return withContext(Dispatchers.IO) {
+            try {
+                val response = action(service).execute()
+                if (!response.isSuccessful) {
+                    log.error(
+                        "Failed to get contributors list [${Model::class.java.name}], request unsuccessful",
+                        response.errorBody()?.string() ?: "(empty error response)",
+                    )
+                    return@withContext emptyList()
+                }
+
+                return@withContext response.body()
+                    ?: run {
+                        log.error("Response body is null")
+                        emptyList()
+                    }
+            } catch (err: Throwable) {
+                err.printStackTrace()
+                emptyList()
+            }
         }
-
-        return@withContext response.body() ?: run {
-          log.error("Response body is null")
-          emptyList()
-        }
-      } catch (err: Throwable) {
-        err.printStackTrace()
-        emptyList()
-      }
     }
-  }
 }

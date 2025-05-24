@@ -27,8 +27,8 @@ import com.itsaky.androidide.editor.language.treesitter.predicates.NotMatchPredi
 import com.itsaky.androidide.treesitter.TSLanguage
 import io.github.rosemoe.sora.editor.ts.LocalsCaptureSpec
 import io.github.rosemoe.sora.editor.ts.TsLanguageSpec
-import org.slf4j.LoggerFactory
 import java.io.FileNotFoundException
+import org.slf4j.LoggerFactory
 
 /**
  * Provides language spec instances for tree sitter languages.
@@ -37,49 +37,49 @@ import java.io.FileNotFoundException
  */
 object LanguageSpecProvider {
 
-  private const val BASE_SPEC_PATH = "editor/treesitter"
-  private val log = LoggerFactory.getLogger(LanguageSpecProvider::class.java)
+    private const val BASE_SPEC_PATH = "editor/treesitter"
+    private val log = LoggerFactory.getLogger(LanguageSpecProvider::class.java)
 
-  @JvmStatic
-  @JvmOverloads
-  fun getLanguageSpec(
-    context: Context,
-    type: String,
-    lang: TSLanguage,
-    localsCaptureSpec: LocalsCaptureSpec = LocalsCaptureSpec.DEFAULT
-  ): TreeSitterLanguageSpec {
-    val editorLangSpec =
-      TsLanguageSpec(
-        language = lang,
-        highlightScmSource = readScheme(context, type, "highlights"),
-        localsScmSource = readScheme(context, type, "locals"),
-        codeBlocksScmSource = readScheme(context, type, "blocks"),
-        bracketsScmSource = readScheme(context, type, "brackets"),
-        localsCaptureSpec = localsCaptureSpec,
-        predicates =
-        listOf(
-          MatchPredicate,
-          NotMatchPredicate,
-          EqualPredicate,
-          NotEqualPredicate,
-          AnyOfPredicate
+    @JvmStatic
+    @JvmOverloads
+    fun getLanguageSpec(
+        context: Context,
+        type: String,
+        lang: TSLanguage,
+        localsCaptureSpec: LocalsCaptureSpec = LocalsCaptureSpec.DEFAULT,
+    ): TreeSitterLanguageSpec {
+        val editorLangSpec =
+            TsLanguageSpec(
+                language = lang,
+                highlightScmSource = readScheme(context, type, "highlights"),
+                localsScmSource = readScheme(context, type, "locals"),
+                codeBlocksScmSource = readScheme(context, type, "blocks"),
+                bracketsScmSource = readScheme(context, type, "brackets"),
+                localsCaptureSpec = localsCaptureSpec,
+                predicates =
+                    listOf(
+                        MatchPredicate,
+                        NotMatchPredicate,
+                        EqualPredicate,
+                        NotEqualPredicate,
+                        AnyOfPredicate,
+                    ),
+            )
+        return TreeSitterLanguageSpec(
+            spec = editorLangSpec,
+            indentsQueryScm = readScheme(context, type, "indents"),
         )
-      )
-    return TreeSitterLanguageSpec(
-      spec = editorLangSpec,
-      indentsQueryScm = readScheme(context, type, "indents")
-    )
-  }
-
-  private fun readScheme(context: Context, type: String, name: String): String {
-    return try {
-      context.assets.open("${BASE_SPEC_PATH}/${type}/${name}.scm").reader().readText()
-    } catch (e: Exception) {
-      if (e !is FileNotFoundException) {
-        // log everything except FileNotFoundException
-        log.error("Failed to read scheme file {} for type {}", name, type, e)
-      }
-      ""
     }
-  }
+
+    private fun readScheme(context: Context, type: String, name: String): String {
+        return try {
+            context.assets.open("${BASE_SPEC_PATH}/${type}/${name}.scm").reader().readText()
+        } catch (e: Exception) {
+            if (e !is FileNotFoundException) {
+                // log everything except FileNotFoundException
+                log.error("Failed to read scheme file {} for type {}", name, type, e)
+            }
+            ""
+        }
+    }
 }

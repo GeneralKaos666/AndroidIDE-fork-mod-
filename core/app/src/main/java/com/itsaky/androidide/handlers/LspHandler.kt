@@ -22,27 +22,24 @@ import com.itsaky.androidide.lsp.api.ILanguageServerRegistry
 import com.itsaky.androidide.lsp.java.JavaLanguageServer
 import com.itsaky.androidide.lsp.xml.XMLLanguageServer
 
-/**
- *
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 object LspHandler {
 
-  fun registerLanguageServers() {
-    ILanguageServerRegistry.getDefault().apply {
-      getServer(JavaLanguageServer.SERVER_ID) ?: register(JavaLanguageServer())
-      getServer(XMLLanguageServer.SERVER_ID) ?: register(XMLLanguageServer())
+    fun registerLanguageServers() {
+        ILanguageServerRegistry.getDefault().apply {
+            getServer(JavaLanguageServer.SERVER_ID) ?: register(JavaLanguageServer())
+            getServer(XMLLanguageServer.SERVER_ID) ?: register(XMLLanguageServer())
+        }
     }
-  }
-  
-  fun connectClient(client: ILanguageClient) {
-    ILanguageServerRegistry.getDefault().connectClient(client)
-  }
 
-  fun destroyLanguageServers(isConfigurationChange: Boolean) {
-    if (isConfigurationChange) {
-      return
+    fun connectClient(client: ILanguageClient) {
+        ILanguageServerRegistry.getDefault().connectClient(client)
     }
-    ILanguageServerRegistry.getDefault().destroy()
-  }
+
+    fun destroyLanguageServers(isConfigurationChange: Boolean) {
+        if (isConfigurationChange) {
+            return
+        }
+        ILanguageServerRegistry.getDefault().destroy()
+    }
 }

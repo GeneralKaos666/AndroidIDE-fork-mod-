@@ -18,11 +18,11 @@ package com.android.aaptcompiler.android
 
 class Ref<T>(private var t: T?) {
 
-  fun get(): T? = t
+    fun get(): T? = t
 
-  fun set(t: T) {
-    this.t = t
-  }
+    fun set(t: T) {
+        this.t = t
+    }
 
-  override fun toString(): String = "Ref<$t>"
+    override fun toString(): String = "Ref<$t>"
 }

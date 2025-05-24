@@ -31,30 +31,27 @@ import com.itsaky.androidide.models.MainScreenAction
 class MainActionsListAdapter
 @JvmOverloads
 constructor(val actions: List<MainScreenAction> = emptyList()) :
-  RecyclerView.Adapter<MainActionsListAdapter.VH>() {
-  class VH(val binding: LayoutMainActionItemBinding) : RecyclerView.ViewHolder(binding.root)
+    RecyclerView.Adapter<MainActionsListAdapter.VH>() {
+    class VH(val binding: LayoutMainActionItemBinding) : RecyclerView.ViewHolder(binding.root)
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-    VH(LayoutMainActionItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-  override fun getItemCount(): Int = actions.size
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        VH(LayoutMainActionItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
 
-  fun getAction(index: Int) = actions[index]
-  
-  override fun onBindViewHolder(holder: VH, position: Int) {
-    val action = getAction(index = position)
-    val binding = holder.binding
-    
-    binding.root.apply {
-      setText(action.text)
-      setIconResource(action.icon)
-      setOnClickListener {
-        action.onClick?.invoke(action, it)
-      }
-      action.onLongClick?.let { onLongClick ->
-        setOnLongClickListener {
-          onLongClick(action, it)
+    override fun getItemCount(): Int = actions.size
+
+    fun getAction(index: Int) = actions[index]
+
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        val action = getAction(index = position)
+        val binding = holder.binding
+
+        binding.root.apply {
+            setText(action.text)
+            setIconResource(action.icon)
+            setOnClickListener { action.onClick?.invoke(action, it) }
+            action.onLongClick?.let { onLongClick ->
+                setOnLongClickListener { onLongClick(action, it) }
+            }
         }
-      }
     }
-  }
 }

@@ -42,57 +42,64 @@ import com.itsaky.androidide.uidesigner.viewmodel.WorkspaceViewModel
  */
 class AddAttrFragment : Fragment() {
 
-  private val viewModel by viewModels<WorkspaceViewModel>(ownerProducer = { requireActivity() })
-  private var header: LayoutViewInfoHeaderBinding? = null
-  private var binding: LayoutAddAttrBinding? = null
-    set(value) {
-      if (value == null) {
-        field = null
-        header = null
-        return
-      }
+    private val viewModel by viewModels<WorkspaceViewModel>(ownerProducer = { requireActivity() })
+    private var header: LayoutViewInfoHeaderBinding? = null
+    private var binding: LayoutAddAttrBinding? = null
+        set(value) {
+            if (value == null) {
+                field = null
+                header = null
+                return
+            }
 
-      field = value
-      header = LayoutViewInfoHeaderBinding.bind(value.root)
+            field = value
+            header = LayoutViewInfoHeaderBinding.bind(value.root)
+        }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        return LayoutAddAttrBinding.inflate(inflater, container, false)
+            .also { this.binding = it }
+            .root
     }
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    return LayoutAddAttrBinding.inflate(inflater, container, false).also { this.binding = it }.root
-  }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
+        header?.apply {
+            name.setText(string.msg_viewaction_add_attr)
+            desc.setText(string.msg_select_attr)
+        }
 
-    header?.apply {
-      name.setText(string.msg_viewaction_add_attr)
-      desc.setText(string.msg_select_attr)
+        showAttrs()
     }
 
-    showAttrs()
-  }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        this.binding = null
+    }
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    this.binding = null
-  }
-
-  private fun showAttrs() {
-    val binding = this.binding ?: return
-    val view = viewModel.view ?: return
-    val adapter = view.viewAdapter ?: return
-    val attributes =
-      adapter.supportedAttributes.filterNot { view.hasAttribute(it.name, it.namespace?.uri) }
-    binding.attrList.adapter =
-      AddAttrListAdapter(attributes) {
-        val attribute =
-          newAttribute(view = viewModel.view, namespace = it.namespace, name = it.name, value = "")
-        viewModel.selectedAttr = attribute as UiAttribute
-        viewModel.addAttrMode = true
-        findNavController().navigate(R.id.attrValueEditorFragment)
-      }
-  }
+    private fun showAttrs() {
+        val binding = this.binding ?: return
+        val view = viewModel.view ?: return
+        val adapter = view.viewAdapter ?: return
+        val attributes =
+            adapter.supportedAttributes.filterNot { view.hasAttribute(it.name, it.namespace?.uri) }
+        binding.attrList.adapter =
+            AddAttrListAdapter(attributes) {
+                val attribute =
+                    newAttribute(
+                        view = viewModel.view,
+                        namespace = it.namespace,
+                        name = it.name,
+                        value = "",
+                    )
+                viewModel.selectedAttr = attribute as UiAttribute
+                viewModel.addAttrMode = true
+                findNavController().navigate(R.id.attrValueEditorFragment)
+            }
+    }
 }

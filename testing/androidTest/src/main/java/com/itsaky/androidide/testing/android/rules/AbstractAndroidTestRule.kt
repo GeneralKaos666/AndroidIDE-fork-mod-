@@ -28,10 +28,10 @@ import org.junit.rules.TestRule
  * @author Akash Yadav
  */
 abstract class AbstractAndroidTestRule : TestRule {
-  init {
-    Environment.init(ApplicationProvider.getApplicationContext())
-  }
+    init {
+        Environment.init(ApplicationProvider.getApplicationContext())
+    }
 
-  protected val context: Context
-    get() = ApplicationProvider.getApplicationContext()
+    protected val context: Context
+        get() = ApplicationProvider.getApplicationContext()
 }

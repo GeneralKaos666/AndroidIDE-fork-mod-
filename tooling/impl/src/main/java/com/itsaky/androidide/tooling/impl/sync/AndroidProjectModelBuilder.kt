@@ -32,60 +32,65 @@ import com.itsaky.androidide.tooling.impl.internal.AndroidProjectImpl
  * @author Akash Yadav
  */
 class AndroidProjectModelBuilder(initializationParams: InitializeProjectParams) :
-  AbstractModelBuilder<AndroidProjectModelBuilderParams, IAndroidProject>(initializationParams) {
+    AbstractModelBuilder<AndroidProjectModelBuilderParams, IAndroidProject>(initializationParams) {
 
-  override fun build(param: AndroidProjectModelBuilderParams): IAndroidProject {
-    val (controller, module, versions, syncIssueReporter) = param
+    override fun build(param: AndroidProjectModelBuilderParams): IAndroidProject {
+        val (controller, module, versions, syncIssueReporter) = param
 
-    val androidParams = initializationParams.androidParams
-    val projectPath = module.gradleProject.path
-    val basicModel = controller.getModelAndLog(module, BasicAndroidProject::class.java)
-    val androidModel = controller.getModelAndLog(module, AndroidProject::class.java)
-    val androidDsl = controller.getModelAndLog(module, AndroidDsl::class.java)
+        val androidParams = initializationParams.androidParams
+        val projectPath = module.gradleProject.path
+        val basicModel = controller.getModelAndLog(module, BasicAndroidProject::class.java)
+        val androidModel = controller.getModelAndLog(module, AndroidProject::class.java)
+        val androidDsl = controller.getModelAndLog(module, AndroidDsl::class.java)
 
-    val variantNames = basicModel.variants.map { it.name }
-    log(
-      "${variantNames.size} build variants found for project '$projectPath': $variantNames")
+        val variantNames = basicModel.variants.map { it.name }
+        log("${variantNames.size} build variants found for project '$projectPath': $variantNames")
 
-    var androidVariant = androidParams.variantSelections[projectPath]
+        var androidVariant = androidParams.variantSelections[projectPath]
 
-    if (androidVariant != null && !variantNames.contains(androidVariant)) {
-      log(
-        "Configured variant '$androidVariant' not found for project '$projectPath'. Falling back to default variant.")
-      androidVariant = null
+        if (androidVariant != null && !variantNames.contains(androidVariant)) {
+            log(
+                "Configured variant '$androidVariant' not found for project '$projectPath'. Falling back to default variant."
+            )
+            androidVariant = null
+        }
+
+        val configurationVariant = androidVariant ?: variantNames.firstOrNull()
+        if (configurationVariant.isNullOrBlank()) {
+            throw ModelBuilderException(
+                "No variant found for project '$projectPath'. providedVariant=$androidVariant"
+            )
+        }
+
+        log("Selected build variant '$configurationVariant' for project '$projectPath'")
+
+        val variantDependencies =
+            controller.getModelAndLog(
+                module,
+                VariantDependencies::class.java,
+                ModelBuilderParameter::class.java,
+            ) {
+                it.variantName = configurationVariant
+                it.dontBuildRuntimeClasspath = false
+                it.dontBuildAndroidTestRuntimeClasspath = true
+                it.dontBuildTestFixtureRuntimeClasspath = true
+                it.dontBuildUnitTestRuntimeClasspath = true
+                it.dontBuildHostTestRuntimeClasspath = emptyMap()
+                it.dontBuildScreenshotTestRuntimeClasspath = true
+            }
+
+        controller.findModel(module, ProjectSyncIssues::class.java)?.also { syncIssues ->
+            syncIssueReporter.reportAll(syncIssues)
+        }
+
+        return AndroidProjectImpl(
+            module.gradleProject,
+            configurationVariant,
+            basicModel,
+            androidModel,
+            variantDependencies,
+            versions,
+            androidDsl,
+        )
     }
-
-    val configurationVariant = androidVariant ?: variantNames.firstOrNull()
-    if (configurationVariant.isNullOrBlank()) {
-      throw ModelBuilderException(
-        "No variant found for project '$projectPath'. providedVariant=$androidVariant")
-    }
-
-    log("Selected build variant '$configurationVariant' for project '$projectPath'")
-
-    val variantDependencies = controller.getModelAndLog(module, VariantDependencies::class.java,
-      ModelBuilderParameter::class.java) {
-      it.variantName = configurationVariant
-      it.dontBuildRuntimeClasspath = false
-      it.dontBuildAndroidTestRuntimeClasspath = true
-      it.dontBuildTestFixtureRuntimeClasspath = true
-      it.dontBuildUnitTestRuntimeClasspath = true
-      it.dontBuildHostTestRuntimeClasspath = emptyMap()
-      it.dontBuildScreenshotTestRuntimeClasspath = true
-    }
-
-    controller.findModel(module, ProjectSyncIssues::class.java)?.also { syncIssues ->
-      syncIssueReporter.reportAll(syncIssues)
-    }
-
-    return AndroidProjectImpl(
-      module.gradleProject,
-      configurationVariant,
-      basicModel,
-      androidModel,
-      variantDependencies,
-      versions,
-      androidDsl
-    )
-  }
 }

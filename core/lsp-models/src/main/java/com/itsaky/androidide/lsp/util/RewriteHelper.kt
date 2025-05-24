@@ -23,23 +23,23 @@ import io.github.rosemoe.sora.widget.CodeEditor
 
 /** @author Akash Yadav */
 class RewriteHelper {
-  companion object {
-    @UiThread
-    @JvmStatic
-    fun performEdits(edits: List<TextEdit>, editor: CodeEditor) {
-      if (edits.isEmpty()) {
-        return
-      }
+    companion object {
+        @UiThread
+        @JvmStatic
+        fun performEdits(edits: List<TextEdit>, editor: CodeEditor) {
+            if (edits.isEmpty()) {
+                return
+            }
 
-      edits.forEach {
-        val s = it.range.start
-        val e = it.range.end
-        if (s == e) {
-          editor.text.insert(s.line, s.column, it.newText)
-        } else {
-          editor.text.replace(s.line, s.column, e.line, e.column, it.newText)
+            edits.forEach {
+                val s = it.range.start
+                val e = it.range.end
+                if (s == e) {
+                    editor.text.insert(s.line, s.column, it.newText)
+                } else {
+                    editor.text.replace(s.line, s.column, e.line, e.column, it.newText)
+                }
+            }
         }
-      }
     }
-  }
 }

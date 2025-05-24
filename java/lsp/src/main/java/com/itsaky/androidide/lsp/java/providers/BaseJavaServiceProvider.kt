@@ -29,14 +29,14 @@ import java.nio.file.Path
  * @author Akash Yadav
  */
 abstract class BaseJavaServiceProvider(
-  protected val file: Path,
-  protected val compiler: JavaCompilerService,
-  protected val settings: IServerSettings
+    protected val file: Path,
+    protected val compiler: JavaCompilerService,
+    protected val settings: IServerSettings,
 ) {
 
-  /** Abort the completion if cancelled. */
-  fun abortCompletionIfCancelled() {
-    val checker = Lookup.getDefault().lookup(ICancelChecker::class.java)
-    checker?.abortIfCancelled()
-  }
+    /** Abort the completion if cancelled. */
+    fun abortCompletionIfCancelled() {
+        val checker = Lookup.getDefault().lookup(ICancelChecker::class.java)
+        checker?.abortIfCancelled()
+    }
 }

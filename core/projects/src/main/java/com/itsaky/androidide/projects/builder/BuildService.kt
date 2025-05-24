@@ -35,50 +35,46 @@ import java.util.concurrent.CompletableFuture
  */
 interface BuildService {
 
-  companion object {
+    companion object {
 
-    /** Key that can be used to retrieve the [BuildService] instance using the [Lookup] API. */
-    @JvmField
-    val KEY_BUILD_SERVICE = Key<BuildService>()
+        /** Key that can be used to retrieve the [BuildService] instance using the [Lookup] API. */
+        @JvmField val KEY_BUILD_SERVICE = Key<BuildService>()
+
+        /**
+         * Key that can be used to retrieve the instance of Tooling API's [IProject] model using the
+         * [Lookup] API.
+         */
+        @JvmField val KEY_PROJECT_PROXY = Key<IProject>()
+    }
+
+    /** Whether a build is in progress or not. */
+    val isBuildInProgress: Boolean
+
+    /** Returns `true` if and only if the tooling API server has been started, `false` otherwise. */
+    fun isToolingServerStarted(): Boolean
+
+    /** Returns the [ToolingServerMetadata] of the tooling API server. */
+    fun metadata(): CompletableFuture<ToolingServerMetadata>
 
     /**
-     * Key that can be used to retrieve the instance of Tooling API's [IProject] model using the
-     * [Lookup] API.
+     * Initialize the project.
+     *
+     * @param params Parameters for the project initialization.
+     * @return A [CompletableFuture] which returns an [InitializeResult] when the project
+     *   initialization process finishes.
      */
-    @JvmField
-    val KEY_PROJECT_PROXY = Key<IProject>()
-  }
+    fun initializeProject(params: InitializeProjectParams): CompletableFuture<InitializeResult>
 
-  /** Whether a build is in progress or not. */
-  val isBuildInProgress: Boolean
+    /**
+     * Execute the given tasks.
+     *
+     * @param tasks The tasks to execute. If the fully qualified path of the task is not specified,
+     *   then it will be executed in the root project directory.
+     * @return A [CompletableFuture] which returns a list of [TaskExecutionResult]. The result
+     *   contains a list of tasks that were executed and the result of the whole execution.
+     */
+    fun executeTasks(vararg tasks: String): CompletableFuture<TaskExecutionResult>
 
-  /** Returns `true` if and only if the tooling API server has been started, `false` otherwise. */
-  fun isToolingServerStarted(): Boolean
-
-  /**
-   * Returns the [ToolingServerMetadata] of the tooling API server.
-   */
-  fun metadata(): CompletableFuture<ToolingServerMetadata>
-
-  /**
-   * Initialize the project.
-   *
-   * @param params Parameters for the project initialization.
-   * @return A [CompletableFuture] which returns an [InitializeResult] when the project
-   *   initialization process finishes.
-   */
-  fun initializeProject(params: InitializeProjectParams): CompletableFuture<InitializeResult>
-
-  /**
-   * Execute the given tasks.
-   *
-   * @param tasks The tasks to execute. If the fully qualified path of the task is not specified,
-   *   then it will be executed in the root project directory.
-   * @return A [CompletableFuture] which returns a list of [TaskExecutionResult]. The result
-   *   contains a list of tasks that were executed and the result of the whole execution.
-   */
-  fun executeTasks(vararg tasks: String): CompletableFuture<TaskExecutionResult>
-
-  /** Cancel any running build. */
-  fun cancelCurrentBuild(): CompletableFuture<BuildCancellationRequestResult>
+    /** Cancel any running build. */
+    fun cancelCurrentBuild(): CompletableFuture<BuildCancellationRequestResult>
 }

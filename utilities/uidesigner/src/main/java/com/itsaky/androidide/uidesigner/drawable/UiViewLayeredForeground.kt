@@ -29,12 +29,11 @@ import com.itsaky.androidide.uidesigner.utils.bgDesignerView
  *
  * @author Akash Yadav
  */
-class UiViewLayeredForeground(context: Context, val src: Drawable) : LayerDrawable(emptyArray())
-{
-  init {
-    val dp1 = SizeUtils.dp2px(1f)
-    val index = addLayer(src)
-    setLayerInsetRelative(index, dp1, dp1, dp1, dp1)
-    bgDesignerView(context)?.let { addLayer(it) }
-  }
+class UiViewLayeredForeground(context: Context, val src: Drawable) : LayerDrawable(emptyArray()) {
+    init {
+        val dp1 = SizeUtils.dp2px(1f)
+        val index = addLayer(src)
+        setLayerInsetRelative(index, dp1, dp1, dp1, dp1)
+        bgDesignerView(context)?.let { addLayer(it) }
+    }
 }

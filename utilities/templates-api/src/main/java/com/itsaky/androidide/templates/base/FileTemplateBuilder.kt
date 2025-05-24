@@ -28,9 +28,9 @@ import java.io.File
  * @property dir The directory in which the file must be created.
  * @author Akash Yadav
  */
-class FileTemplateBuilder<R: FileTemplateRecipeResult>(val dir: File) : TemplateBuilder<R>() {
+class FileTemplateBuilder<R : FileTemplateRecipeResult>(val dir: File) : TemplateBuilder<R>() {
 
-  override fun buildInternal(): FileTemplate<R> {
-    return FileTemplate(templateName!!, thumb!!, widgets!!, recipe!!)
-  }
+    override fun buildInternal(): FileTemplate<R> {
+        return FileTemplate(templateName!!, thumb!!, widgets!!, recipe!!)
+    }
 }

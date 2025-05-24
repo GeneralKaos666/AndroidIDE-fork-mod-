@@ -4,6 +4,7 @@ import java.io.Serializable
 
 /**
  * A data class that represents a set of permissions that should be requested to the user.
+ *
  * @property permissions An Array of Permissions from the Android Framework
  * @property position The position in the AppIntro pager when to request those permissions.
  * @property required Whether the permission being requested needs to be granted to move forward.
@@ -11,7 +12,7 @@ import java.io.Serializable
 internal data class PermissionWrapper(
     var permissions: Array<String>,
     var position: Int,
-    var required: Boolean = true
+    var required: Boolean = true,
 ) : Serializable {
 
     override fun equals(other: Any?): Boolean {

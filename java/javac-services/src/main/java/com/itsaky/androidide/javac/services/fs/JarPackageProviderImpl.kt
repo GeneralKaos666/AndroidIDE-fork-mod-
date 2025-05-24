@@ -18,8 +18,8 @@
 package com.itsaky.androidide.javac.services.fs
 
 import com.itsaky.androidide.zipfs2.JarPackageProvider
-import openjdk.tools.javac.file.RelativePath.RelativeDirectory
 import java.nio.file.Path
+import openjdk.tools.javac.file.RelativePath.RelativeDirectory
 
 /**
  * Provides cached packages from arhives.
@@ -27,8 +27,8 @@ import java.nio.file.Path
  * @author Akash Yadav
  */
 object JarPackageProviderImpl : JarPackageProvider {
-  override fun getPackages(archivePath: Path): MutableMap<RelativeDirectory, Path> {
-    val fs = CachingJarFileSystemProvider.newFileSystem(archivePath) as CachedJarFileSystem
-    return fs.packages
-  }
+    override fun getPackages(archivePath: Path): MutableMap<RelativeDirectory, Path> {
+        val fs = CachingJarFileSystemProvider.newFileSystem(archivePath) as CachedJarFileSystem
+        return fs.packages
+    }
 }

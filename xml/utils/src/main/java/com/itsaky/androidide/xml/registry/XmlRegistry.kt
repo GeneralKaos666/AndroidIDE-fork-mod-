@@ -27,18 +27,16 @@ import java.io.File
  */
 interface XmlRegistry<T> {
 
-  /**
-   * Whether the actions should be logged.
-   */
-  var isLoggingEnabled: Boolean
+    /** Whether the actions should be logged. */
+    var isLoggingEnabled: Boolean
 
-  /**
-   * Get data for the given platform directory.
-   *
-   * @param platform The platform directory.
-   */
-  fun forPlatformDir(platform: File): T?
+    /**
+     * Get data for the given platform directory.
+     *
+     * @param platform The platform directory.
+     */
+    fun forPlatformDir(platform: File): T?
 
-  /** Clears all the cached data. */
-  fun clear()
+    /** Clears all the cached data. */
+    fun clear()
 }

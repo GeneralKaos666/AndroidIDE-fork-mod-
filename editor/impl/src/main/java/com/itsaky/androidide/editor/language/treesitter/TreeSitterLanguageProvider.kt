@@ -27,23 +27,23 @@ import java.io.File
  */
 object TreeSitterLanguageProvider {
 
-  fun hasTsLanguage(file: File) : Boolean {
-    return TSLanguageRegistry.instance.hasLanguage(file.extension)
-  }
-
-  fun forFile(file: File, context: Context): TreeSitterLanguage? {
-    if (!hasTsLanguage(file)) {
-      return null
+    fun hasTsLanguage(file: File): Boolean {
+        return TSLanguageRegistry.instance.hasLanguage(file.extension)
     }
 
-    return forType(file.extension, context)
-  }
+    fun forFile(file: File, context: Context): TreeSitterLanguage? {
+        if (!hasTsLanguage(file)) {
+            return null
+        }
 
-  fun forType(type: String, context: Context): TreeSitterLanguage? {
-    return try {
-      TSLanguageRegistry.instance.getFactory<TreeSitterLanguage>(type).create(context)
-    } catch (e: TSLanguageRegistry.NotRegisteredException) {
-      null
+        return forType(file.extension, context)
     }
-  }
+
+    fun forType(type: String, context: Context): TreeSitterLanguage? {
+        return try {
+            TSLanguageRegistry.instance.getFactory<TreeSitterLanguage>(type).create(context)
+        } catch (e: TSLanguageRegistry.NotRegisteredException) {
+            null
+        }
+    }
 }

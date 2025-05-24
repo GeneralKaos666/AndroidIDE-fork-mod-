@@ -30,60 +30,58 @@ import org.greenrobot.eventbus.EventBus
 
 abstract class BaseIDEActivity : AppCompatActivity() {
 
-  open val subscribeToEvents: Boolean = false
+    open val subscribeToEvents: Boolean = false
 
-  open var enableSystemBarTheming: Boolean = true
+    open var enableSystemBarTheming: Boolean = true
 
-  open val navigationBarColor: Int
-    get() = resolveAttr(R.attr.colorSurface)
+    open val navigationBarColor: Int
+        get() = resolveAttr(R.attr.colorSurface)
 
-  open val statusBarColor: Int
-    get() = resolveAttr(R.attr.colorSurface)
+    open val statusBarColor: Int
+        get() = resolveAttr(R.attr.colorSurface)
 
-  /**
-   * [CoroutineScope] for executing tasks with the [Default][Dispatchers.Default] dispatcher.
-   */
-  val activityScope = CoroutineScope(Dispatchers.Default)
+    /** [CoroutineScope] for executing tasks with the [Default][Dispatchers.Default] dispatcher. */
+    val activityScope = CoroutineScope(Dispatchers.Default)
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    if (enableSystemBarTheming) {
-      window?.apply {
-        navigationBarColor = this@BaseIDEActivity.navigationBarColor
-        statusBarColor = this@BaseIDEActivity.statusBarColor
-      }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        if (enableSystemBarTheming) {
+            window?.apply {
+                navigationBarColor = this@BaseIDEActivity.navigationBarColor
+                statusBarColor = this@BaseIDEActivity.statusBarColor
+            }
+        }
+        IThemeManager.getInstance().applyTheme(this)
+        super.onCreate(savedInstanceState)
+        preSetContentLayout()
+        setContentView(bindLayout())
     }
-    IThemeManager.getInstance().applyTheme(this)
-    super.onCreate(savedInstanceState)
-    preSetContentLayout()
-    setContentView(bindLayout())
-  }
 
-  override fun onDestroy() {
-    super.onDestroy()
-    activityScope.cancelIfActive("Activity is being destroyed")
-  }
-
-  override fun onStart() {
-    super.onStart()
-    if (!EventBus.getDefault().isRegistered(this) && subscribeToEvents) {
-      EventBus.getDefault().register(this)
+    override fun onDestroy() {
+        super.onDestroy()
+        activityScope.cancelIfActive("Activity is being destroyed")
     }
-  }
 
-  override fun onStop() {
-    super.onStop()
-    if (EventBus.getDefault().isRegistered(this)) {
-      EventBus.getDefault().unregister(this)
+    override fun onStart() {
+        super.onStart()
+        if (!EventBus.getDefault().isRegistered(this) && subscribeToEvents) {
+            EventBus.getDefault().register(this)
+        }
     }
-  }
 
-  fun loadFragment(fragment: Fragment, id: Int) {
-    val transaction = supportFragmentManager.beginTransaction()
-    transaction.replace(id, fragment)
-    transaction.commit()
-  }
+    override fun onStop() {
+        super.onStop()
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this)
+        }
+    }
 
-  protected open fun preSetContentLayout() {}
+    fun loadFragment(fragment: Fragment, id: Int) {
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(id, fragment)
+        transaction.commit()
+    }
 
-  protected abstract fun bindLayout(): View
+    protected open fun preSetContentLayout() {}
+
+    protected abstract fun bindLayout(): View
 }

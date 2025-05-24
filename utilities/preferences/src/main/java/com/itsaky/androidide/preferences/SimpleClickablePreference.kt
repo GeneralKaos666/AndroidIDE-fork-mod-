@@ -29,14 +29,14 @@ import kotlinx.parcelize.Parcelize
 class SimpleClickablePreference
 @JvmOverloads
 constructor(
-  override val key: String,
-  override val title: Int,
-  override val summary: Int? = null,
-  override val icon: Int? = null,
-  private val onClick: ((Preference) -> Boolean)? = { false }
+    override val key: String,
+    override val title: Int,
+    override val summary: Int? = null,
+    override val icon: Int? = null,
+    private val onClick: ((Preference) -> Boolean)? = { false },
 ) : SimplePreference() {
 
-  override fun onPreferenceClick(preference: Preference): Boolean {
-    return onClick?.let { it(preference) } ?: false
-  }
+    override fun onPreferenceClick(preference: Preference): Boolean {
+        return onClick?.let { it(preference) } ?: false
+    }
 }

@@ -32,9 +32,9 @@ import com.itsaky.androidide.resources.R.string
 @com.itsaky.androidide.annotations.inflater.ViewAdapter(VideoView::class)
 @IncludeInDesigner(group = WIDGETS)
 open class VideoViewAdapter<T : VideoView> : SurfaceViewAdapter<T>() {
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(VideoView::class.java, string.widget_videoview, drawable.ic_widget_videoview)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(VideoView::class.java, string.widget_videoview, drawable.ic_widget_videoview)
+        )
+    }
 }

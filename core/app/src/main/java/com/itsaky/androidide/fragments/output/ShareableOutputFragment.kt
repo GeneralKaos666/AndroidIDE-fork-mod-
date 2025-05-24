@@ -24,12 +24,12 @@ package com.itsaky.androidide.fragments.output
  */
 interface ShareableOutputFragment {
 
-  /** Get the content of the fragment. */
-  fun getContent(): String
+    /** Get the content of the fragment. */
+    fun getContent(): String
 
-  /** Get the name of the file to which the output will be written. */
-  fun getFilename(): String
+    /** Get the name of the file to which the output will be written. */
+    fun getFilename(): String
 
-  /** Clear the output of this fragment. */
-  fun clearOutput()
+    /** Clear the output of this fragment. */
+    fun clearOutput()
 }

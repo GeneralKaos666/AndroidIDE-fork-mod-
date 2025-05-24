@@ -28,7 +28,6 @@ import java.math.BigInteger
 import java.security.MessageDigest
 import java.util.Locale
 
-
 /**
  * Anonymous statistics for AndroidIDE.
  *
@@ -36,43 +35,39 @@ import java.util.Locale
  */
 object AndroidIDEStats {
 
-  val uniqueDeviceId by lazy {
-    digest(DeviceUtils.getUniqueDeviceId(BaseApplication.getBaseInstance().packageName))
-  }
-
-  val deviceModel by lazy {
-    DeviceUtils.getModel()
-  }
-
-  val androidVersion by lazy {
-    Build.VERSION.SDK_INT
-  }
-
-  val appVersion by lazy {
-    BuildInfo.VERSION_NAME_SIMPLE
-  }
-
-  val country by lazy {
-    val manager = BaseApplication.getBaseInstance()
-      .getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-    manager.simCountryIso?.uppercase(Locale.getDefault())
-      .let { country -> if (country.isNullOrBlank()) "<unknown>" else country }
-  }
-
-  val cpuArch by lazy {
-    IDEBuildConfigProvider.getInstance().cpuAbiName
-  }
-
-  val statData by lazy {
-    StatData(uniqueDeviceId, deviceModel, country, androidVersion, appVersion, cpuArch)
-  }
-
-  private fun digest(input: String): String {
-    return try {
-      val md = MessageDigest.getInstance("SHA-256")
-      BigInteger(1, md.digest(input.toByteArray())).toString(16).uppercase(Locale.getDefault())
-    } catch (e: Exception) {
-      input
+    val uniqueDeviceId by lazy {
+        digest(DeviceUtils.getUniqueDeviceId(BaseApplication.getBaseInstance().packageName))
     }
-  }
+
+    val deviceModel by lazy { DeviceUtils.getModel() }
+
+    val androidVersion by lazy { Build.VERSION.SDK_INT }
+
+    val appVersion by lazy { BuildInfo.VERSION_NAME_SIMPLE }
+
+    val country by lazy {
+        val manager =
+            BaseApplication.getBaseInstance().getSystemService(Context.TELEPHONY_SERVICE)
+                as TelephonyManager
+        manager.simCountryIso?.uppercase(Locale.getDefault()).let { country ->
+            if (country.isNullOrBlank()) "<unknown>" else country
+        }
+    }
+
+    val cpuArch by lazy { IDEBuildConfigProvider.getInstance().cpuAbiName }
+
+    val statData by lazy {
+        StatData(uniqueDeviceId, deviceModel, country, androidVersion, appVersion, cpuArch)
+    }
+
+    private fun digest(input: String): String {
+        return try {
+            val md = MessageDigest.getInstance("SHA-256")
+            BigInteger(1, md.digest(input.toByteArray()))
+                .toString(16)
+                .uppercase(Locale.getDefault())
+        } catch (e: Exception) {
+            input
+        }
+    }
 }

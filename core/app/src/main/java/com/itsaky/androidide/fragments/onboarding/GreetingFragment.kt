@@ -20,8 +20,8 @@ package com.itsaky.androidide.fragments.onboarding
 import com.itsaky.androidide.databinding.FragmentOnboardingGreetingBinding
 import com.itsaky.androidide.fragments.FragmentWithBinding
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 class GreetingFragment :
-  FragmentWithBinding<FragmentOnboardingGreetingBinding>(FragmentOnboardingGreetingBinding::inflate)
+    FragmentWithBinding<FragmentOnboardingGreetingBinding>(
+        FragmentOnboardingGreetingBinding::inflate
+    )

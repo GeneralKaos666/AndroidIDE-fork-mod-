@@ -23,12 +23,11 @@ import com.itsaky.androidide.projects.IProjectManager
 import com.itsaky.androidide.projects.android.AndroidModule
 import com.itsaky.androidide.projects.android.androidAppProjects
 
-/**
- * **For testing purposes only!**
- */
+/** **For testing purposes only!** */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VisibleForTesting
 fun findAppModule(): AndroidModule? {
-  return IProjectManager.getInstance().getWorkspace()?.androidAppProjects()
-    ?.firstOrNull { it.path == ":app" }
+    return IProjectManager.getInstance().getWorkspace()?.androidAppProjects()?.firstOrNull {
+        it.path == ":app"
+    }
 }

@@ -30,36 +30,36 @@ import org.slf4j.LoggerFactory
  */
 object ReplaceAction {
 
-  private val log = LoggerFactory.getLogger(ReplaceAction::class.java)
+    private val log = LoggerFactory.getLogger(ReplaceAction::class.java)
 
-  @JvmStatic
-  fun doReplace(editor: IDEEditor) {
-    val context = editor.context
-    val binding = LayoutEditorFindReplaceBinding.inflate(LayoutInflater.from(context))
-    val builder = DialogUtils.newMaterialDialogBuilder(context)
-    builder.setTitle(R.string.replace)
-    builder.setView(binding.root)
-    builder.setNegativeButton(android.R.string.cancel, null)
-    builder.setPositiveButton(R.string.replace) { dialog, _ ->
-      dialog.dismiss()
-      val input = binding.replacementInput.editText
-      if (input == null) {
-        log.error("Unable to perform replace action. Input field is null")
-        return@setPositiveButton
-      }
+    @JvmStatic
+    fun doReplace(editor: IDEEditor) {
+        val context = editor.context
+        val binding = LayoutEditorFindReplaceBinding.inflate(LayoutInflater.from(context))
+        val builder = DialogUtils.newMaterialDialogBuilder(context)
+        builder.setTitle(R.string.replace)
+        builder.setView(binding.root)
+        builder.setNegativeButton(android.R.string.cancel, null)
+        builder.setPositiveButton(R.string.replace) { dialog, _ ->
+            dialog.dismiss()
+            val input = binding.replacementInput.editText
+            if (input == null) {
+                log.error("Unable to perform replace action. Input field is null")
+                return@setPositiveButton
+            }
 
-      editor.searcher.replaceThis(input.text.toString())
+            editor.searcher.replaceThis(input.text.toString())
+        }
+        builder.setNeutralButton(R.string.replaceAll) { dialog, _ ->
+            dialog.dismiss()
+            val input = binding.replacementInput.editText
+            if (input == null) {
+                log.error("Unable to perform replace action. Input field is null")
+                return@setNeutralButton
+            }
+
+            editor.searcher.replaceAll(input.text.toString())
+        }
+        builder.show()
     }
-    builder.setNeutralButton(R.string.replaceAll) { dialog, _ ->
-      dialog.dismiss()
-      val input = binding.replacementInput.editText
-      if (input == null) {
-        log.error("Unable to perform replace action. Input field is null")
-        return@setNeutralButton
-      }
-
-      editor.searcher.replaceAll(input.text.toString())
-    }
-    builder.show()
-  }
 }

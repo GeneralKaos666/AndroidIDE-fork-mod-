@@ -32,22 +32,24 @@ constructor(val content: CharSequence, val range: Range = Range.NONE)
 data class CodeFormatResult
 @JvmOverloads
 constructor(
-  val isIndexed: Boolean = false,
-  val edits: MutableList<out TextEdit> = mutableListOf(),
-  val indexedTextEdits: MutableList<IndexedTextEdit> = mutableListOf()
+    val isIndexed: Boolean = false,
+    val edits: MutableList<out TextEdit> = mutableListOf(),
+    val indexedTextEdits: MutableList<IndexedTextEdit> = mutableListOf(),
 ) {
 
-  companion object {
+    companion object {
 
-    /** Represents no formatting changes. */
-    @JvmField val NONE = CodeFormatResult()
+        /** Represents no formatting changes. */
+        @JvmField val NONE = CodeFormatResult()
 
-    /** Create a [CodeFormatResult] which replaces the whole [content] with the [formatted] text. */
-    @JvmStatic
-    fun forWholeContent(content: CharSequence, formatted: CharSequence): CodeFormatResult {
-      val replacements = mutableListOf<IndexedTextEdit>()
-      replacements.add(IndexedTextEdit(0, content.length, formatted))
-      return CodeFormatResult(true, indexedTextEdits = replacements)
+        /**
+         * Create a [CodeFormatResult] which replaces the whole [content] with the [formatted] text.
+         */
+        @JvmStatic
+        fun forWholeContent(content: CharSequence, formatted: CharSequence): CodeFormatResult {
+            val replacements = mutableListOf<IndexedTextEdit>()
+            replacements.add(IndexedTextEdit(0, content.length, formatted))
+            return CodeFormatResult(true, indexedTextEdits = replacements)
+        }
     }
-  }
 }

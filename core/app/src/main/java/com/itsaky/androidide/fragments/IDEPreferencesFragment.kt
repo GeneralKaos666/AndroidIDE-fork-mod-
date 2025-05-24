@@ -30,54 +30,54 @@ import com.itsaky.androidide.preferences.IPreferenceScreen
 
 class IDEPreferencesFragment : BasePreferenceFragment() {
 
-  private var children: List<IPreference> = emptyList()
+    private var children: List<IPreference> = emptyList()
 
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
-    reenterTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
-    exitTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
-    return super.onCreateView(inflater, container, savedInstanceState)
-  }
-
-  override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-    super.onCreatePreferences(savedInstanceState, rootKey)
-
-    if (context == null) {
-      return
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        enterTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
+        reenterTransition = MaterialSharedAxis(MaterialSharedAxis.X, false)
+        exitTransition = MaterialSharedAxis(MaterialSharedAxis.X, true)
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    @Suppress("DEPRECATION")
-    this.children = arguments?.getParcelableArrayList(EXTRA_CHILDREN) ?: emptyList()
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
 
-    preferenceScreen.removeAll()
-    addChildren(this.children, preferenceScreen)
-  }
+        if (context == null) {
+            return
+        }
 
-  private fun addChildren(children: List<IPreference>, pref: PreferenceGroup) {
-    for (child in children) {
-      val preference = child.onCreateView(requireContext())
-      if (child is IPreferenceScreen) {
-        preference.fragment = IDEPreferencesFragment::class.java.name
-        preference.extras.putParcelableArrayList(EXTRA_CHILDREN, ArrayList(child.children))
-        pref.addPreference(preference)
-        continue
-      }
+        @Suppress("DEPRECATION")
+        this.children = arguments?.getParcelableArrayList(EXTRA_CHILDREN) ?: emptyList()
 
-      if (child is IPreferenceGroup) {
-        pref.addPreference(preference as PreferenceCategory)
-        addChildren(child.children, preference)
-        continue
-      }
-
-      pref.addPreference(preference)
+        preferenceScreen.removeAll()
+        addChildren(this.children, preferenceScreen)
     }
-  }
 
-  companion object {
-    const val EXTRA_CHILDREN = "ide.preferences.fragment.children"
-  }
+    private fun addChildren(children: List<IPreference>, pref: PreferenceGroup) {
+        for (child in children) {
+            val preference = child.onCreateView(requireContext())
+            if (child is IPreferenceScreen) {
+                preference.fragment = IDEPreferencesFragment::class.java.name
+                preference.extras.putParcelableArrayList(EXTRA_CHILDREN, ArrayList(child.children))
+                pref.addPreference(preference)
+                continue
+            }
+
+            if (child is IPreferenceGroup) {
+                pref.addPreference(preference as PreferenceCategory)
+                addChildren(child.children, preference)
+                continue
+            }
+
+            pref.addPreference(preference)
+        }
+    }
+
+    companion object {
+        const val EXTRA_CHILDREN = "ide.preferences.fragment.children"
+    }
 }

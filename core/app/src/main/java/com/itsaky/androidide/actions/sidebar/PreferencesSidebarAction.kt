@@ -32,20 +32,21 @@ import kotlin.reflect.KClass
  *
  * @author Akash Yadav
  */
-class PreferencesSidebarAction(context: Context, override val order: Int) : AbstractSidebarAction() {
+class PreferencesSidebarAction(context: Context, override val order: Int) :
+    AbstractSidebarAction() {
 
-  override val id: String = "ide.editor.sidebar.preferences"
+    override val id: String = "ide.editor.sidebar.preferences"
 
-  // TODO : Should we show the preferences in the sidebar itself?
-  override val fragmentClass: KClass<out Fragment>? = null
+    // TODO : Should we show the preferences in the sidebar itself?
+    override val fragmentClass: KClass<out Fragment>? = null
 
-  init {
-    label = context.getString(R.string.ide_preferences)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_settings)
-  }
+    init {
+        label = context.getString(R.string.ide_preferences)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_settings)
+    }
 
-  override suspend fun execAction(data: ActionData): Any {
-    val context = data.requireContext()
-    return context.startActivity(Intent(context, PreferencesActivity::class.java))
-  }
+    override suspend fun execAction(data: ActionData): Any {
+        val context = data.requireContext()
+        return context.startActivity(Intent(context, PreferencesActivity::class.java))
+    }
 }

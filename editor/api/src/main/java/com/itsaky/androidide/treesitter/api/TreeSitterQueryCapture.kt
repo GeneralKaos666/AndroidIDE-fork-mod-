@@ -22,33 +22,31 @@ import com.itsaky.androidide.treesitter.TSQueryCapture
 import com.itsaky.androidide.utils.DefaultRecyclable
 import com.itsaky.androidide.utils.RecyclableObjectPool
 
-/**
- * @author Akash Yadav
- */
-class TreeSitterQueryCapture @JvmOverloads internal constructor(
-  node: TSNode? = null,
-  index: Int = 0
-) : TSQueryCapture(node, index), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
+/** @author Akash Yadav */
+class TreeSitterQueryCapture
+@JvmOverloads
+internal constructor(node: TSNode? = null, index: Int = 0) :
+    TSQueryCapture(node, index), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
 
-  companion object {
+    companion object {
 
-    @JvmStatic
-    fun obtain(node: TSNode?, index: Int): TreeSitterQueryCapture {
-      return obtainFromPool<TreeSitterQueryCapture>().apply {
-        this.node = node
-        this.index = index
-      }
+        @JvmStatic
+        fun obtain(node: TSNode?, index: Int): TreeSitterQueryCapture {
+            return obtainFromPool<TreeSitterQueryCapture>().apply {
+                this.node = node
+                this.index = index
+            }
+        }
     }
-  }
 
-  override fun recycle() {
-    (this.node as? TreeSitterNode?)?.apply {
-      if (!isRecycled) {
-        recycle()
-      }
+    override fun recycle() {
+        (this.node as? TreeSitterNode?)?.apply {
+            if (!isRecycled) {
+                recycle()
+            }
+        }
+        this.index = 0
+        this.node = null
+        returnToPool()
     }
-    this.index = 0
-    this.node = null
-    returnToPool()
-  }
 }

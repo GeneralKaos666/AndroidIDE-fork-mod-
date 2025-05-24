@@ -22,9 +22,9 @@ import com.google.gson.stream.JsonReader
 import com.itsaky.androidide.app.BaseApplication
 import com.itsaky.androidide.tasks.executeAsyncProvideError
 import com.itsaky.androidide.utils.VMUtils
-import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
+import org.slf4j.LoggerFactory
 
 /**
  * Parser for parsing snippets from assets.
@@ -33,101 +33,97 @@ import java.util.concurrent.ConcurrentHashMap
  */
 object SnippetParser {
 
-  private val log = LoggerFactory.getLogger(SnippetParser::class.java)
+    private val log = LoggerFactory.getLogger(SnippetParser::class.java)
 
-  fun <S : ISnippetScope> parse(
-    lang: String,
-    scopes: Array<S>,
-    snippetFactory: (String, String, List<String>) -> ISnippet = { prefix, desc, body ->
-      DefaultSnippet(prefix, desc, body.toTypedArray())
-    }
-  ): Map<S, List<ISnippet>> {
+    fun <S : ISnippetScope> parse(
+        lang: String,
+        scopes: Array<S>,
+        snippetFactory: (String, String, List<String>) -> ISnippet = { prefix, desc, body ->
+            DefaultSnippet(prefix, desc, body.toTypedArray())
+        },
+    ): Map<S, List<ISnippet>> {
 
-    // not supported for tests as assets cannot be accessed
-    if (VMUtils.isJvm()) {
-      return emptyMap()
-    }
-
-    return ConcurrentHashMap<S, List<ISnippet>>().apply {
-      for (scope in scopes) {
-        this[scope] =
-          mutableListOf<ISnippet>().apply {
-            readSnippets(lang, scope.filename, snippetFactory, this)
-          }
-      }
-    }
-  }
-
-  private fun readSnippets(
-    lang: String,
-    type: String,
-    snippetFactory: (String, String, List<String>) -> ISnippet,
-    snippets: MutableList<ISnippet>
-  ) {
-    executeAsyncProvideError({
-      val content =
-        try {
-          BaseApplication.getBaseInstance()
-            .assets
-            .open(assetsPath(lang, type))
-            .reader()
-        } catch (e: IOException) {
-          // snippet file probably does not exist
-          return@executeAsyncProvideError
+        // not supported for tests as assets cannot be accessed
+        if (VMUtils.isJvm()) {
+            return emptyMap()
         }
 
-      JsonReader(content).use {
-        it.beginObject()
-        while (it.hasNext()) {
-          val prefix = it.nextName()
-          readSnippet(prefix, it, snippetFactory, snippets)
+        return ConcurrentHashMap<S, List<ISnippet>>().apply {
+            for (scope in scopes) {
+                this[scope] =
+                    mutableListOf<ISnippet>().apply {
+                        readSnippets(lang, scope.filename, snippetFactory, this)
+                    }
+            }
         }
-        it.endObject()
-      }
-    }) { result, err ->
-      if (result == null || err != null) {
-        log.error("Failed to load '{}' snippets", type, err)
-      }
     }
-  }
 
-  fun assetsPath(lang: String, type: String) =
-    "data/editor/${lang}/snippets.${type}.json"
+    private fun readSnippets(
+        lang: String,
+        type: String,
+        snippetFactory: (String, String, List<String>) -> ISnippet,
+        snippets: MutableList<ISnippet>,
+    ) {
+        executeAsyncProvideError({
+            val content =
+                try {
+                    BaseApplication.getBaseInstance().assets.open(assetsPath(lang, type)).reader()
+                } catch (e: IOException) {
+                    // snippet file probably does not exist
+                    return@executeAsyncProvideError
+                }
 
-  private fun readSnippet(
-    prefix: String,
-    reader: JsonReader,
-    snippetFactory: (String, String, List<String>) -> ISnippet,
-    snippets: MutableList<ISnippet>
-  ) {
-    reader.beginObject()
-    var desc: String? = null
-    val body = mutableListOf<String>()
-    while (reader.hasNext()) {
-      val n = reader.nextName()
-      if (n != "desc" && n != "body") {
-        throw JsonParseException("'desc' or 'body' was expected, but found '${n}'")
-      }
+            JsonReader(content).use {
+                it.beginObject()
+                while (it.hasNext()) {
+                    val prefix = it.nextName()
+                    readSnippet(prefix, it, snippetFactory, snippets)
+                }
+                it.endObject()
+            }
+        }) { result, err ->
+            if (result == null || err != null) {
+                log.error("Failed to load '{}' snippets", type, err)
+            }
+        }
+    }
 
-      if (n == "desc") {
-        desc = reader.nextString()
-        continue
-      }
+    fun assetsPath(lang: String, type: String) = "data/editor/${lang}/snippets.${type}.json"
 
-      if (n == "body") {
-        reader.beginArray()
+    private fun readSnippet(
+        prefix: String,
+        reader: JsonReader,
+        snippetFactory: (String, String, List<String>) -> ISnippet,
+        snippets: MutableList<ISnippet>,
+    ) {
+        reader.beginObject()
+        var desc: String? = null
+        val body = mutableListOf<String>()
         while (reader.hasNext()) {
-          body.add(reader.nextString())
+            val n = reader.nextName()
+            if (n != "desc" && n != "body") {
+                throw JsonParseException("'desc' or 'body' was expected, but found '${n}'")
+            }
+
+            if (n == "desc") {
+                desc = reader.nextString()
+                continue
+            }
+
+            if (n == "body") {
+                reader.beginArray()
+                while (reader.hasNext()) {
+                    body.add(reader.nextString())
+                }
+                reader.endArray()
+            }
         }
-        reader.endArray()
-      }
+
+        checkNotNull(desc) { "DefaultSnippet description not defined for '${prefix}'" }
+        check(body.isNotEmpty()) { "DefaultSnippet body not defined for '${prefix}'" }
+
+        snippets.add(snippetFactory(prefix, desc, body))
+
+        reader.endObject()
     }
-
-    checkNotNull(desc) { "DefaultSnippet description not defined for '${prefix}'" }
-    check(body.isNotEmpty()) { "DefaultSnippet body not defined for '${prefix}'" }
-
-    snippets.add(snippetFactory(prefix, desc, body))
-
-    reader.endObject()
-  }
 }

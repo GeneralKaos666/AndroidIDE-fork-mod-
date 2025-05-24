@@ -34,15 +34,19 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(Chronometer::class)
 @IncludeInDesigner(group = WIDGETS)
 open class ChronometerAdapter<T : Chronometer> : TextViewAdapter<T>() {
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("countDown") { view.isCountDown = parseBoolean(value) }
-    create("format") { view.format = parseString(value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("countDown") { view.isCountDown = parseBoolean(value) }
+        create("format") { view.format = parseString(value) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(Chronometer::class.java, string.widget_chronometer, drawable.ic_widget_chronometer)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                Chronometer::class.java,
+                string.widget_chronometer,
+                drawable.ic_widget_chronometer,
+            )
+        )
+    }
 }

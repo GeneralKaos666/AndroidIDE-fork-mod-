@@ -22,14 +22,17 @@ package com.itsaky.androidide.uidesigner.undo
  *
  * @author Akash Yadav
  */
-class ViewRemovedAction(child: com.itsaky.androidide.inflater.IView, parent: com.itsaky.androidide.inflater.IViewGroup, index: Int) :
-  ViewAction(child, parent, index) {
+class ViewRemovedAction(
+    child: com.itsaky.androidide.inflater.IView,
+    parent: com.itsaky.androidide.inflater.IViewGroup,
+    index: Int,
+) : ViewAction(child, parent, index) {
 
-  override fun undo() {
-    parent.addChild(parent.validateIndex(index), child)
-  }
+    override fun undo() {
+        parent.addChild(parent.validateIndex(index), child)
+    }
 
-  override fun redo() {
-    child.removeFromParent()
-  }
+    override fun redo() {
+        child.removeFromParent()
+    }
 }

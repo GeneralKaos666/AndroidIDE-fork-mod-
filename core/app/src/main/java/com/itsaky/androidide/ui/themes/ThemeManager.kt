@@ -31,30 +31,30 @@ import com.itsaky.androidide.utils.isSystemInDarkMode
 @AutoService(IThemeManager::class)
 class ThemeManager : IThemeManager {
 
-  /**
-   * Apply the current theme to the given activity. Does nothing if theme is set to [Material You][IDETheme.MATERIAL_YOU].
-   */
-  override fun applyTheme(activity: Activity) {
+    /**
+     * Apply the current theme to the given activity. Does nothing if theme is set to
+     * [Material You][IDETheme.MATERIAL_YOU].
+     */
+    override fun applyTheme(activity: Activity) {
 
-    val theme = getCurrentTheme()
-    if (theme == IDETheme.MATERIAL_YOU) {
-      // No need to apply Material You theme
-      return
+        val theme = getCurrentTheme()
+        if (theme == IDETheme.MATERIAL_YOU) {
+            // No need to apply Material You theme
+            return
+        }
+
+        val style =
+            if (activity.isSystemInDarkMode()) {
+                theme.styleDark
+            } else {
+                theme.styleLight
+            }
+
+        activity.setTheme(style)
     }
 
-    val style = if (activity.isSystemInDarkMode()) {
-      theme.styleDark
-    } else {
-      theme.styleLight
+    /** Get the currently selected theme. */
+    override fun getCurrentTheme(): IDETheme {
+        return GeneralPreferences.selectedTheme?.let { IDETheme.valueOf(it) } ?: IDETheme.DEFAULT
     }
-
-    activity.setTheme(style)
-  }
-
-  /**
-   * Get the currently selected theme.
-   */
-  override fun getCurrentTheme(): IDETheme {
-    return GeneralPreferences.selectedTheme?.let { IDETheme.valueOf(it) } ?: IDETheme.DEFAULT
-  }
 }

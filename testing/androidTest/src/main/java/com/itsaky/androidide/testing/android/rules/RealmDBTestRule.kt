@@ -30,32 +30,29 @@ import org.junit.runners.model.Statement
  *
  * @author Akash Yadav
  */
-class RealmDBTestRule(
-  val baseModule: Any? = null,
-  vararg val additionalModules: Array<Any>,
-) : AbstractAndroidTestRule() {
+class RealmDBTestRule(val baseModule: Any? = null, vararg val additionalModules: Array<Any>) :
+    AbstractAndroidTestRule() {
 
-  inline fun withDb(dbName: String, deleteDbAfterTest: Boolean = true, action: Realm.() -> Unit) {
-    val name = dbName.replace(IRealmProvider.PATH_SEPARATOR, '-')
-    val realm = IRealmProvider.instance().get("/indexing/java/$name") {
-      baseModule?.let { baseModule ->
-        modules(baseModule, *additionalModules)
-      }
+    inline fun withDb(dbName: String, deleteDbAfterTest: Boolean = true, action: Realm.() -> Unit) {
+        val name = dbName.replace(IRealmProvider.PATH_SEPARATOR, '-')
+        val realm =
+            IRealmProvider.instance().get("/indexing/java/$name") {
+                baseModule?.let { baseModule -> modules(baseModule, *additionalModules) }
+            }
+
+        try {
+            realm.action()
+        } finally {
+            if (deleteDbAfterTest) {
+                realm.configuration.realmDirectory.deleteRecursively()
+            }
+        }
     }
 
-    try {
-      realm.action()
-    } finally {
-      if (deleteDbAfterTest) {
-        realm.configuration.realmDirectory.deleteRecursively()
-      }
+    override fun apply(base: Statement?, description: Description?): Statement {
+        Realm.init(context.applicationContext)
+        RealmLog.setLevel(LogLevel.ALL)
+        base?.evaluate()
+        return NoOpStatement()
     }
-  }
-
-  override fun apply(base: Statement?, description: Description?): Statement {
-    Realm.init(context.applicationContext)
-    RealmLog.setLevel(LogLevel.ALL)
-    base?.evaluate()
-    return NoOpStatement()
-  }
 }

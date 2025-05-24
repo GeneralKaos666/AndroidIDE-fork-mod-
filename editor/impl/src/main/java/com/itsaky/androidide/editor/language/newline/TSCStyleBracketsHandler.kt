@@ -25,12 +25,12 @@ import com.itsaky.androidide.editor.language.treesitter.TreeSitterLanguage
  * @author Akash Yadav
  */
 class TSCStyleBracketsHandler(language: TreeSitterLanguage) : TSBracketsHandler(language) {
-  
-  init {
-    openingBrackets.add("{")
-    closingBrackets.add("}")
-    
-    openingBrackets.add("(")
-    closingBrackets.add(")")
-  }
+
+    init {
+        openingBrackets.add("{")
+        closingBrackets.add("}")
+
+        openingBrackets.add("(")
+        closingBrackets.add(")")
+    }
 }

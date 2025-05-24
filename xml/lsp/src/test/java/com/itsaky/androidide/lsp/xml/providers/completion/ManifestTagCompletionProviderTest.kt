@@ -27,33 +27,36 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 @RunWith(RobolectricTestRunner::class)
 @Config(manifest = Config.NONE)
 class ManifestTagCompletionProviderTest : CompletionHelper by CompletionHelperImpl() {
-  
-  @Before
-  fun setup () = XMLLSPTest.initProjectIfNeeded()
-  
-  @Test // prefix: 'perm'
-  fun `simple tag completion test with prefix 'perm'` () {
-    XMLLSPTest.apply {
-      openFile("completion/ManifestPermTagTest")
-      val (isIncomplete, items) = complete()
-      assertThat(isIncomplete).isFalse()
-      assertThat(items).containsAtLeast("permission", "permission-group", "permission-tree")
+
+    @Before fun setup() = XMLLSPTest.initProjectIfNeeded()
+
+    @Test // prefix: 'perm'
+    fun `simple tag completion test with prefix 'perm'`() {
+        XMLLSPTest.apply {
+            openFile("completion/ManifestPermTagTest")
+            val (isIncomplete, items) = complete()
+            assertThat(isIncomplete).isFalse()
+            assertThat(items).containsAtLeast("permission", "permission-group", "permission-tree")
+        }
     }
-  }
-  
-  @Test // prefix: 'uses'
-  fun `simple tag completion test with prefix 'uses'` () {
-    XMLLSPTest.apply {
-      openFile("completion/ManifestUsesTagTest")
-      val (isIncomplete, items) = complete()
-      assertThat(isIncomplete).isFalse()
-      assertThat(items).containsAtLeast("uses-permission", "uses-sdk", "uses-configuration", "uses-feature")
+
+    @Test // prefix: 'uses'
+    fun `simple tag completion test with prefix 'uses'`() {
+        XMLLSPTest.apply {
+            openFile("completion/ManifestUsesTagTest")
+            val (isIncomplete, items) = complete()
+            assertThat(isIncomplete).isFalse()
+            assertThat(items)
+                .containsAtLeast(
+                    "uses-permission",
+                    "uses-sdk",
+                    "uses-configuration",
+                    "uses-feature",
+                )
+        }
     }
-  }
 }

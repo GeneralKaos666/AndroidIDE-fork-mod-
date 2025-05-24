@@ -28,17 +28,16 @@ import io.github.rosemoe.sora.lang.Language.INTERRUPTION_LEVEL_STRONG
  * @author Akash Yadav
  */
 class JsonLanguage(context: Context) :
-  TreeSitterLanguage(context, TSLanguageJson.getInstance(), TS_TYPE) {
+    TreeSitterLanguage(context, TSLanguageJson.getInstance(), TS_TYPE) {
 
-  companion object {
+    companion object {
 
-    const val TS_TYPE = "json"
+        const val TS_TYPE = "json"
 
-    @JvmField
-    val FACTORY = Factory { JsonLanguage(it) }
-  }
+        @JvmField val FACTORY = Factory { JsonLanguage(it) }
+    }
 
-  override fun getInterruptionLevel(): Int {
-    return INTERRUPTION_LEVEL_STRONG
-  }
+    override fun getInterruptionLevel(): Int {
+        return INTERRUPTION_LEVEL_STRONG
+    }
 }

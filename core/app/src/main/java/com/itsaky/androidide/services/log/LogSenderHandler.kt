@@ -19,63 +19,69 @@ package com.itsaky.androidide.services.log
 
 import com.itsaky.androidide.logsender.socket.SenderInfoCommand
 import com.itsaky.androidide.models.LogLine
+import java.net.Socket
+import java.net.SocketException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
-import java.net.Socket
-import java.net.SocketException
 
 /**
  * Handles a single log sender.
  *
  * @author Akash Yadav
  */
-class LogSenderHandler(private val sender: SenderInfoCommand, private val socket: Socket,
-  internal var consumer: ((LogLine) -> Unit)? = null,
-  private var onClose: ((String) -> Unit)? = null) : AutoCloseable {
+class LogSenderHandler(
+    private val sender: SenderInfoCommand,
+    private val socket: Socket,
+    internal var consumer: ((LogLine) -> Unit)? = null,
+    private var onClose: ((String) -> Unit)? = null,
+) : AutoCloseable {
 
-  private var manuallyClosed = false
+    private var manuallyClosed = false
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(LogSenderHandler::class.java)
-  }
+        private val log = LoggerFactory.getLogger(LogSenderHandler::class.java)
+    }
 
-  suspend fun startAsync() = withContext(Dispatchers.IO) {
-    try {
-      socket.getInputStream().bufferedReader().use { reader ->
-        while (!socket.isClosed) {
-          try {
-            LogLine.forLogString(reader.readLine())?.let { line -> consumer?.invoke(line) }
-          } catch (cancellation: CancellationException) {
-            break
-          }
+    suspend fun startAsync() =
+        withContext(Dispatchers.IO) {
+            try {
+                socket.getInputStream().bufferedReader().use { reader ->
+                    while (!socket.isClosed) {
+                        try {
+                            LogLine.forLogString(reader.readLine())?.let { line ->
+                                consumer?.invoke(line)
+                            }
+                        } catch (cancellation: CancellationException) {
+                            break
+                        }
+                    }
+                }
+            } catch (err: SocketException) {
+                if (!manuallyClosed) {
+                    log.error("An error occurred while reading from socket", err)
+                }
+            } finally {
+                close()
+            }
         }
-      }
-    } catch (err: SocketException) {
-      if (!manuallyClosed) {
-        log.error("An error occurred while reading from socket", err)
-      }
-    } finally {
-      close()
-    }
-  }
 
-  override fun close() {
-    try {
-      manuallyClosed = true
+    override fun close() {
+        try {
+            manuallyClosed = true
 
-      if (!socket.isClosed) {
-        log.debug("Closing log sender handler...")
-        socket.close()
-      }
-    } catch (err: Throwable) {
-      log.error("Failed to close socket", err)
-    } finally {
-      onClose?.invoke(this.sender.senderId)
-      this.consumer = null
-      this.onClose = null
+            if (!socket.isClosed) {
+                log.debug("Closing log sender handler...")
+                socket.close()
+            }
+        } catch (err: Throwable) {
+            log.error("Failed to close socket", err)
+        } finally {
+            onClose?.invoke(this.sender.senderId)
+            this.consumer = null
+            this.onClose = null
+        }
     }
-  }
 }

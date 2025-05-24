@@ -24,76 +24,68 @@ import com.blankj.utilcode.util.ConvertUtils
 import com.google.common.truth.Truth
 import com.itsaky.androidide.testing.android.rules.RealmDBTestRule
 import io.realm.RealmModel
+import java.io.File
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 @RunWith(AndroidJUnit4::class)
 class JavaIndexerTest {
 
-  @Rule
-  @JvmField
-  val dbTestRule = RealmDBTestRule(JavaIndexingRealmModule())
+    @Rule @JvmField val dbTestRule = RealmDBTestRule(JavaIndexingRealmModule())
 
-  val androidJar: File by lazy {
-    val context = ApplicationProvider.getApplicationContext<Context>()
-    val file = File.createTempFile("ajar", null, context.cacheDir)
-    context.assets.open("android.jar").use { asset ->
-      Truth.assertThat(asset).isNotNull()
-      file.outputStream().buffered().use { out ->
-        asset.copyTo(out)
-        out.flush()
-      }
+    val androidJar: File by lazy {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val file = File.createTempFile("ajar", null, context.cacheDir)
+        context.assets.open("android.jar").use { asset ->
+            Truth.assertThat(asset).isNotNull()
+            file.outputStream().buffered().use { out ->
+                asset.copyTo(out)
+                out.flush()
+            }
+        }
+        file
     }
-    file
-  }
 
-  @Test
-  fun testSimpleAndroidJarIndexingDurationCheck() {
-    val worker = JavaJarModelBuilder(androidJar)
-    val batches = mutableMapOf<Class<*>, MutableList<RealmModel>>()
+    @Test
+    fun testSimpleAndroidJarIndexingDurationCheck() {
+        val worker = JavaJarModelBuilder(androidJar)
+        val batches = mutableMapOf<Class<*>, MutableList<RealmModel>>()
 
-    var dbWriteDuration = 0L
+        var dbWriteDuration = 0L
 
-    dbTestRule.withDb("android-jar-classes") {
-      val totalStart = System.currentTimeMillis()
-      worker.consumeTypes { type ->
-        val batched = batches.computeIfAbsent(type.javaClass) { mutableListOf() }
-        batched.add(type)
+        dbTestRule.withDb("android-jar-classes") {
+            val totalStart = System.currentTimeMillis()
+            worker.consumeTypes { type ->
+                val batched = batches.computeIfAbsent(type.javaClass) { mutableListOf() }
+                batched.add(type)
 
-        if (batched.size >= 100) {
-          val start = System.currentTimeMillis()
-          executeTransaction {
-            insertOrUpdate(batched)
-          }
-          dbWriteDuration += System.currentTimeMillis() - start
+                if (batched.size >= 100) {
+                    val start = System.currentTimeMillis()
+                    executeTransaction { insertOrUpdate(batched) }
+                    dbWriteDuration += System.currentTimeMillis() - start
 
-          batched.clear()
-        }
-      }
+                    batched.clear()
+                }
+            }
 
-      for ((_, batched) in batches) {
-        if (batched.isNotEmpty()) {
-          val start = System.currentTimeMillis()
-          executeTransaction {
-            insertOrUpdate(batched)
-          }
-          dbWriteDuration += System.currentTimeMillis() - start
-        }
-      }
+            for ((_, batched) in batches) {
+                if (batched.isNotEmpty()) {
+                    val start = System.currentTimeMillis()
+                    executeTransaction { insertOrUpdate(batched) }
+                    dbWriteDuration += System.currentTimeMillis() - start
+                }
+            }
 
-      println(
-        "Took ${dbWriteDuration}ms to write android.jar (${
+            println(
+                "Took ${dbWriteDuration}ms to write android.jar (${
           ConvertUtils.byte2FitMemorySize(
             androidJar.length()
           )
         }) classes to Realm"
-      )
-      println("Total time: ${System.currentTimeMillis() - totalStart}ms")
+            )
+            println("Total time: ${System.currentTimeMillis() - totalStart}ms")
+        }
     }
-  }
 }

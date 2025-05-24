@@ -24,7 +24,7 @@ package com.itsaky.androidide.lsp.xml.edits
  */
 class AttrValueEditHandler : QualifiedValueEditHandler() {
 
-  override fun isPartialPart(c: Char): Boolean {
-    return super.isPartialPart(c) || c in charArrayOf('@', '.', ':', '/')
-  }
+    override fun isPartialPart(c: Char): Boolean {
+        return super.isPartialPart(c) || c in charArrayOf('@', '.', ':', '/')
+    }
 }

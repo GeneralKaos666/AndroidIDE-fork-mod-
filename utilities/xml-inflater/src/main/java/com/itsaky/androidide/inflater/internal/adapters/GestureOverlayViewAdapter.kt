@@ -30,35 +30,41 @@ import com.itsaky.androidide.inflater.AttributeHandlerScope
 @ViewAdapter(GestureOverlayView::class)
 open class GestureOverlayViewAdapter<T : GestureOverlayView> : FrameLayoutAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("eventsInterceptionEnabled") { view.isEventsInterceptionEnabled = parseBoolean(value) }
-    create("fadeDuration") {
-      ReflectUtils.reflect(view).field("mFadeDuration", parseLong(value, 150))
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("eventsInterceptionEnabled") {
+            view.isEventsInterceptionEnabled = parseBoolean(value)
+        }
+        create("fadeDuration") {
+            ReflectUtils.reflect(view).field("mFadeDuration", parseLong(value, 150))
+        }
+        create("fadeEnabled") { view.isFadeEnabled = parseBoolean(value) }
+        create("fadeOffset") { view.fadeOffset = parseLong(value, 420) }
+        create("gestureColor") { view.gestureColor = parseColor(context, value) }
+        create("gestureStrokeAngleThreshold") {
+            view.gestureStrokeAngleThreshold = parseFloat(value)
+        }
+        create("gestureStrokeLengthThreshold") {
+            view.gestureStrokeLengthThreshold = parseFloat(value)
+        }
+        create("gestureStrokeSquarenessThreshold") {
+            view.gestureStrokeSquarenessTreshold = parseFloat(value)
+        }
+        create("gestureStrokeType") { view.gestureStrokeType = parseGestureStrokeType(value) }
+        create("gestureStrokeWidth") { view.gestureStrokeWidth = parseFloat(value) }
+        create("orientation") { view.orientation = parseOrientation(value) }
+        create("uncertainGestureColor") { view.uncertainGestureColor = parseColor(context, value) }
     }
-    create("fadeEnabled") { view.isFadeEnabled = parseBoolean(value) }
-    create("fadeOffset") { view.fadeOffset = parseLong(value, 420) }
-    create("gestureColor") { view.gestureColor = parseColor(context, value) }
-    create("gestureStrokeAngleThreshold") { view.gestureStrokeAngleThreshold = parseFloat(value) }
-    create("gestureStrokeLengthThreshold") { view.gestureStrokeLengthThreshold = parseFloat(value) }
-    create("gestureStrokeSquarenessThreshold") {
-      view.gestureStrokeSquarenessTreshold = parseFloat(value)
+
+    protected open fun parseOrientation(value: String): Int {
+        return if ("horizontal" == value) {
+            GestureOverlayView.ORIENTATION_HORIZONTAL
+        } else GestureOverlayView.ORIENTATION_VERTICAL
     }
-    create("gestureStrokeType") { view.gestureStrokeType = parseGestureStrokeType(value) }
-    create("gestureStrokeWidth") { view.gestureStrokeWidth = parseFloat(value) }
-    create("orientation") { view.orientation = parseOrientation(value) }
-    create("uncertainGestureColor") { view.uncertainGestureColor = parseColor(context, value) }
-  }
 
-  protected open fun parseOrientation(value: String): Int {
-    return if ("horizontal" == value) {
-      GestureOverlayView.ORIENTATION_HORIZONTAL
-    } else GestureOverlayView.ORIENTATION_VERTICAL
-  }
-
-  protected open fun parseGestureStrokeType(value: String): Int {
-    return if ("multiple" == value) {
-      GestureOverlayView.GESTURE_STROKE_TYPE_MULTIPLE
-    } else GestureOverlayView.GESTURE_STROKE_TYPE_SINGLE
-  }
+    protected open fun parseGestureStrokeType(value: String): Int {
+        return if ("multiple" == value) {
+            GestureOverlayView.GESTURE_STROKE_TYPE_MULTIPLE
+        } else GestureOverlayView.GESTURE_STROKE_TYPE_SINGLE
+    }
 }

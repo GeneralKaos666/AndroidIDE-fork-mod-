@@ -29,34 +29,34 @@ import kotlinx.coroutines.plus
 /** @author Akash Yadav */
 abstract class EditorActivityAction : ActionItem {
 
-  override var enabled: Boolean = true
-  override var visible: Boolean = true
-  override var icon: Drawable? = null
-  override var label: String = ""
-  override var location: ActionItem.Location = ActionItem.Location.EDITOR_TOOLBAR
+    override var enabled: Boolean = true
+    override var visible: Boolean = true
+    override var icon: Drawable? = null
+    override var label: String = ""
+    override var location: ActionItem.Location = ActionItem.Location.EDITOR_TOOLBAR
 
-  override var requiresUIThread: Boolean = false
+    override var requiresUIThread: Boolean = false
 
-  protected val actionScope = CoroutineScope(Dispatchers.Default) +
-      CoroutineName("${javaClass.simpleName}Scope")
+    protected val actionScope =
+        CoroutineScope(Dispatchers.Default) + CoroutineName("${javaClass.simpleName}Scope")
 
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-    if (!data.hasRequiredData(Context::class.java)) {
-      markInvisible()
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
+        if (!data.hasRequiredData(Context::class.java)) {
+            markInvisible()
+        }
     }
-  }
 
-  fun ActionData.getActivity(): EditorHandlerActivity? {
-    return this[Context::class.java] as? EditorHandlerActivity
-  }
+    fun ActionData.getActivity(): EditorHandlerActivity? {
+        return this[Context::class.java] as? EditorHandlerActivity
+    }
 
-  fun ActionData.requireActivity(): EditorHandlerActivity {
-    return getActivity()!!
-  }
+    fun ActionData.requireActivity(): EditorHandlerActivity {
+        return getActivity()!!
+    }
 
-  override fun destroy() {
-    super.destroy()
-    actionScope.cancelIfActive("Action is being destroyed")
-  }
+    override fun destroy() {
+        super.destroy()
+        actionScope.cancelIfActive("Action is being destroyed")
+    }
 }

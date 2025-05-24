@@ -33,9 +33,9 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(CheckBox::class)
 @IncludeInDesigner(group = WIDGETS)
 open class CheckBoxAdapter<T : CheckBox> : CompoundButtonAdapter<T>() {
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(CheckBox::class.java, string.widget_checkbox, drawable.ic_widget_checkbox)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(CheckBox::class.java, string.widget_checkbox, drawable.ic_widget_checkbox)
+        )
+    }
 }

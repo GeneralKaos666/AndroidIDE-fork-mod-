@@ -25,10 +25,10 @@ package com.itsaky.androidide.actions
  */
 interface EditorActionItem : ActionItem {
 
-  /**
-   * Whether the actions window should be dismissed or not once this action is performed.
-   *
-   * @return `true` if the actions window must be dismissed, `false` otherwise.
-   */
-  fun dismissOnAction(): Boolean = true
+    /**
+     * Whether the actions window should be dismissed or not once this action is performed.
+     *
+     * @return `true` if the actions window must be dismissed, `false` otherwise.
+     */
+    fun dismissOnAction(): Boolean = true
 }

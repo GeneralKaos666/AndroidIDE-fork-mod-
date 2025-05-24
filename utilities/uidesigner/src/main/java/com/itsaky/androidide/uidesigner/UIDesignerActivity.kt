@@ -41,8 +41,8 @@ import com.itsaky.androidide.uidesigner.fragments.DesignerWorkspaceFragment
 import com.itsaky.androidide.uidesigner.utils.ViewToXml
 import com.itsaky.androidide.uidesigner.viewmodel.WorkspaceViewModel
 import com.itsaky.androidide.utils.flashError
-import org.slf4j.LoggerFactory
 import java.io.File
+import org.slf4j.LoggerFactory
 
 /**
  * The UI Designer activity allows the user to design XML layouts with a drag-n-drop interface.
@@ -51,165 +51,167 @@ import java.io.File
  */
 class UIDesignerActivity : BaseIDEActivity() {
 
-  private var binding: ActivityUiDesignerBinding? = null
-  private val viewModel by viewModels<WorkspaceViewModel>()
+    private var binding: ActivityUiDesignerBinding? = null
+    private val viewModel by viewModels<WorkspaceViewModel>()
 
-  private val workspace: DesignerWorkspaceFragment?
-    get() = this.binding?.workspace?.getFragment<DesignerWorkspaceFragment>()
+    private val workspace: DesignerWorkspaceFragment?
+        get() = this.binding?.workspace?.getFragment<DesignerWorkspaceFragment>()
 
-  private val backPressHandler =
-    object : OnBackPressedCallback(true) {
-      override fun handleOnBackPressed() {
-        val frag =
-          workspace()
-            ?: run {
-              onFailedToReturnXml("Workspace fragment not found")
-              return
+    private val backPressHandler =
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                val frag =
+                    workspace()
+                        ?: run {
+                            onFailedToReturnXml("Workspace fragment not found")
+                            return
+                        }
+
+                if (viewModel.layoutHasError) {
+                    onFailedToReturnXml("Inflation failed, layout has errors.")
+                    return
+                }
+
+                if (frag.workspaceView.childCount <= 0) {
+                    onFailedToReturnXml("No views have been added")
+                    return
+                }
+
+                ViewToXml.generateXml(
+                    frag.requireContext(),
+                    frag.workspaceView,
+                    ::onXmlGenerated,
+                ) { result, error ->
+                    if (result != null && error == null) {
+                        return@generateXml
+                    }
+
+                    // XML generation failed, notify user and exit activity
+                    runOnUiThread {
+                        flashError(R.string.msg_generate_xml_failed)
+                        onFailedToReturnXml(
+                            error?.cause?.message ?: error?.message ?: "Unknown error"
+                        )
+                    }
+                }
+            }
+        }
+
+    companion object {
+
+        private val log = LoggerFactory.getLogger(UIDesignerActivity::class.java)
+
+        const val EXTRA_FILE = "layout_file"
+        const val RESULT_GENERATED_XML = "ide.uidesigner.generatedXml"
+    }
+
+    private fun onXmlGenerated(xml: String) {
+        setResult(RESULT_OK, Intent().apply { putExtra(RESULT_GENERATED_XML, xml) })
+        finish()
+    }
+
+    private fun onFailedToReturnXml(reason: String) {
+        log.error("Failed to generate XML code because '{}'", reason)
+        setResult(RESULT_CANCELED)
+        finish()
+    }
+
+    override fun bindLayout(): View {
+        this.binding = ActivityUiDesignerBinding.inflate(layoutInflater)
+        this.binding!!.root.childId = this.binding!!.container.id
+        return this.binding!!.root
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        intent?.extras?.let {
+            val path = it.getString(EXTRA_FILE) ?: return
+            val file = File(path)
+            if (!file.exists()) {
+                throw IllegalArgumentException("File does not exist: $file")
+            }
+            viewModel.file = file
+        }
+
+        setSupportActionBar(this.binding!!.toolbar)
+        supportActionBar?.title = viewModel.file.nameWithoutExtension
+
+        ActionBarDrawerToggle(
+                this,
+                binding!!.root,
+                binding!!.toolbar,
+                R.string.app_name,
+                R.string.app_name,
+            )
+            .apply {
+                binding!!.root.addDrawerListener(this)
+                syncState()
             }
 
-        if (viewModel.layoutHasError) {
-          onFailedToReturnXml("Inflation failed, layout has errors.")
-          return
+        viewModel._drawerOpened.observe(this) { opened ->
+            if (binding == null) {
+                return@observe
+            }
+
+            if (opened) {
+                binding!!.root.openDrawer(GravityCompat.START)
+            } else {
+                binding!!.root.closeDrawer(GravityCompat.START)
+            }
         }
 
-        if (frag.workspaceView.childCount <= 0) {
-          onFailedToReturnXml("No views have been added")
-          return
+        onBackPressedDispatcher.addCallback(backPressHandler)
+
+        registerUiDesignerActions(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        registerUiDesignerActions(this)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        clearUiDesignerActions()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        ensureToolbarMenu(menu)
+        return true
+    }
+
+    @SuppressLint("RestrictedApi")
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        if (menu is MenuBuilder) {
+            menu.setOptionalIconsVisible(true)
         }
-
-        ViewToXml.generateXml(
-          frag.requireContext(),
-          frag.workspaceView,
-          ::onXmlGenerated
-        ) { result, error ->
-          if (result != null && error == null) {
-            return@generateXml
-          }
-
-          // XML generation failed, notify user and exit activity
-          runOnUiThread {
-            flashError(R.string.msg_generate_xml_failed)
-            onFailedToReturnXml(error?.cause?.message ?: error?.message ?: "Unknown error")
-          }
-        }
-      }
+        return true
     }
 
-  companion object {
+    private fun ensureToolbarMenu(menu: Menu) {
+        menu.clear()
 
-    private val log = LoggerFactory.getLogger(UIDesignerActivity::class.java)
+        val data = ActionData()
+        data.put(Context::class.java, this)
+        data.put(Fragment::class.java, workspace())
 
-    const val EXTRA_FILE = "layout_file"
-    const val RESULT_GENERATED_XML = "ide.uidesigner.generatedXml"
-  }
-
-  private fun onXmlGenerated(xml: String) {
-    setResult(RESULT_OK, Intent().apply { putExtra(RESULT_GENERATED_XML, xml) })
-    finish()
-  }
-
-  private fun onFailedToReturnXml(reason: String) {
-    log.error("Failed to generate XML code because '{}'", reason)
-    setResult(RESULT_CANCELED)
-    finish()
-  }
-
-  override fun bindLayout(): View {
-    this.binding = ActivityUiDesignerBinding.inflate(layoutInflater)
-    this.binding!!.root.childId = this.binding!!.container.id
-    return this.binding!!.root
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    intent?.extras?.let {
-      val path = it.getString(EXTRA_FILE) ?: return
-      val file = File(path)
-      if (!file.exists()) {
-        throw IllegalArgumentException("File does not exist: $file")
-      }
-      viewModel.file = file
+        ActionsRegistry.getInstance().fillMenu(FillMenuParams(data, UI_DESIGNER_TOOLBAR, menu))
     }
 
-    setSupportActionBar(this.binding!!.toolbar)
-    supportActionBar?.title = viewModel.file.nameWithoutExtension
-
-    ActionBarDrawerToggle(
-      this,
-      binding!!.root,
-      binding!!.toolbar,
-      R.string.app_name,
-      R.string.app_name
-    )
-      .apply {
-        binding!!.root.addDrawerListener(this)
-        syncState()
-      }
-
-    viewModel._drawerOpened.observe(this) { opened ->
-      if (binding == null) {
-        return@observe
-      }
-
-      if (opened) {
-        binding!!.root.openDrawer(GravityCompat.START)
-      } else {
-        binding!!.root.closeDrawer(GravityCompat.START)
-      }
+    private fun workspace(): DesignerWorkspaceFragment? {
+        return workspace
     }
 
-    onBackPressedDispatcher.addCallback(backPressHandler)
-
-    registerUiDesignerActions(this)
-  }
-
-  override fun onResume() {
-    super.onResume()
-    registerUiDesignerActions(this)
-  }
-
-  override fun onPause() {
-    super.onPause()
-    clearUiDesignerActions()
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    binding = null
-  }
-
-  override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-    ensureToolbarMenu(menu)
-    return true
-  }
-
-  @SuppressLint("RestrictedApi")
-  override fun onCreateOptionsMenu(menu: Menu): Boolean {
-    if (menu is MenuBuilder) {
-      menu.setOptionalIconsVisible(true)
+    fun setupHierarchy(view: com.itsaky.androidide.inflater.IView) {
+        binding?.hierarchy?.setupWithView(view) { workspace()?.showViewInfo(it) }
     }
-    return true
-  }
 
-  private fun ensureToolbarMenu(menu: Menu) {
-    menu.clear()
-
-    val data = ActionData()
-    data.put(Context::class.java, this)
-    data.put(Fragment::class.java, workspace())
-
-    ActionsRegistry.getInstance().fillMenu(FillMenuParams(data, UI_DESIGNER_TOOLBAR, menu))
-  }
-
-  private fun workspace(): DesignerWorkspaceFragment? {
-    return workspace
-  }
-
-  fun setupHierarchy(view: com.itsaky.androidide.inflater.IView) {
-    binding?.hierarchy?.setupWithView(view) { workspace()?.showViewInfo(it) }
-  }
-
-  fun openHierarchyView() {
-    binding?.root?.openDrawer(GravityCompat.END)
-  }
+    fun openHierarchyView() {
+        binding?.root?.openDrawer(GravityCompat.END)
+    }
 }

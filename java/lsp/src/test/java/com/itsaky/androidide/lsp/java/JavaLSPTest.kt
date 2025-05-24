@@ -18,8 +18,8 @@
 package com.itsaky.androidide.lsp.java
 
 import com.itsaky.androidide.lsp.api.ILanguageServerRegistry
-import com.itsaky.androidide.lsp.testing.LSPTest
 import com.itsaky.androidide.lsp.java.compiler.JavaCompilerService
+import com.itsaky.androidide.lsp.testing.LSPTest
 import com.itsaky.androidide.projects.util.findAppModule
 import org.junit.Before
 import org.junit.Ignore
@@ -28,26 +28,26 @@ import org.junit.Ignore
 @Ignore("Base singleton class")
 object JavaLSPTest : LSPTest("java") {
 
-  val server by lazy {
-    ILanguageServerRegistry.getDefault().getServer(JavaLanguageServer.SERVER_ID)
-        as JavaLanguageServer
-  }
+    val server by lazy {
+        ILanguageServerRegistry.getDefault().getServer(JavaLanguageServer.SERVER_ID)
+            as JavaLanguageServer
+    }
 
-  @Before
-  fun setup() {
-    log.debug("Initializing project...")
-    initProjectIfNeeded()
-  }
+    @Before
+    fun setup() {
+        log.debug("Initializing project...")
+        initProjectIfNeeded()
+    }
 
-  override fun registerServer() {
-    ILanguageServerRegistry.getDefault().register(JavaLanguageServer())
-  }
+    override fun registerServer() {
+        ILanguageServerRegistry.getDefault().register(JavaLanguageServer())
+    }
 
-  override fun getServerId() = JavaLanguageServer.SERVER_ID
+    override fun getServerId() = JavaLanguageServer.SERVER_ID
 
-  fun getCompiler(): JavaCompilerService {
-    return JavaCompilerProvider.get(findAppModule()!!)
-  }
+    fun getCompiler(): JavaCompilerService {
+        return JavaCompilerProvider.get(findAppModule()!!)
+    }
 
-  override fun test() {}
+    override fun test() {}
 }

@@ -34,17 +34,17 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(RatingBar::class)
 @IncludeInDesigner(group = WIDGETS)
 open class RatingBarAdapter<T : RatingBar> : AbsSeekBarAdapter<T>() {
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("isIndicator") { view.setIsIndicator(parseBoolean(value)) }
-    create("numStars") { view.numStars = parseInteger(value) }
-    create("rating") { view.rating = parseFloat(value) }
-    create("stepSize") { view.stepSize = parseFloat(value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("isIndicator") { view.setIsIndicator(parseBoolean(value)) }
+        create("numStars") { view.numStars = parseInteger(value) }
+        create("rating") { view.rating = parseFloat(value) }
+        create("stepSize") { view.stepSize = parseFloat(value) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(RatingBar::class.java, string.widget_rating_bar, drawable.ic_widget_rating_bar)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(RatingBar::class.java, string.widget_rating_bar, drawable.ic_widget_rating_bar)
+        )
+    }
 }

@@ -22,37 +22,37 @@ import com.blankj.utilcode.util.ThreadUtils
 import com.itsaky.androidide.R
 
 class BuildOutputFragment : NonEditableEditorFragment() {
-  private val unsavedLines: MutableList<String?> = ArrayList()
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    emptyStateViewModel.emptyMessage.value = getString(R.string.msg_emptyview_buildoutput)
-    if (unsavedLines.isNotEmpty()) {
-      for (line in unsavedLines) {
-        editor?.append("${line!!.trim()}\n")
-      }
-      unsavedLines.clear()
+    private val unsavedLines: MutableList<String?> = ArrayList()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        emptyStateViewModel.emptyMessage.value = getString(R.string.msg_emptyview_buildoutput)
+        if (unsavedLines.isNotEmpty()) {
+            for (line in unsavedLines) {
+                editor?.append("${line!!.trim()}\n")
+            }
+            unsavedLines.clear()
+        }
     }
-  }
-  
-  override fun onDestroyView() {
-    editor?.release()
-    super.onDestroyView()
-  }
-  
-  fun appendOutput(output: String?) {
-    if (editor == null) {
-      unsavedLines.add(output)
-      return
+
+    override fun onDestroyView() {
+        editor?.release()
+        super.onDestroyView()
     }
-    ThreadUtils.runOnUiThread {
-      val message = if (output == null || output.endsWith("\n")) {
-        output
-      } else {
-        "${output}\n"
-      }
-      editor!!.append(message).also {
-        emptyStateViewModel.isEmpty.value = false
-      }
+
+    fun appendOutput(output: String?) {
+        if (editor == null) {
+            unsavedLines.add(output)
+            return
+        }
+        ThreadUtils.runOnUiThread {
+            val message =
+                if (output == null || output.endsWith("\n")) {
+                    output
+                } else {
+                    "${output}\n"
+                }
+            editor!!.append(message).also { emptyStateViewModel.isEmpty.value = false }
+        }
     }
-  }
 }

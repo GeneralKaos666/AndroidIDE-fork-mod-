@@ -20,21 +20,21 @@ import com.itsaky.androidide.tooling.events.OperationDescriptor
 
 /** @author Akash Yadav */
 class DefaultOperationDescriptor(override val name: String, override val displayName: String) :
-  OperationDescriptor() {
+    OperationDescriptor() {
 
-  override fun equals(other: Any?): Boolean {
-    if (this === other) return true
-    if (other !is DefaultOperationDescriptor) return false
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DefaultOperationDescriptor) return false
 
-    if (name != other.name) return false
-    if (displayName != other.displayName) return false
+        if (name != other.name) return false
+        if (displayName != other.displayName) return false
 
-    return true
-  }
+        return true
+    }
 
-  override fun hashCode(): Int {
-    var result = name.hashCode()
-    result = 31 * result + displayName.hashCode()
-    return result
-  }
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + displayName.hashCode()
+        return result
+    }
 }

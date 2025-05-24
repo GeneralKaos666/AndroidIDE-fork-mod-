@@ -23,20 +23,20 @@ package com.itsaky.androidide.uidesigner.undo
  * @author Akash Yadav
  */
 class ViewMovedAction(
-  private val child: com.itsaky.androidide.inflater.IView,
-  private val fromParent: com.itsaky.androidide.inflater.IViewGroup,
-  private val toParent: com.itsaky.androidide.inflater.IViewGroup,
-  private val fromIndex: Int,
-  private val toIndex: Int
+    private val child: com.itsaky.androidide.inflater.IView,
+    private val fromParent: com.itsaky.androidide.inflater.IViewGroup,
+    private val toParent: com.itsaky.androidide.inflater.IViewGroup,
+    private val fromIndex: Int,
+    private val toIndex: Int,
 ) : IUiAction {
-  
-  override fun undo() {
-    child.removeFromParent()
-    fromParent.addChild(fromParent.validateIndex(fromIndex), child)
-  }
 
-  override fun redo() {
-    child.removeFromParent()
-    toParent.addChild(toParent.validateIndex(toIndex), child)
-  }
+    override fun undo() {
+        child.removeFromParent()
+        fromParent.addChild(fromParent.validateIndex(fromIndex), child)
+    }
+
+    override fun redo() {
+        child.removeFromParent()
+        toParent.addChild(toParent.validateIndex(toIndex), child)
+    }
 }

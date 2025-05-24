@@ -17,8 +17,8 @@
 
 package com.itsaky.androidide.shell
 
-import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.Dispatchers
 
 /**
  * Execute a process (command) using [ProcessBuilder] asynchronously.
@@ -27,7 +27,7 @@ import kotlin.coroutines.CoroutineContext
  * @return The started process.
  */
 fun executeProcessAsync(configure: IProcessBuilder.() -> Unit): Process {
-  return ProcessBuilderImpl().apply(configure).startAsync()
+    return ProcessBuilderImpl().apply(configure).startAsync()
 }
 
 /**
@@ -37,8 +37,8 @@ fun executeProcessAsync(configure: IProcessBuilder.() -> Unit): Process {
  * @return The started process.
  */
 suspend fun executeProcess(
-  coroutineContext: CoroutineContext = Dispatchers.IO,
-  configure: IProcessBuilder.() -> Unit
+    coroutineContext: CoroutineContext = Dispatchers.IO,
+    configure: IProcessBuilder.() -> Unit,
 ): Int {
-  return ProcessBuilderImpl().apply(configure).start(coroutineContext)
+    return ProcessBuilderImpl().apply(configure).start(coroutineContext)
 }

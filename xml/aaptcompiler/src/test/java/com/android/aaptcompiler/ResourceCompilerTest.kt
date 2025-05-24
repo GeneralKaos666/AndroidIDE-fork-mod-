@@ -10,18 +10,16 @@ import com.android.aaptcompiler.testutils.TableEntry
 import com.android.aaptcompiler.testutils.parseNameOrFail
 import com.android.utils.FileUtils
 import com.google.common.truth.Truth
+import java.io.File
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
 
 class ResourceCompilerTest {
 
-    @Rule
-    @JvmField
-    var tempFolder = TemporaryFolder()
+    @Rule @JvmField var tempFolder = TemporaryFolder()
 
     lateinit var outputDir: File
 
@@ -31,11 +29,12 @@ class ResourceCompilerTest {
     }
 
     private fun createFile(input: String, name: String, parentFolder: File? = null): File {
-        val file = if (parentFolder != null) {
-            File(parentFolder, name)
-        } else {
-            tempFolder.newFile(name)
-        }
+        val file =
+            if (parentFolder != null) {
+                File(parentFolder, name)
+            } else {
+                tempFolder.newFile(name)
+            }
         file.writeText(input)
         return file
     }
@@ -43,7 +42,7 @@ class ResourceCompilerTest {
     private fun testValuesFile(
         input: String,
         config: String = "",
-        options: ResourceCompilerOptions = ResourceCompilerOptions()
+        options: ResourceCompilerOptions = ResourceCompilerOptions(),
     ): File {
         val valuesFolder = tempFolder.newFolder("values")
         val configSuffix = if (config.isEmpty()) "" else "-$config"
@@ -56,10 +55,10 @@ class ResourceCompilerTest {
     }
 
     private fun testXmlFile(
-      type: AaptResourceType,
-      input: String,
-      config: String = "",
-      options: ResourceCompilerOptions = ResourceCompilerOptions()
+        type: AaptResourceType,
+        input: String,
+        config: String = "",
+        options: ResourceCompilerOptions = ResourceCompilerOptions(),
     ): File {
         val resourceFolder = tempFolder.newFolder(type.tagName)
         val configSuffix = if (config.isEmpty()) "" else "-$config"
@@ -77,18 +76,18 @@ class ResourceCompilerTest {
             file,
             outputDir,
             ResourceCompilerOptions(),
-            getMockBlameLogger(BlameLoggerTest.MockLogger())
+            getMockBlameLogger(BlameLoggerTest.MockLogger()),
         )
         val filePath = extractPathData(file)
         return File(outputDir, filePath.getIntermediateContainerFilename())
     }
 
     private fun testPngFile(
-      type: AaptResourceType,
-      input: String,
-      config: String = "",
-      isPatch9: Boolean = false,
-      options: ResourceCompilerOptions = ResourceCompilerOptions()
+        type: AaptResourceType,
+        input: String,
+        config: String = "",
+        isPatch9: Boolean = false,
+        options: ResourceCompilerOptions = ResourceCompilerOptions(),
     ): File {
         val resourceFolder = tempFolder.newFolder(type.tagName)
         val configSuffix = if (config.isEmpty()) "" else "-$config"
@@ -147,7 +146,8 @@ class ResourceCompilerTest {
 
     @Test
     fun testStringValuesFile() {
-        val input = """
+        val input =
+            """
       <?xml version="1.0" encoding="utf-8"?>
       <resources>
         <string name="normal1">Hi there!</string>
@@ -162,7 +162,8 @@ class ResourceCompilerTest {
           <item quantity="other">Found %d puppies!</item>
         </plurals>
       </resources>
-    """.trimIndent()
+    """
+                .trimIndent()
 
         val result = ContainerReader(testValuesFile(input))
         Truth.assertThat(result.entries).hasSize(1)
@@ -247,7 +248,8 @@ class ResourceCompilerTest {
 
     @Test
     fun testParseItems() {
-        val input = """
+        val input =
+            """
       <resources>
         <string name="nullAttempt">@null</string>
         <string name="emptyAttempt">@empty</string>
@@ -263,7 +265,8 @@ class ResourceCompilerTest {
         <dimen name="itemWidth">12dp</dimen>
         <fraction name="fraction1">100%</fraction>
       </resources>
-    """.trimIndent()
+    """
+                .trimIndent()
 
         val result = ContainerReader(testValuesFile(input))
         Truth.assertThat(result.entries).hasSize(1)
@@ -342,11 +345,13 @@ class ResourceCompilerTest {
 
     @Test
     fun testParseInvalidColorHexCode() {
-        val input = """
+        val input =
+            """
       <resources>
          <color name="invalid">#0xE1E1E1</color>
       </resources>
-    """.trimIndent()
+    """
+                .trimIndent()
 
         try {
             testValuesFile(input)
@@ -357,13 +362,15 @@ class ResourceCompilerTest {
 
     @Test
     fun parseStyleableWithAndroidAttr() {
-        val input = """
+        val input =
+            """
       <resources>
         <declare-styleable name="oneattr">
           <attr name="android:foo"/>
         </declare-styleable>
       </resources>
-    """.trimIndent()
+    """
+                .trimIndent()
 
         val result = ContainerReader(testValuesFile(input))
         Truth.assertThat(result.entries).hasSize(1)
@@ -383,7 +390,8 @@ class ResourceCompilerTest {
 
     @Test
     fun parseArrayTypes() {
-        val input = """
+        val input =
+            """
       <resources>
         <integer-array name="ints">
             <item>0</item>
@@ -404,7 +412,8 @@ class ResourceCompilerTest {
           <item>#FF0000FF</item>
         </array>
       </resources>
-    """.trimIndent()
+    """
+                .trimIndent()
 
         val result = ContainerReader(testValuesFile(input))
         Truth.assertThat(result.entries).hasSize(1)
@@ -450,7 +459,8 @@ class ResourceCompilerTest {
 
     @Test
     fun parseAttrInStyleable() {
-        val input = """
+        val input =
+            """
       <resources>
         <declare-styleable name="PieChart">
           <attr name="showText" format="boolean" />
@@ -460,7 +470,8 @@ class ResourceCompilerTest {
           </attr>
         </declare-styleable>
       </resources>
-    """.trimIndent()
+    """
+                .trimIndent()
 
         val result = ContainerReader(testValuesFile(input))
         Truth.assertThat(result.entries).hasSize(1)
@@ -502,9 +513,11 @@ class ResourceCompilerTest {
 
     @Test
     fun testCompileRawFileSupported() {
-        val input = """
+        val input =
+            """
       I'm just writing some text here, because raw files can be anything.
-    """.trimIndent()
+    """
+                .trimIndent()
 
         val result = ContainerReader(testRawFile(input, "txt"))
         Truth.assertThat(result.numEntries).isEqualTo(1)
@@ -527,50 +540,56 @@ class ResourceCompilerTest {
 
     @Test
     fun testCompilePatch9ProcessingNotSupported() {
-        val input = """
+        val input =
+            """
       What is here doesn't really matter, as the files location and extension determines
       whether or not this file is treated as a png.
-    """.trimIndent()
+    """
+                .trimIndent()
 
         try {
             testPngFile(AaptResourceType.LAYOUT, input, isPatch9 = true)
             fail()
         } catch (e: ResourceCompilationException) {
-            Truth.assertThat(e.cause!!.message).contains(
-                "Patch 9 PNG processing is not supported with the JVM Android resource compiler."
-            )
+            Truth.assertThat(e.cause!!.message)
+                .contains(
+                    "Patch 9 PNG processing is not supported with the JVM Android resource compiler."
+                )
             // expected
         }
     }
 
     @Test
     fun testCompilePngCrunchingNotSupported() {
-        val input = """
+        val input =
+            """
       What is here doesn't really matter, as the files location and extension determines
       whether or not this file is treated as a png.
-    """.trimIndent()
+    """
+                .trimIndent()
 
         try {
             testPngFile(
                 AaptResourceType.LAYOUT,
                 input,
-                options = ResourceCompilerOptions(requirePngCrunching = true)
+                options = ResourceCompilerOptions(requirePngCrunching = true),
             )
             fail()
         } catch (e: ResourceCompilationException) {
-            Truth.assertThat(e.cause!!.message).contains(
-                "PNG crunching is not supported with the JVM Android resource compiler."
-            )
+            Truth.assertThat(e.cause!!.message)
+                .contains("PNG crunching is not supported with the JVM Android resource compiler.")
             // expected
         }
     }
 
     @Test
     fun testCompilePngWithoutCrunchingSupported() {
-        val input = """
+        val input =
+            """
       What is here doesn't really matter, as the files location and extension determines
       whether or not this file is treated as a png.
-    """.trimIndent()
+    """
+                .trimIndent()
 
         val result = ContainerReader(testPngFile(AaptResourceType.LAYOUT, input))
         Truth.assertThat(result.numEntries).isEqualTo(1)
@@ -594,16 +613,19 @@ class ResourceCompilerTest {
     @Test
     fun testCompileFileWithCustomSourcePath() {
         val input = // language=XML
-                """<?xml version="1.0" encoding="utf-8"?>
+            """<?xml version="1.0" encoding="utf-8"?>
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android">
             <TextBox android:id="@+id/text_one" android:background="@color/color_one"/>
         </LinearLayout>
-    """.trimIndent()
+    """
+                .trimIndent()
 
         val path = FileUtils.join("main", "res", "values", "test.xml")
         val options = ResourceCompilerOptions(sourcePath = path)
-        val result = ContainerReader(
-                testXmlFile(type = AaptResourceType.LAYOUT, input = input, options = options))
+        val result =
+            ContainerReader(
+                testXmlFile(type = AaptResourceType.LAYOUT, input = input, options = options)
+            )
         Truth.assertThat(result.numEntries).isEqualTo(1)
         val entries = result.entries as List<FileEntry>
         val sourcePath: String = entries[0].header.sourcePath
@@ -612,13 +634,15 @@ class ResourceCompilerTest {
 
     @Test
     fun testMacros() {
-        val input = """
+        val input =
+            """
       <?xml version="1.0" encoding="utf-8"?>
       <resources>
         <macro name="m1">Hello world</macro>
         <macro name="m2">@macro/m1</macro>
       </resources>
-    """.trimIndent()
+    """
+                .trimIndent()
 
         val result = ContainerReader(testValuesFile(input))
         Truth.assertThat(result.entries).hasSize(1)

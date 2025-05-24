@@ -35,15 +35,19 @@ import com.itsaky.androidide.resources.R.string
 @IncludeInDesigner(group = LAYOUTS)
 open class FrameLayoutAdapter<T : FrameLayout> : ViewGroupAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("foregroundGravity") { view.foregroundGravity = parseGravity(value) }
-    create("measureAllChildren") { view.measureAllChildren = parseBoolean(value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("foregroundGravity") { view.foregroundGravity = parseGravity(value) }
+        create("measureAllChildren") { view.measureAllChildren = parseBoolean(value) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(FrameLayout::class.java, string.widget_frame_layout, drawable.ic_widget_frame_layout)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                FrameLayout::class.java,
+                string.widget_frame_layout,
+                drawable.ic_widget_frame_layout,
+            )
+        )
+    }
 }

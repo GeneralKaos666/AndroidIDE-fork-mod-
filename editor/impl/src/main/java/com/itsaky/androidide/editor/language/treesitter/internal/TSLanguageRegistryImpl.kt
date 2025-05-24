@@ -28,33 +28,33 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class TSLanguageRegistryImpl : TSLanguageRegistry {
 
-  private val registry =
-    ConcurrentHashMap<String, TreeSitterLanguage.Factory<out TreeSitterLanguage>>()
+    private val registry =
+        ConcurrentHashMap<String, TreeSitterLanguage.Factory<out TreeSitterLanguage>>()
 
-  override fun <T : TreeSitterLanguage> register(
-    fileType: String,
-    factory: TreeSitterLanguage.Factory<T>
-  ) {
-    val older = registry.put(fileType, factory)
-    if (older != null) {
-      registry[fileType] = older
-      throw TSLanguageRegistry.AlreadyRegisteredException(fileType)
+    override fun <T : TreeSitterLanguage> register(
+        fileType: String,
+        factory: TreeSitterLanguage.Factory<T>,
+    ) {
+        val older = registry.put(fileType, factory)
+        if (older != null) {
+            registry[fileType] = older
+            throw TSLanguageRegistry.AlreadyRegisteredException(fileType)
+        }
     }
-  }
 
-  override fun hasLanguage(fileType: String): Boolean {
-    return registry.containsKey(fileType)
-  }
+    override fun hasLanguage(fileType: String): Boolean {
+        return registry.containsKey(fileType)
+    }
 
-  @Suppress("UNCHECKED_CAST")
-  override fun <T : TreeSitterLanguage> getFactory(
-    fileType: String
-  ): TreeSitterLanguage.Factory<T> {
-    return (registry[fileType] ?: throw TSLanguageRegistry.NotRegisteredException(fileType))
-        as TreeSitterLanguage.Factory<T>
-  }
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : TreeSitterLanguage> getFactory(
+        fileType: String
+    ): TreeSitterLanguage.Factory<T> {
+        return (registry[fileType] ?: throw TSLanguageRegistry.NotRegisteredException(fileType))
+            as TreeSitterLanguage.Factory<T>
+    }
 
-  override fun destroy() {
-    registry.clear()
-  }
+    override fun destroy() {
+        registry.clear()
+    }
 }

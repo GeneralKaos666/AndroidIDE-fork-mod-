@@ -22,25 +22,23 @@ import com.itsaky.androidide.actions.ActionData
 import com.itsaky.androidide.actions.ActionItem
 import com.itsaky.androidide.actions.SidebarActionItem
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 abstract class AbstractSidebarAction : SidebarActionItem {
 
-  // sidebar actions should always be executed on UI thread
-  override var requiresUIThread = true
-  override var visible = true
-  override var enabled = true
+    // sidebar actions should always be executed on UI thread
+    override var requiresUIThread = true
+    override var visible = true
+    override var enabled = true
 
-  // should never change
-  final override var location = ActionItem.Location.EDITOR_SIDEBAR
+    // should never change
+    final override var location = ActionItem.Location.EDITOR_SIDEBAR
 
-  // Subclasses should accept a Context in their constructor and initialize these values
-  // when the object instance is initialized
-  override var icon: Drawable? = null
-  override var label: String = ""
+    // Subclasses should accept a Context in their constructor and initialize these values
+    // when the object instance is initialized
+    override var icon: Drawable? = null
+    override var label: String = ""
 
-  override suspend fun execAction(data: ActionData): Any {
-    return false
-  }
+    override suspend fun execAction(data: ActionData): Any {
+        return false
+    }
 }

@@ -26,18 +26,18 @@ import com.itsaky.androidide.lsp.snippets.ISnippetScope
  */
 enum class JavaSnippetScope(override val filename: String) : ISnippetScope {
 
-  /**
-   * Snippets that can be used at the top level. This includes snippes such as class, interface,
-   * enum templates.
-   */
-  TOP_LEVEL("top-level"),
+    /**
+     * Snippets that can be used at the top level. This includes snippes such as class, interface,
+     * enum templates.
+     */
+    TOP_LEVEL("top-level"),
 
-  /** Snippets that can be used at the member level i.e. inside a class tree. */
-  MEMBER("member"),
+    /** Snippets that can be used at the member level i.e. inside a class tree. */
+    MEMBER("member"),
 
-  /** Snippets that can be used at a local level. E.g. inside a method or constructor. */
-  LOCAL("local"),
+    /** Snippets that can be used at a local level. E.g. inside a method or constructor. */
+    LOCAL("local"),
 
-  /** Snippets that can be used anywhere in the code, irrespective of the current scope. */
-  GLOBAL("global")
+    /** Snippets that can be used anywhere in the code, irrespective of the current scope. */
+    GLOBAL("global"),
 }

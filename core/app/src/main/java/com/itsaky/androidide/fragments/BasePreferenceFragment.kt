@@ -23,7 +23,7 @@ import com.itsaky.androidide.R.xml
 
 abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
 
-  override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-    setPreferencesFromResource(xml.ide_prefs, rootKey)
-  }
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        setPreferencesFromResource(xml.ide_prefs, rootKey)
+    }
 }

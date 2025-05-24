@@ -22,12 +22,12 @@ import android.view.WindowManager
 
 @JvmOverloads
 fun Window.updateSystemBarColors(statusBarColor: Int = -1, navigationBarColor: Int = -1) {
-  @Suppress("DEPRECATION") clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-  addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-  if (statusBarColor != -1) {
-    this.statusBarColor = statusBarColor
-  }
-  if (navigationBarColor != -1) {
-    this.navigationBarColor = navigationBarColor
-  }
+    @Suppress("DEPRECATION") clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+    addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    if (statusBarColor != -1) {
+        this.statusBarColor = statusBarColor
+    }
+    if (navigationBarColor != -1) {
+        this.navigationBarColor = navigationBarColor
+    }
 }

@@ -31,108 +31,112 @@ import java.io.OutputStream
  * are known.
  */
 class Container(val output: OutputStream, val totalEntryCount: Int) {
-  private var currentEntryCount = 0
+    private var currentEntryCount = 0
 
-  enum class EntryType(val value: Int) {
-    RES_TABLE(0x00),
-    RES_FILE(0x01),
-  }
-
-  init {
-    val codedOut = CodedOutputStream.newInstance(output)
-
-    codedOut.writeFixed32NoTag(FORMAT_MAGIC)
-    codedOut.writeFixed32NoTag(FORMAT_VERSION)
-    codedOut.writeFixed32NoTag(totalEntryCount)
-    codedOut.flush()
-  }
-
-  fun addResTableEntry(table: Resources.ResourceTable) {
-    if (currentEntryCount >= totalEntryCount) {
-      error("Too many entries being serialized.")
+    enum class EntryType(val value: Int) {
+        RES_TABLE(0x00),
+        RES_FILE(0x01),
     }
-    ++currentEntryCount
 
-    val codedOut = CodedOutputStream.newInstance(output)
+    init {
+        val codedOut = CodedOutputStream.newInstance(output)
 
-    // Write the type.
-    codedOut.writeFixed32NoTag(EntryType.RES_TABLE.value)
-
-    // Write the aligned size
-    val size = table.serializedSize
-    val padding = (4 - size % 4) % 4
-    codedOut.writeFixed64NoTag(size.toLong())
-
-    // Write the table
-    table.writeTo(codedOut)
-    // Write the padding
-    writePadding(padding, codedOut)
-
-    codedOut.flush()
-
-    closeIfFinished()
-  }
-
-  fun addFileEntry(input: InputStream, file: ResourceFile) =
-    addFileEntryImpl(input.readBytes(), file)
-
-  fun addXmlEntry(resource: XmlResource) =
-    addFileEntryImpl(resource.xmlProto.toByteArray(), resource.file)
-
-  private fun addFileEntryImpl(content: ByteArray, file: ResourceFile) {
-    if (currentEntryCount >= totalEntryCount) {
-      error("Too many entries being serialized.")
+        codedOut.writeFixed32NoTag(FORMAT_MAGIC)
+        codedOut.writeFixed32NoTag(FORMAT_VERSION)
+        codedOut.writeFixed32NoTag(totalEntryCount)
+        codedOut.flush()
     }
-    ++currentEntryCount
 
-    val codedOut = CodedOutputStream.newInstance(output)
+    fun addResTableEntry(table: Resources.ResourceTable) {
+        if (currentEntryCount >= totalEntryCount) {
+            error("Too many entries being serialized.")
+        }
+        ++currentEntryCount
 
-    // Write the type.
-    codedOut.writeFixed32NoTag(EntryType.RES_FILE.value)
+        val codedOut = CodedOutputStream.newInstance(output)
 
-    val compiledFile = serializeCompiledFileToPb(file)
-    // Write the aligned size.
-    val headerSize = compiledFile.serializedSize
-    val headerPadding = (4 - (headerSize % 4)) % 4
-    val dataSize = content.size
-    val dataPadding = (4 - (dataSize % 4)) % 4
-    val totalSize =
-      RES_FILE_ENTRY_HEADER_SIZE.toLong() + headerSize + headerPadding + dataSize + dataPadding
-    codedOut.writeFixed64NoTag(totalSize)
+        // Write the type.
+        codedOut.writeFixed32NoTag(EntryType.RES_TABLE.value)
 
-    // Write the res file header size.
-    codedOut.writeFixed32NoTag(headerSize)
+        // Write the aligned size
+        val size = table.serializedSize
+        val padding = (4 - size % 4) % 4
+        codedOut.writeFixed64NoTag(size.toLong())
 
-    // Write the data payload size.
-    codedOut.writeFixed64NoTag(dataSize.toLong())
+        // Write the table
+        table.writeTo(codedOut)
+        // Write the padding
+        writePadding(padding, codedOut)
 
-    // Write the header (config etc.)
-    compiledFile.writeTo(codedOut)
-    writePadding(headerPadding, codedOut)
+        codedOut.flush()
 
-    // Write the actual file content with padding.
-    codedOut.write(content, 0, dataSize)
-    writePadding(dataPadding, codedOut)
-
-    codedOut.flush()
-    closeIfFinished()
-  }
-
-  private fun writePadding(padding: Int, codedOut: CodedOutputStream) {
-    for (i in 1..padding) {
-      codedOut.writeRawByte(0.toByte())
+        closeIfFinished()
     }
-  }
 
-  private fun closeIfFinished() {
-    if (currentEntryCount == totalEntryCount) {
-      output.close()
+    fun addFileEntry(input: InputStream, file: ResourceFile) =
+        addFileEntryImpl(input.readBytes(), file)
+
+    fun addXmlEntry(resource: XmlResource) =
+        addFileEntryImpl(resource.xmlProto.toByteArray(), resource.file)
+
+    private fun addFileEntryImpl(content: ByteArray, file: ResourceFile) {
+        if (currentEntryCount >= totalEntryCount) {
+            error("Too many entries being serialized.")
+        }
+        ++currentEntryCount
+
+        val codedOut = CodedOutputStream.newInstance(output)
+
+        // Write the type.
+        codedOut.writeFixed32NoTag(EntryType.RES_FILE.value)
+
+        val compiledFile = serializeCompiledFileToPb(file)
+        // Write the aligned size.
+        val headerSize = compiledFile.serializedSize
+        val headerPadding = (4 - (headerSize % 4)) % 4
+        val dataSize = content.size
+        val dataPadding = (4 - (dataSize % 4)) % 4
+        val totalSize =
+            RES_FILE_ENTRY_HEADER_SIZE.toLong() +
+                headerSize +
+                headerPadding +
+                dataSize +
+                dataPadding
+        codedOut.writeFixed64NoTag(totalSize)
+
+        // Write the res file header size.
+        codedOut.writeFixed32NoTag(headerSize)
+
+        // Write the data payload size.
+        codedOut.writeFixed64NoTag(dataSize.toLong())
+
+        // Write the header (config etc.)
+        compiledFile.writeTo(codedOut)
+        writePadding(headerPadding, codedOut)
+
+        // Write the actual file content with padding.
+        codedOut.write(content, 0, dataSize)
+        writePadding(dataPadding, codedOut)
+
+        codedOut.flush()
+        closeIfFinished()
     }
-  }
 
-  companion object {
-    const val FORMAT_MAGIC = 0x54504141
-    const val FORMAT_VERSION = 1
-    const val RES_FILE_ENTRY_HEADER_SIZE = 12
-  }
+    private fun writePadding(padding: Int, codedOut: CodedOutputStream) {
+        for (i in 1..padding) {
+            codedOut.writeRawByte(0.toByte())
+        }
+    }
+
+    private fun closeIfFinished() {
+        if (currentEntryCount == totalEntryCount) {
+            output.close()
+        }
+    }
+
+    companion object {
+        const val FORMAT_MAGIC = 0x54504141
+        const val FORMAT_VERSION = 1
+        const val RES_FILE_ENTRY_HEADER_SIZE = 12
+    }
 }

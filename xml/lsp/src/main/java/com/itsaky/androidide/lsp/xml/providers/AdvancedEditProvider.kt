@@ -40,8 +40,8 @@ import com.itsaky.androidide.treesitter.xml.TSLanguageXml
 /** @author Akash Yadav */
 object AdvancedEditProvider {
 
-  const val TAG_INFO_QUERY =
-    """
+    const val TAG_INFO_QUERY =
+        """
     (empty_element
     "<" @tag.open
     tag_name: (_) @element.name
@@ -61,141 +61,142 @@ object AdvancedEditProvider {
     ) @element.with_end
   """
 
-  fun onContentChange(event: DocumentChangeEvent) {
-    if (event.changeType != ChangeType.INSERT || event.changedText != "/") {
-      return
-    }
-
-    val content =
-      FileManager.getDocumentContents(event.changedFile).let {
-        if (it.isBlank()) return
-        StringBuilder(it)
-      }
-
-    val client =
-      ILanguageServerRegistry.getDefault().getServer(XMLLanguageServer.SERVER_ID)?.client ?: return
-
-    val start = event.changeRange.start.requireIndex()
-    val (endLine, endCol, end) = event.changeRange.end
-    val openSlash = start > 0 && content[start - 1] == '<'
-
-    if (openSlash) {
-      // insert tag name after '</' to get a proper syntax tree
-      content.insert(end, 'a')
-    }
-
-    val edits = mutableListOf<TextEdit>()
-    parseXml(content.toString()) { tree ->
-      perfromQuery(tree, TAG_INFO_QUERY) { query, matches ->
-        val match = matches.findMatchAt(query, start) ?: return@perfromQuery
-        val captures = match.captures
-        if (!openSlash) {
-          closeEmptyElement(captures, query, edits, endLine, endCol)
-        } else {
-          closeEndTagElement(content, captures, query, edits, endLine, endCol)
+    fun onContentChange(event: DocumentChangeEvent) {
+        if (event.changeType != ChangeType.INSERT || event.changedText != "/") {
+            return
         }
-      }
-    }
 
-    if (edits.isEmpty()) {
-      return
-    }
+        val content =
+            FileManager.getDocumentContents(event.changedFile).let {
+                if (it.isBlank()) return
+                StringBuilder(it)
+            }
 
-    val action = CodeActionItem()
-    action.title = "Advanced XML Edit"
-    action.kind = CodeActionKind.QuickFix
-    action.changes = listOf(DocumentChange(event.changedFile, edits))
+        val client =
+            ILanguageServerRegistry.getDefault().getServer(XMLLanguageServer.SERVER_ID)?.client
+                ?: return
 
-    client.performCodeAction(PerformCodeActionParams(async = false, action = action))
-  }
+        val start = event.changeRange.start.requireIndex()
+        val (endLine, endCol, end) = event.changeRange.end
+        val openSlash = start > 0 && content[start - 1] == '<'
 
-  private fun closeEndTagElement(
-    content: StringBuilder,
-    captures: Array<TSQueryCapture>,
-    query: TSQuery,
-    edits: MutableList<TextEdit>,
-    endLine: Int,
-    endCol: Int
-  ) {
-    val tagName =
-      captures
-        .find { query.getCaptureNameForId(it.index) == "tag.start.name" }
-        ?.let {
-          val start = it.node.startByte
-          val end = it.node.endByte
-          if (start < end) content.substring(start / 2, end / 2) else null
+        if (openSlash) {
+            // insert tag name after '</' to get a proper syntax tree
+            content.insert(end, 'a')
         }
-        ?: return
 
-    val closeCapture = captures.find { query.getCaptureNameForId(it.index) == "tag.end.close" }
-
-    var insertText = tagName
-    if (closeCapture != null && closeCapture.node.startByte == closeCapture.node.endByte) {
-      insertText += ">"
-    }
-
-    edits.add(TextEdit(Range.pointRange(endLine, endCol), insertText))
-  }
-
-  private fun closeEmptyElement(
-    captures: Array<TSQueryCapture>,
-    query: TSQuery,
-    edits: MutableList<TextEdit>,
-    endLine: Int,
-    endCol: Int
-  ) {
-    val capture = captures.find { query.getCaptureNameForId(it.index) == "tag.close" } ?: return
-
-    // if start and end byte is same, then this node does not exist
-    if (capture.node.startByte == capture.node.endByte) {
-      edits.add(TextEdit(Range.pointRange(endLine, endCol), ">"))
-    }
-  }
-
-  private fun parseXml(content: String, action: (TSTree) -> Unit) {
-    TSParser.create().use { parser ->
-      parser.language = TSLanguageXml.getInstance()
-      parser.parseString(content).use(action)
-    }
-  }
-
-  private fun perfromQuery(
-    tree: TSTree,
-    queryString: String,
-    action: (TSQuery, List<TSQueryMatch>) -> Unit
-  ) {
-    TSQuery.create(TSLanguageXml.getInstance(), queryString).use { query ->
-      if (!query.canAccess() || query.errorType != TSQueryError.None) {
-        throw RuntimeException("Invalid query. Please open an issue on GitHub.")
-      }
-
-      TSQueryCursor.create().use { cursor ->
-        cursor.exec(query, tree.rootNode)
-        val matches = mutableListOf<TSQueryMatch>()
-        var match: TSQueryMatch? = cursor.nextMatch()
-        while (match != null) {
-          matches.add(match)
-          match = cursor.nextMatch()
+        val edits = mutableListOf<TextEdit>()
+        parseXml(content.toString()) { tree ->
+            perfromQuery(tree, TAG_INFO_QUERY) { query, matches ->
+                val match = matches.findMatchAt(query, start) ?: return@perfromQuery
+                val captures = match.captures
+                if (!openSlash) {
+                    closeEmptyElement(captures, query, edits, endLine, endCol)
+                } else {
+                    closeEndTagElement(content, captures, query, edits, endLine, endCol)
+                }
+            }
         }
-        action(query, matches)
-      }
+
+        if (edits.isEmpty()) {
+            return
+        }
+
+        val action = CodeActionItem()
+        action.title = "Advanced XML Edit"
+        action.kind = CodeActionKind.QuickFix
+        action.changes = listOf(DocumentChange(event.changedFile, edits))
+
+        client.performCodeAction(PerformCodeActionParams(async = false, action = action))
     }
-  }
+
+    private fun closeEndTagElement(
+        content: StringBuilder,
+        captures: Array<TSQueryCapture>,
+        query: TSQuery,
+        edits: MutableList<TextEdit>,
+        endLine: Int,
+        endCol: Int,
+    ) {
+        val tagName =
+            captures
+                .find { query.getCaptureNameForId(it.index) == "tag.start.name" }
+                ?.let {
+                    val start = it.node.startByte
+                    val end = it.node.endByte
+                    if (start < end) content.substring(start / 2, end / 2) else null
+                } ?: return
+
+        val closeCapture = captures.find { query.getCaptureNameForId(it.index) == "tag.end.close" }
+
+        var insertText = tagName
+        if (closeCapture != null && closeCapture.node.startByte == closeCapture.node.endByte) {
+            insertText += ">"
+        }
+
+        edits.add(TextEdit(Range.pointRange(endLine, endCol), insertText))
+    }
+
+    private fun closeEmptyElement(
+        captures: Array<TSQueryCapture>,
+        query: TSQuery,
+        edits: MutableList<TextEdit>,
+        endLine: Int,
+        endCol: Int,
+    ) {
+        val capture = captures.find { query.getCaptureNameForId(it.index) == "tag.close" } ?: return
+
+        // if start and end byte is same, then this node does not exist
+        if (capture.node.startByte == capture.node.endByte) {
+            edits.add(TextEdit(Range.pointRange(endLine, endCol), ">"))
+        }
+    }
+
+    private fun parseXml(content: String, action: (TSTree) -> Unit) {
+        TSParser.create().use { parser ->
+            parser.language = TSLanguageXml.getInstance()
+            parser.parseString(content).use(action)
+        }
+    }
+
+    private fun perfromQuery(
+        tree: TSTree,
+        queryString: String,
+        action: (TSQuery, List<TSQueryMatch>) -> Unit,
+    ) {
+        TSQuery.create(TSLanguageXml.getInstance(), queryString).use { query ->
+            if (!query.canAccess() || query.errorType != TSQueryError.None) {
+                throw RuntimeException("Invalid query. Please open an issue on GitHub.")
+            }
+
+            TSQueryCursor.create().use { cursor ->
+                cursor.exec(query, tree.rootNode)
+                val matches = mutableListOf<TSQueryMatch>()
+                var match: TSQueryMatch? = cursor.nextMatch()
+                while (match != null) {
+                    matches.add(match)
+                    match = cursor.nextMatch()
+                }
+                action(query, matches)
+            }
+        }
+    }
 }
 
 private fun List<TSQueryMatch>.findMatchAt(query: TSQuery, index: Int): TSQueryMatch? {
-  for (match in this) {
-    for (capture in match.captures) {
-      val name = query.getCaptureNameForId(capture.index)
-      if (
-        (capture.node.startByte / 2) == index && (name == "tag.slash" || name == "tag.end.slash")
-      ) {
-        return match
-      }
+    for (match in this) {
+        for (capture in match.captures) {
+            val name = query.getCaptureNameForId(capture.index)
+            if (
+                (capture.node.startByte / 2) == index &&
+                    (name == "tag.slash" || name == "tag.end.slash")
+            ) {
+                return match
+            }
+        }
     }
-  }
 
-  return null
+    return null
 }
 
 // abstract class Tag(val name: String)

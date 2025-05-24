@@ -42,131 +42,126 @@ import java.util.regex.Pattern
 @SuppressLint("ViewConstructor") // Always created dynamically
 class EditorSearchLayout(context: Context, val editor: IDEEditor) : FrameLayout(context) {
 
-  private var searchInputTextWatcher: TextWatcher? = null
-  private var searchOptions = SearchOptions(true, false)
-  private val findInFileBinding: LayoutFindInFileBinding
-  private val optionsMenu: PopupMenu
+    private var searchInputTextWatcher: TextWatcher? = null
+    private var searchOptions = SearchOptions(true, false)
+    private val findInFileBinding: LayoutFindInFileBinding
+    private val optionsMenu: PopupMenu
 
-  private var isSearching = false
+    private var isSearching = false
 
-  init {
-    findInFileBinding = LayoutFindInFileBinding.inflate(LayoutInflater.from(context))
-    findInFileBinding.prev.setOnClickListener(::onSearchActionClick)
-    findInFileBinding.next.setOnClickListener(::onSearchActionClick)
-    findInFileBinding.replace.setOnClickListener(::onSearchActionClick)
-    findInFileBinding.close.setOnClickListener(::onSearchActionClick)
+    init {
+        findInFileBinding = LayoutFindInFileBinding.inflate(LayoutInflater.from(context))
+        findInFileBinding.prev.setOnClickListener(::onSearchActionClick)
+        findInFileBinding.next.setOnClickListener(::onSearchActionClick)
+        findInFileBinding.replace.setOnClickListener(::onSearchActionClick)
+        findInFileBinding.close.setOnClickListener(::onSearchActionClick)
 
-    optionsMenu = PopupMenu(context, findInFileBinding.moreOptions, Gravity.TOP)
-    optionsMenu.menu.add(0, 0, 0, R.string.msg_ignore_case).apply {
-      isCheckable = true
-      isChecked = true
-    }
-
-    optionsMenu.menu.add(0, 1, 0, R.string.msg_use_regex).apply {
-      isCheckable = true
-      isChecked = false
-    }
-
-    optionsMenu.setOnMenuItemClickListener {
-      return@setOnMenuItemClickListener if (it.isCheckable) {
-        it.isChecked = !it.isChecked
-
-        val caseInsensitive = searchOptions.caseInsensitive
-        val regex = searchOptions.type == SearchOptions.TYPE_REGULAR_EXPRESSION
-        searchOptions =
-          when (it.itemId) {
-            0 -> SearchOptions(it.isChecked, regex)
-            1 -> SearchOptions(caseInsensitive, it.isChecked)
-            else -> searchOptions
-          }
-        editor.searcher.updateSearchOptions(searchOptions)
-
-        true
-      } else false
-    }
-
-    findInFileBinding.root.visibility = GONE
-    findInFileBinding.moreOptions.setOnClickListener { optionsMenu.show() }
-
-    addView(
-      findInFileBinding.root,
-      LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
-    )
-  }
-
-  fun beginSearchMode() {
-    searchInputTextWatcher = SearchInputTextChangeListener(editor)
-    findInFileBinding.searchInput.addTextChangedListener(searchInputTextWatcher)
-    findInFileBinding.searchInput.setOnEditorActionListener { _, actionId, _ ->
-      if (actionId == EditorInfo.IME_ACTION_NEXT) {
-        onSearchActionClick(findInFileBinding.next)
-      }
-      false
-    }
-    findInFileBinding.root.visibility = VISIBLE
-  }
-
-  private fun onSearchActionClick(v: View) {
-    val searcher = editor.searcher
-    if (v.id == findInFileBinding.close.id) {
-      if (this.searchInputTextWatcher == null) {
-        return
-      }
-      findInFileBinding.searchInput.removeTextChangedListener(this.searchInputTextWatcher)
-      findInFileBinding.root.visibility = GONE
-      this.searchInputTextWatcher = null
-      searcher.onClose()
-    }
-    if (!searcher.hasQuery()) {
-      return
-    }
-    if (v.id == findInFileBinding.prev.id) {
-      searcher.gotoPrevious()
-      return
-    }
-    if (v.id == findInFileBinding.next.id) {
-      searcher.gotoNext()
-      return
-    }
-    if (v.id == findInFileBinding.replace.id) {
-      doReplace(editor)
-    }
-  }
-
-  inner class SearchInputTextChangeListener(val editor: IDEEditor?) : SingleTextWatcher() {
-
-    override fun onTextChanged(
-      s: CharSequence,
-      start: Int,
-      before: Int,
-      count: Int,
-    ) {
-      if (editor == null) {
-        return
-      }
-      if (TextUtils.isEmpty(s)) {
-        editor.searcher.stopSearch()
-        return
-      }
-
-      // Handle bad regexp
-      val query =
-        s.toString().let {
-          if (searchOptions.type == SearchOptions.TYPE_REGULAR_EXPRESSION) {
-            try {
-              Pattern.compile(it)
-              it
-            } catch (error: Throwable) {
-              ""
-            }
-          } else {
-            it
-          }
+        optionsMenu = PopupMenu(context, findInFileBinding.moreOptions, Gravity.TOP)
+        optionsMenu.menu.add(0, 0, 0, R.string.msg_ignore_case).apply {
+            isCheckable = true
+            isChecked = true
         }
 
-      if (query.isNotBlank()) {
-        editor.searcher.search(query, searchOptions)
-      }
+        optionsMenu.menu.add(0, 1, 0, R.string.msg_use_regex).apply {
+            isCheckable = true
+            isChecked = false
+        }
+
+        optionsMenu.setOnMenuItemClickListener {
+            return@setOnMenuItemClickListener if (it.isCheckable) {
+                it.isChecked = !it.isChecked
+
+                val caseInsensitive = searchOptions.caseInsensitive
+                val regex = searchOptions.type == SearchOptions.TYPE_REGULAR_EXPRESSION
+                searchOptions =
+                    when (it.itemId) {
+                        0 -> SearchOptions(it.isChecked, regex)
+                        1 -> SearchOptions(caseInsensitive, it.isChecked)
+                        else -> searchOptions
+                    }
+                editor.searcher.updateSearchOptions(searchOptions)
+
+                true
+            } else false
+        }
+
+        findInFileBinding.root.visibility = GONE
+        findInFileBinding.moreOptions.setOnClickListener { optionsMenu.show() }
+
+        addView(
+            findInFileBinding.root,
+            LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT),
+        )
     }
-  }
+
+    fun beginSearchMode() {
+        searchInputTextWatcher = SearchInputTextChangeListener(editor)
+        findInFileBinding.searchInput.addTextChangedListener(searchInputTextWatcher)
+        findInFileBinding.searchInput.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                onSearchActionClick(findInFileBinding.next)
+            }
+            false
+        }
+        findInFileBinding.root.visibility = VISIBLE
+    }
+
+    private fun onSearchActionClick(v: View) {
+        val searcher = editor.searcher
+        if (v.id == findInFileBinding.close.id) {
+            if (this.searchInputTextWatcher == null) {
+                return
+            }
+            findInFileBinding.searchInput.removeTextChangedListener(this.searchInputTextWatcher)
+            findInFileBinding.root.visibility = GONE
+            this.searchInputTextWatcher = null
+            searcher.onClose()
+        }
+        if (!searcher.hasQuery()) {
+            return
+        }
+        if (v.id == findInFileBinding.prev.id) {
+            searcher.gotoPrevious()
+            return
+        }
+        if (v.id == findInFileBinding.next.id) {
+            searcher.gotoNext()
+            return
+        }
+        if (v.id == findInFileBinding.replace.id) {
+            doReplace(editor)
+        }
+    }
+
+    inner class SearchInputTextChangeListener(val editor: IDEEditor?) : SingleTextWatcher() {
+
+        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+            if (editor == null) {
+                return
+            }
+            if (TextUtils.isEmpty(s)) {
+                editor.searcher.stopSearch()
+                return
+            }
+
+            // Handle bad regexp
+            val query =
+                s.toString().let {
+                    if (searchOptions.type == SearchOptions.TYPE_REGULAR_EXPRESSION) {
+                        try {
+                            Pattern.compile(it)
+                            it
+                        } catch (error: Throwable) {
+                            ""
+                        }
+                    } else {
+                        it
+                    }
+                }
+
+            if (query.isNotBlank()) {
+                editor.searcher.search(query, searchOptions)
+            }
+        }
+    }
 }

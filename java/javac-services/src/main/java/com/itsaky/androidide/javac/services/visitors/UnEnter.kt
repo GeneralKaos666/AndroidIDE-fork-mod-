@@ -31,17 +31,17 @@ import openjdk.tools.javac.tree.TreeScanner
  * @author Akash Yadav
  */
 class UnEnter(private val enter: Enter, private val msym: ModuleSymbol) : TreeScanner() {
-  override fun visitClassDef(tree: JCClassDecl) {
-    val csym = tree.sym ?: return
+    override fun visitClassDef(tree: JCClassDecl) {
+        val csym = tree.sym ?: return
 
-    val etr = ReflectUtils.reflect(enter)
-    ReflectUtils.reflect(etr.field("typeEnvs")).method("remove", csym)
+        val etr = ReflectUtils.reflect(enter)
+        ReflectUtils.reflect(etr.field("typeEnvs")).method("remove", csym)
 
-    val chk = etr.field("chk")
-    ReflectUtils.reflect(chk).method("removeCompiled", csym)
-    ReflectUtils.reflect(chk).method("clearLocalClassNameIndexes", csym)
+        val chk = etr.field("chk")
+        ReflectUtils.reflect(chk).method("removeCompiled", csym)
+        ReflectUtils.reflect(chk).method("clearLocalClassNameIndexes", csym)
 
-    ReflectUtils.reflect(etr.field("syms")).method("removeClass", msym, csym.flatname)
-    super.visitClassDef(tree)
-  }
+        ReflectUtils.reflect(etr.field("syms")).method("removeClass", msym, csym.flatname)
+        super.visitClassDef(tree)
+    }
 }

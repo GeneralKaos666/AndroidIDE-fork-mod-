@@ -33,9 +33,9 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(EditText::class)
 @IncludeInDesigner(group = WIDGETS)
 open class EditTextAdapter<T : EditText> : TextViewAdapter<T>() {
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(EditText::class.java, string.widget_edittext, drawable.ic_widget_edittext)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(EditText::class.java, string.widget_edittext, drawable.ic_widget_edittext)
+        )
+    }
 }

@@ -26,50 +26,50 @@ import com.itsaky.androidide.tooling.api.models.GradleTask
 
 /** @author Akash Yadav */
 class RunTasksViewModel : ViewModel() {
-  
-  private val _tasks = MutableLiveData(listOf<Checkable<GradleTask>>())
-  private val _selected = MutableLiveData(mutableSetOf<String>())
-  private val _displayedChild = MutableLiveData(0)
-  private val _query = MutableLiveData("")
 
-  var tasks: List<Checkable<GradleTask>>
-    get() = _tasks.value!!
-    set(value) {
-      _tasks.value = value
+    private val _tasks = MutableLiveData(listOf<Checkable<GradleTask>>())
+    private val _selected = MutableLiveData(mutableSetOf<String>())
+    private val _displayedChild = MutableLiveData(0)
+    private val _query = MutableLiveData("")
+
+    var tasks: List<Checkable<GradleTask>>
+        get() = _tasks.value!!
+        set(value) {
+            _tasks.value = value
+        }
+
+    var displayedChild: Int
+        get() = this._displayedChild.value!!
+        set(value) {
+            this._displayedChild.value = value
+        }
+
+    var query: String
+        get() = _query.value!!
+        set(value) {
+            _query.value = value
+        }
+
+    val selected: Set<String>
+        get() = _selected.value!!
+
+    fun observeDisplayedChild(owner: LifecycleOwner, observer: Observer<Int>) {
+        _displayedChild.observe(owner, observer)
     }
 
-  var displayedChild: Int
-    get() = this._displayedChild.value!!
-    set(value) {
-      this._displayedChild.value = value
+    fun observeQuery(owner: LifecycleOwner, observer: Observer<String>) {
+        _query.observe(owner, observer)
     }
 
-  var query: String
-    get() = _query.value!!
-    set(value) {
-      _query.value = value
+    fun select(item: String) {
+        this._selected.value!!.add(item)
     }
 
-  val selected: Set<String>
-    get() = _selected.value!!
+    fun deselect(item: String) {
+        this._selected.value!!.remove(item)
+    }
 
-  fun observeDisplayedChild(owner: LifecycleOwner, observer: Observer<Int>) {
-    _displayedChild.observe(owner, observer)
-  }
-
-  fun observeQuery(owner: LifecycleOwner, observer: Observer<String>) {
-    _query.observe(owner, observer)
-  }
-
-  fun select(item: String) {
-    this._selected.value!!.add(item)
-  }
-
-  fun deselect(item: String) {
-    this._selected.value!!.remove(item)
-  }
-
-  fun getSelectedTaskPaths(): String {
-    return selected.joinToString(separator = "\n")
-  }
+    fun getSelectedTaskPaths(): String {
+        return selected.joinToString(separator = "\n")
+    }
 }

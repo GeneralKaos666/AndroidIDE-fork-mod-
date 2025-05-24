@@ -34,21 +34,24 @@ import com.itsaky.androidide.uidesigner.models.UiViewGroup
  */
 open class UiInflaterComponentFactory : com.itsaky.androidide.inflater.IComponentFactory {
 
-  override fun createView(file: LayoutFile, name: String, view: View): com.itsaky.androidide.inflater.IView {
-    if (view is ViewGroup) {
-      return UiViewGroup(file, name, view)
+    override fun createView(
+        file: LayoutFile,
+        name: String,
+        view: View,
+    ): com.itsaky.androidide.inflater.IView {
+        if (view is ViewGroup) {
+            return UiViewGroup(file, name, view)
+        }
+        return UiView(file, name, view)
     }
-    return UiView(file, name, view)
-  }
 
-  override fun createAttr(
-    view: IView,
-    namespace: INamespace?,
-    name: String,
-    value: String
-  ): com.itsaky.androidide.inflater.IAttribute {
-    return UiAttribute(namespace = namespace as NamespaceImpl?, name = name, value = value).apply {
-      isRequired = UiAttribute.isRequired(view, this)
+    override fun createAttr(
+        view: IView,
+        namespace: INamespace?,
+        name: String,
+        value: String,
+    ): com.itsaky.androidide.inflater.IAttribute {
+        return UiAttribute(namespace = namespace as NamespaceImpl?, name = name, value = value)
+            .apply { isRequired = UiAttribute.isRequired(view, this) }
     }
-  }
 }

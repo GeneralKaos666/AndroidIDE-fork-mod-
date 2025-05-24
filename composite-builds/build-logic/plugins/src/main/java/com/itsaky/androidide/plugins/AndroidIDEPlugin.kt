@@ -31,38 +31,40 @@ import org.gradle.api.Project
  */
 class AndroidIDEPlugin : Plugin<Project> {
 
-  override fun apply(target: Project) = target.run {
-    if (project.path == rootProject.path) {
-      throw GradleException("Cannot apply ${AndroidIDEPlugin::class.simpleName} to root project")
-    }
+    override fun apply(target: Project) =
+        target.run {
+            if (project.path == rootProject.path) {
+                throw GradleException(
+                    "Cannot apply ${AndroidIDEPlugin::class.simpleName} to root project"
+                )
+            }
 
-    if (!project.buildFile.exists() || !project.buildFile.isFile) {
-      return@run
-    }
+            if (!project.buildFile.exists() || !project.buildFile.isFile) {
+                return@run
+            }
 
-    if (isAndroidModule && !isFDroidBuild) {
-      // setup signing configuration
-      plugins.apply(SigningConfigPlugin::class.java)
-    }
+            if (isAndroidModule && !isFDroidBuild) {
+                // setup signing configuration
+                plugins.apply(SigningConfigPlugin::class.java)
+            }
 
-    if (isFDroidBuild && project.plugins.hasPlugin("com.itsaky.androidide.core-app")) {
-      val baseExtension = extensions.getByType(BaseExtension::class.java)
-      logger.warn("Building for F-Droid with configuration:")
-      logger.warn("applicationId = ${baseExtension.defaultConfig.applicationId}")
-      logger.warn("versionName = ${baseExtension.defaultConfig.versionName}")
-      logger.warn("versionCode = ${baseExtension.defaultConfig.versionCode}")
-      logger.warn("--- x --- x ---")
-    }
+            if (isFDroidBuild && project.plugins.hasPlugin("com.itsaky.androidide.core-app")) {
+                val baseExtension = extensions.getByType(BaseExtension::class.java)
+                logger.warn("Building for F-Droid with configuration:")
+                logger.warn("applicationId = ${baseExtension.defaultConfig.applicationId}")
+                logger.warn("versionName = ${baseExtension.defaultConfig.versionName}")
+                logger.warn("versionCode = ${baseExtension.defaultConfig.versionCode}")
+                logger.warn("--- x --- x ---")
+            }
 
-    val taskName = when {
-      isAndroidModule -> "testDebugUnitTest"
-      else -> "test"
-    }
+            val taskName =
+                when {
+                    isAndroidModule -> "testDebugUnitTest"
+                    else -> "test"
+                }
 
-    logger.info("${project.path} will run task '$taskName' for tests in CI")
+            logger.info("${project.path} will run task '$taskName' for tests in CI")
 
-    project.tasks.create("runTestsInCI") {
-      dependsOn(taskName)
-    }
-  }
+            project.tasks.create("runTestsInCI") { dependsOn(taskName) }
+        }
 }

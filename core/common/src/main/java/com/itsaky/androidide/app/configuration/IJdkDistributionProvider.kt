@@ -28,55 +28,47 @@ import com.itsaky.androidide.utils.ServiceLoader
  */
 interface IJdkDistributionProvider {
 
-  /**
-   * The list of JDK distributions installed on the device.
-   */
-  val installedDistributions: List<JdkDistribution>
-
-  /**
-   * Reloads the installed JDK distributions. This function is synchronous and should not be called
-   * on the UI thread.
-   */
-  @WorkerThread
-  fun loadDistributions()
-
-  /**
-   * Get the [JdkDistribution] instance for the given java version.
-   *
-   * @return The [JdkDistribution] instance for the given java version, or `null` if no such
-   * distribution is found.
-   */
-  fun forVersion(javaVersion: String) : JdkDistribution? =
-    installedDistributions.firstOrNull { it.javaVersion == javaVersion }
-
-
-  /**
-   * Get the [JdkDistribution] instance for the given java home.
-   *
-   * @return The [JdkDistribution] instance for the given java home, or `null` if no such
-   * distribution is found.
-   */
-  fun forJavaHome(javaHome: String) : JdkDistribution? =
-    installedDistributions.firstOrNull { it.javaHome == javaHome }
-
-  companion object {
+    /** The list of JDK distributions installed on the device. */
+    val installedDistributions: List<JdkDistribution>
 
     /**
-     * The default java version.
+     * Reloads the installed JDK distributions. This function is synchronous and should not be
+     * called on the UI thread.
      */
-    const val DEFAULT_JAVA_VERSION = "17"
+    @WorkerThread fun loadDistributions()
 
-    private val _instance by lazy {
-      ServiceLoader.load(
-        IJdkDistributionProvider::class.java,
-        IJdkDistributionProvider::class.java.classLoader
-      ).findFirstOrThrow()
+    /**
+     * Get the [JdkDistribution] instance for the given java version.
+     *
+     * @return The [JdkDistribution] instance for the given java version, or `null` if no such
+     *   distribution is found.
+     */
+    fun forVersion(javaVersion: String): JdkDistribution? =
+        installedDistributions.firstOrNull { it.javaVersion == javaVersion }
+
+    /**
+     * Get the [JdkDistribution] instance for the given java home.
+     *
+     * @return The [JdkDistribution] instance for the given java home, or `null` if no such
+     *   distribution is found.
+     */
+    fun forJavaHome(javaHome: String): JdkDistribution? =
+        installedDistributions.firstOrNull { it.javaHome == javaHome }
+
+    companion object {
+
+        /** The default java version. */
+        const val DEFAULT_JAVA_VERSION = "17"
+
+        private val _instance by lazy {
+            ServiceLoader.load(
+                    IJdkDistributionProvider::class.java,
+                    IJdkDistributionProvider::class.java.classLoader,
+                )
+                .findFirstOrThrow()
+        }
+
+        /** Get instance of [IJdkDistributionProvider]. */
+        @JvmStatic fun getInstance(): IJdkDistributionProvider = _instance
     }
-
-    /**
-     * Get instance of [IJdkDistributionProvider].
-     */
-    @JvmStatic
-    fun getInstance(): IJdkDistributionProvider = _instance
-  }
 }

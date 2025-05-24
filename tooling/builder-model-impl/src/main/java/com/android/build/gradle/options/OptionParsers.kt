@@ -40,14 +40,14 @@ fun parseBoolean(propertyName: String, value: Any, propertyKind: String = "proje
 
 private fun parseBooleanFailure(propertyName: String, value: Any, propertyKind: String): Nothing {
     throw IllegalArgumentException(
-        "Cannot parse "
-                + propertyKind
-                + " property "
-                + propertyName
-                + "='"
-                + value
-                + "' of type '"
-                + value.javaClass
-                + "' as boolean. Expected 'true' or 'false'."
+        "Cannot parse " +
+            propertyKind +
+            " property " +
+            propertyName +
+            "='" +
+            value +
+            "' of type '" +
+            value.javaClass +
+            "' as boolean. Expected 'true' or 'false'."
     )
 }

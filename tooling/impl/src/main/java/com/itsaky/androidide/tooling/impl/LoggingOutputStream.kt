@@ -22,17 +22,19 @@ import java.io.OutputStream
 
 /**
  * Sends the output received from Gradle build to the [IToolingApiClient].
+ *
  * @author Akash Yadav
  */
 class LoggingOutputStream : OutputStream() {
-  private val lineBuilder = StringBuilder()
-  override fun write(b: Int) {
-    val c = b.toChar()
-    lineBuilder.append(c)
+    private val lineBuilder = StringBuilder()
 
-    if (c == '\n' && Main.client != null) {
-      Main.client.logOutput(lineBuilder.toString())
-      lineBuilder.clear()
+    override fun write(b: Int) {
+        val c = b.toChar()
+        lineBuilder.append(c)
+
+        if (c == '\n' && Main.client != null) {
+            Main.client.logOutput(lineBuilder.toString())
+            lineBuilder.clear()
+        }
     }
-  }
 }

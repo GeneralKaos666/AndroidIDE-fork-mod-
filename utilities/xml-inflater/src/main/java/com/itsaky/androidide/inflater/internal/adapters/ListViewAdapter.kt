@@ -38,23 +38,23 @@ import com.itsaky.androidide.resources.R.string
 @IncludeInDesigner(group = WIDGETS)
 open class ListViewAdapter<T : ListView> : AbsListViewAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("divider") { view.divider = parseDrawable(context, value) }
-    create("dividerHeight") {
-      view.dividerHeight = parseDimension(context, value, SizeUtils.dp2px(1f))
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("divider") { view.divider = parseDrawable(context, value) }
+        create("dividerHeight") {
+            view.dividerHeight = parseDimension(context, value, SizeUtils.dp2px(1f))
+        }
+        create("entries") {
+            val entries = parseStringArray(value)
+            view.adapter = ArrayAdapter(context, layout.simple_list_item_1, entries)
+        }
+        create("footerDividersEnabled") { view.setFooterDividersEnabled(parseBoolean(value)) }
+        create("headerDividersEnabled") { view.setHeaderDividersEnabled(parseBoolean(value)) }
     }
-    create("entries") {
-      val entries = parseStringArray(value)
-      view.adapter = ArrayAdapter(context, layout.simple_list_item_1, entries)
-    }
-    create("footerDividersEnabled") { view.setFooterDividersEnabled(parseBoolean(value)) }
-    create("headerDividersEnabled") { view.setHeaderDividersEnabled(parseBoolean(value)) }
-  }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(ListView::class.java, string.widget_listview, drawable.ic_widget_list_view)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(ListView::class.java, string.widget_listview, drawable.ic_widget_list_view)
+        )
+    }
 }

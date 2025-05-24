@@ -46,261 +46,256 @@ import com.itsaky.androidide.utils.resolveAttr
 
 class AboutActivity : EdgeToEdgeIDEActivity() {
 
-  private var _binding: ActivityAboutBinding? = null
-  private val binding: ActivityAboutBinding
-    get() = checkNotNull(_binding) {
-      "Activity has been destroyed"
+    private var _binding: ActivityAboutBinding? = null
+    private val binding: ActivityAboutBinding
+        get() = checkNotNull(_binding) { "Activity has been destroyed" }
+
+    override fun bindLayout(): View {
+        _binding = ActivityAboutBinding.inflate(layoutInflater)
+        return _binding!!.root
     }
 
-  override fun bindLayout(): View {
-    _binding = ActivityAboutBinding.inflate(layoutInflater)
-    return _binding!!.root
-  }
+    companion object {
 
-  companion object {
+        private var id = 0
+        private val ACTION_WEBSITE = id++
+        private val ACTION_EMAIL = id++
+        private val ACTION_TG_CHANNEL = id++
+        private val ACTION_TG_GROUP = id++
+        private val ACTION_CONTRIBUTE = id++
+        private val ACTION_CONTRIBUTORS = id++
+    }
 
-    private var id = 0
-    private val ACTION_WEBSITE = id++
-    private val ACTION_EMAIL = id++
-    private val ACTION_TG_CHANNEL = id++
-    private val ACTION_TG_GROUP = id++
-    private val ACTION_CONTRIBUTE = id++
-    private val ACTION_CONTRIBUTORS = id++
-  }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
+        binding.apply {
+            setSupportActionBar(toolbar)
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            supportActionBar!!.setTitle(R.string.about)
+            toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
 
-    binding.apply {
+            aboutHeader.apply {
+                ideVersion.text = createVersionText()
+                ideVersion.isClickable = true
+                ideVersion.isFocusable = true
+                ideVersion.setBackgroundResource(R.drawable.bg_ripple)
+                ideVersion.setOnClickListener {
+                    ClipboardUtils.copyText(BuildInfoUtils.getBuildInfoHeader())
+                    flashSuccess(R.string.copied)
+                }
+            }
 
-      setSupportActionBar(toolbar)
-      supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-      supportActionBar!!.setTitle(R.string.about)
-      toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+            socials.apply {
+                sectionTitle.setText(R.string.title_socials)
+                sectionItems.adapter =
+                    AboutSocialItemsAdapter(createSocialItems(), ::handleActionClick)
+            }
 
-      aboutHeader.apply {
-        ideVersion.text = createVersionText()
-        ideVersion.isClickable = true
-        ideVersion.isFocusable = true
-        ideVersion.setBackgroundResource(R.drawable.bg_ripple)
-        ideVersion.setOnClickListener {
-          ClipboardUtils.copyText(BuildInfoUtils.getBuildInfoHeader())
-          flashSuccess(R.string.copied)
+            misc.apply {
+                sectionTitle.setText(R.string.title_misc)
+                sectionItems.adapter =
+                    AboutSocialItemsAdapter(createMiscItems(), ::handleActionClick)
+            }
         }
-      }
-
-      socials.apply {
-        sectionTitle.setText(R.string.title_socials)
-        sectionItems.adapter = AboutSocialItemsAdapter(createSocialItems(), ::handleActionClick)
-      }
-
-      misc.apply {
-        sectionTitle.setText(R.string.title_misc)
-        sectionItems.adapter = AboutSocialItemsAdapter(createMiscItems(), ::handleActionClick)
-      }
     }
-  }
 
-  override fun onApplySystemBarInsets(insets: Insets) {
-    binding.toolbar.apply {
-      setPaddingRelative(
-        paddingStart + insets.left,
-        paddingTop,
-        paddingEnd + insets.right,
-        paddingBottom
-      )
+    override fun onApplySystemBarInsets(insets: Insets) {
+        binding.toolbar.apply {
+            setPaddingRelative(
+                paddingStart + insets.left,
+                paddingTop,
+                paddingEnd + insets.right,
+                paddingBottom,
+            )
+        }
     }
-  }
 
-  private fun handleActionClick(action: SimpleIconTitleDescriptionItem) {
-    when (action.id) {
-      ACTION_WEBSITE -> app.openWebsite()
-      ACTION_EMAIL -> app.emailUs()
-      ACTION_TG_GROUP -> app.openTelegramGroup()
-      ACTION_TG_CHANNEL -> app.openTelegramChannel()
-      ACTION_CONTRIBUTE -> app.openUrl(BaseApplication.CONTRIBUTOR_GUIDE_URL)
-      ACTION_CONTRIBUTORS -> startActivity(Intent(this, ContributorsActivity::class.java))
+    private fun handleActionClick(action: SimpleIconTitleDescriptionItem) {
+        when (action.id) {
+            ACTION_WEBSITE -> app.openWebsite()
+            ACTION_EMAIL -> app.emailUs()
+            ACTION_TG_GROUP -> app.openTelegramGroup()
+            ACTION_TG_CHANNEL -> app.openTelegramChannel()
+            ACTION_CONTRIBUTE -> app.openUrl(BaseApplication.CONTRIBUTOR_GUIDE_URL)
+            ACTION_CONTRIBUTORS -> startActivity(Intent(this, ContributorsActivity::class.java))
+        }
     }
-  }
 
-  private fun createSocialItems(): List<IconTitleDescriptionItem> {
-    return mutableListOf<IconTitleDescriptionItem>().apply {
-      add(
-        createSimpleIconTextItem(
-          this@AboutActivity,
-          ACTION_WEBSITE,
-          R.drawable.ic_website,
-          R.string.about_option_website,
-          BuildInfo.PROJECT_SITE
+    private fun createSocialItems(): List<IconTitleDescriptionItem> {
+        return mutableListOf<IconTitleDescriptionItem>().apply {
+            add(
+                createSimpleIconTextItem(
+                    this@AboutActivity,
+                    ACTION_WEBSITE,
+                    R.drawable.ic_website,
+                    R.string.about_option_website,
+                    BuildInfo.PROJECT_SITE,
+                )
+            )
+            add(
+                createSimpleIconTextItem(
+                    this@AboutActivity,
+                    ACTION_EMAIL,
+                    R.drawable.ic_email,
+                    R.string.about_option_email,
+                    BaseApplication.EMAIL,
+                )
+            )
+            add(
+                createSimpleIconTextItem(
+                    this@AboutActivity,
+                    ACTION_TG_GROUP,
+                    R.drawable.ic_telegram,
+                    R.string.discussions_on_telegram,
+                    BaseApplication.TELEGRAM_GROUP_URL,
+                )
+            )
+            add(
+                createSimpleIconTextItem(
+                    this@AboutActivity,
+                    ACTION_TG_CHANNEL,
+                    R.drawable.ic_telegram,
+                    R.string.official_tg_channel,
+                    BaseApplication.TELEGRAM_CHANNEL_URL,
+                )
+            )
+        }
+    }
+
+    private fun createMiscItems(): List<IconTitleDescriptionItem> {
+        return mutableListOf<IconTitleDescriptionItem>().apply {
+            add(
+                SimpleIconTitleDescriptionItem.create(
+                    this@AboutActivity,
+                    ACTION_CONTRIBUTE,
+                    R.drawable.ic_code,
+                    R.string.title_contribute,
+                    R.string.summary_contribute,
+                )
+            )
+            add(
+                SimpleIconTitleDescriptionItem.create(
+                    this@AboutActivity,
+                    ACTION_CONTRIBUTORS,
+                    R.drawable.ic_heart_outline,
+                    R.string.title_contributors,
+                    R.string.summary_contributors,
+                )
+            )
+        }
+    }
+
+    private fun createSimpleIconTextItem(
+        context: Context,
+        id: Int,
+        @DrawableRes icon: Int,
+        @StringRes title: Int,
+        description: CharSequence,
+    ): SimpleIconTitleDescriptionItem {
+        return SimpleIconTitleDescriptionItem(
+            id,
+            ContextCompat.getDrawable(context, icon),
+            ContextCompat.getString(context, title),
+            description,
         )
-      )
-      add(
-        createSimpleIconTextItem(
-          this@AboutActivity,
-          ACTION_EMAIL,
-          R.drawable.ic_email,
-          R.string.about_option_email,
-          BaseApplication.EMAIL
-        )
-      )
-      add(
-        createSimpleIconTextItem(
-          this@AboutActivity,
-          ACTION_TG_GROUP,
-          R.drawable.ic_telegram,
-          R.string.discussions_on_telegram,
-          BaseApplication.TELEGRAM_GROUP_URL
-        )
-      )
-      add(
-        createSimpleIconTextItem(
-          this@AboutActivity,
-          ACTION_TG_CHANNEL,
-          R.drawable.ic_telegram,
-          R.string.official_tg_channel,
-          BaseApplication.TELEGRAM_CHANNEL_URL
-        )
-      )
-    }
-  }
-
-  private fun createMiscItems(): List<IconTitleDescriptionItem> {
-    return mutableListOf<IconTitleDescriptionItem>().apply {
-      add(
-        SimpleIconTitleDescriptionItem.create(
-          this@AboutActivity,
-          ACTION_CONTRIBUTE,
-          R.drawable.ic_code,
-          R.string.title_contribute,
-          R.string.summary_contribute
-        )
-      )
-      add(
-        SimpleIconTitleDescriptionItem.create(
-          this@AboutActivity,
-          ACTION_CONTRIBUTORS,
-          R.drawable.ic_heart_outline,
-          R.string.title_contributors,
-          R.string.summary_contributors
-        )
-      )
-    }
-  }
-
-  private fun createSimpleIconTextItem(
-    context: Context,
-    id: Int,
-    @DrawableRes icon: Int,
-    @StringRes title: Int,
-    description: CharSequence
-  ): SimpleIconTitleDescriptionItem {
-    return SimpleIconTitleDescriptionItem(
-      id,
-      ContextCompat.getDrawable(context, icon),
-      ContextCompat.getString(context, title),
-      description
-    )
-  }
-
-  /**
-   * Create the version name string that should be displayed to the user.
-   *
-   * Format of the version name string is :
-   *
-   * `v[version-name]-[variant] ([build-type]/[[UN]OFFICIAL])`
-   */
-  @Suppress("KDocUnresolvedReference")
-  private fun createVersionText(): CharSequence {
-    val builder = SpannableStringBuilder()
-    builder.append("v")
-    builder.append(BuildInfo.VERSION_NAME_SIMPLE)
-    builder.append("-")
-    builder.append(IDEBuildConfigProvider.getInstance().cpuAbiName)
-    builder.append(" ")
-
-    val colorPositive = ContextCompat.getColor(this, R.color.color_success)
-    val colorNegative = ContextCompat.getColor(this, R.color.color_error)
-
-    appendBuildType(builder, colorPositive, colorNegative)
-
-    return builder
-  }
-
-  private fun appendBuildType(
-    builder: SpannableStringBuilder,
-    @ColorInt
-    colorPositive: Int,
-    @ColorInt
-    colorNegative: Int
-  ) {
-    @Suppress("KotlinConstantConditions")
-    var color = if (BuildConfig.BUILD_TYPE != "release") {
-      colorNegative
-    } else {
-      colorPositive
     }
 
-    builder.append("(")
-    appendForegroundSpan(builder, BuildConfig.BUILD_TYPE, color)
+    /**
+     * Create the version name string that should be displayed to the user.
+     *
+     * Format of the version name string is :
+     *
+     * `v[version-name]-[variant] ([build-type]/[[UN]OFFICIAL])`
+     */
+    @Suppress("KDocUnresolvedReference")
+    private fun createVersionText(): CharSequence {
+        val builder = SpannableStringBuilder()
+        builder.append("v")
+        builder.append(BuildInfo.VERSION_NAME_SIMPLE)
+        builder.append("-")
+        builder.append(IDEBuildConfigProvider.getInstance().cpuAbiName)
+        builder.append(" ")
 
-    val isOfficialBuild = BuildInfoUtils.isOfficialBuild(this)
+        val colorPositive = ContextCompat.getColor(this, R.color.color_success)
+        val colorNegative = ContextCompat.getColor(this, R.color.color_error)
 
-    color = if (isOfficialBuild) {
-      colorPositive
-    } else {
-      colorNegative
+        appendBuildType(builder, colorPositive, colorNegative)
+
+        return builder
     }
 
-    builder.append("/")
-    appendForegroundSpan(
-      builder,
-      BuildInfoUtils.getBuildType(this).lowercase(),
-      color
-    )
+    private fun appendBuildType(
+        builder: SpannableStringBuilder,
+        @ColorInt colorPositive: Int,
+        @ColorInt colorNegative: Int,
+    ) {
+        @Suppress("KotlinConstantConditions")
+        var color =
+            if (BuildConfig.BUILD_TYPE != "release") {
+                colorNegative
+            } else {
+                colorPositive
+            }
 
-    builder.append(")")
-  }
+        builder.append("(")
+        appendForegroundSpan(builder, BuildConfig.BUILD_TYPE, color)
 
-  private fun appendForegroundSpan(
-    builder: SpannableStringBuilder,
-    text: CharSequence,
-    color: Int
-  ) {
-    builder.append(
-      text,
-      ForegroundColorSpan(color),
-      SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE
-    )
-  }
+        val isOfficialBuild = BuildInfoUtils.isOfficialBuild(this)
 
-  override fun onDestroy() {
-    super.onDestroy()
-    _binding = null
-  }
+        color =
+            if (isOfficialBuild) {
+                colorPositive
+            } else {
+                colorNegative
+            }
 
-  class AboutSocialItemsAdapter(
-    items: List<IconTitleDescriptionItem>,
-    private val onClickListener: (SimpleIconTitleDescriptionItem) -> Unit
-  ) : SimpleIconTitleDescriptionAdapter(items) {
+        builder.append("/")
+        appendForegroundSpan(builder, BuildInfoUtils.getBuildType(this).lowercase(), color)
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-      super.onBindViewHolder(holder, position)
-      val binding = holder.binding
-      val item = getItem(position) as SimpleIconTitleDescriptionItem
-      val dp8 = SizeUtils.dp2px(8f)
-      binding.icon.updatePaddingRelative(dp8, dp8, dp8, dp8)
-      binding.title.setTextAppearance(R.style.TextAppearance_Material3_TitleSmall)
-
-      binding.description.maxLines = 3
-      binding.description.setTextAppearance(R.style.TextAppearance_Material3_BodySmall)
-      binding.description.setTextColor(binding.description.context.resolveAttr(R.attr.colorPrimary))
-
-      binding.root.isClickable = true
-      binding.root.isFocusable = true
-      binding.root.setBackgroundResource(R.drawable.bg_ripple)
-      binding.root.setOnClickListener {
-        onClickListener(item)
-      }
+        builder.append(")")
     }
-  }
+
+    private fun appendForegroundSpan(
+        builder: SpannableStringBuilder,
+        text: CharSequence,
+        color: Int,
+    ) {
+        builder.append(
+            text,
+            ForegroundColorSpan(color),
+            SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE,
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
+
+    class AboutSocialItemsAdapter(
+        items: List<IconTitleDescriptionItem>,
+        private val onClickListener: (SimpleIconTitleDescriptionItem) -> Unit,
+    ) : SimpleIconTitleDescriptionAdapter(items) {
+
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            super.onBindViewHolder(holder, position)
+            val binding = holder.binding
+            val item = getItem(position) as SimpleIconTitleDescriptionItem
+            val dp8 = SizeUtils.dp2px(8f)
+            binding.icon.updatePaddingRelative(dp8, dp8, dp8, dp8)
+            binding.title.setTextAppearance(R.style.TextAppearance_Material3_TitleSmall)
+
+            binding.description.maxLines = 3
+            binding.description.setTextAppearance(R.style.TextAppearance_Material3_BodySmall)
+            binding.description.setTextColor(
+                binding.description.context.resolveAttr(R.attr.colorPrimary)
+            )
+
+            binding.root.isClickable = true
+            binding.root.isFocusable = true
+            binding.root.setBackgroundResource(R.drawable.bg_ripple)
+            binding.root.setOnClickListener { onClickListener(item) }
+        }
+    }
 }

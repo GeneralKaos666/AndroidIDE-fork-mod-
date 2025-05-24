@@ -25,10 +25,10 @@ import com.itsaky.androidide.inflater.IAttribute
  * @author Akash Yadav
  */
 class ImmutableAttributeImpl(private val src: AttributeImpl) : IAttribute by src {
-  @Suppress("UNUSED_PARAMETER")
-  override var value: String
-    get() = src.value
-    set(value) {
-      throw UnsupportedOperationException("Immutable!")
-    }
+    @Suppress("UNUSED_PARAMETER")
+    override var value: String
+        get() = src.value
+        set(value) {
+            throw UnsupportedOperationException("Immutable!")
+        }
 }

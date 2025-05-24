@@ -21,60 +21,60 @@ import com.itsaky.androidide.resources.R.string
 import kotlinx.parcelize.Parcelize
 
 internal fun IDEPreferences.addRootPreferences() {
-  addPreference(ConfigurationPreferences())
-  addPreference(PrivacyPreferences())
-  addPreference(DeveloperOptionsPreferences())
-  addPreference(AboutPreferences())
+    addPreference(ConfigurationPreferences())
+    addPreference(PrivacyPreferences())
+    addPreference(DeveloperOptionsPreferences())
+    addPreference(AboutPreferences())
 }
 
 @Parcelize
 class ConfigurationPreferences(
-  override val key: String = "idepref_configure",
-  override val title: Int = string.configure,
-  override val children: List<IPreference> = mutableListOf()
+    override val key: String = "idepref_configure",
+    override val title: Int = string.configure,
+    override val children: List<IPreference> = mutableListOf(),
 ) : IPreferenceGroup() {
 
-  init {
-    addPreference(GeneralPreferencesScreen())
-    addPreference(EditorPreferencesScreen())
-    addPreference(BuildAndRunPreferences())
-    addPreference(TermuxPreferences())
-  }
+    init {
+        addPreference(GeneralPreferencesScreen())
+        addPreference(EditorPreferencesScreen())
+        addPreference(BuildAndRunPreferences())
+        addPreference(TermuxPreferences())
+    }
 }
 
 @Parcelize
 class PrivacyPreferences(
-  override val key: String = "idepref_privacy",
-  override val title: Int = string.title_privacy,
-  override val children: List<IPreference> = mutableListOf()
+    override val key: String = "idepref_privacy",
+    override val title: Int = string.title_privacy,
+    override val children: List<IPreference> = mutableListOf(),
 ) : IPreferenceGroup() {
 
-  init {
-    addPreference(StatPreferencesScreen())
-  }
+    init {
+        addPreference(StatPreferencesScreen())
+    }
 }
 
 @Parcelize
 class DeveloperOptionsPreferences(
-  override val key: String = "idepref_devOpts",
-  override val title: Int = string.title_developer_options,
-  override val children: List<IPreference> = mutableListOf()
+    override val key: String = "idepref_devOpts",
+    override val title: Int = string.title_developer_options,
+    override val children: List<IPreference> = mutableListOf(),
 ) : IPreferenceGroup() {
 
-  init {
-    addPreference(DeveloperOptionsScreen())
-  }
+    init {
+        addPreference(DeveloperOptionsScreen())
+    }
 }
 
 @Parcelize
 class AboutPreferences(
-  override val key: String = "idepref_category_about",
-  override val title: Int = string.about,
-  override val children: List<IPreference> = mutableListOf()
+    override val key: String = "idepref_category_about",
+    override val title: Int = string.about,
+    override val children: List<IPreference> = mutableListOf(),
 ) : IPreferenceGroup() {
 
-  init {
-    addPreference(changelog)
-    addPreference(about)
-  }
+    init {
+        addPreference(changelog)
+        addPreference(about)
+    }
 }

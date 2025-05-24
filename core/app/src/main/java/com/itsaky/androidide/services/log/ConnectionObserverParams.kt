@@ -24,32 +24,33 @@ import android.os.Bundle
  * Arguments passed to a connection observer from [LogReceiverImpl].
  *
  * @property clientId The unique identifier for the client that was connected or disconnected.
- * @property totalConnections The total number of connections after this client was connected/disconnected.
+ * @property totalConnections The total number of connections after this client was
+ *   connected/disconnected.
  * @author Akash Yadav
  */
 data class ConnectionObserverParams(val clientId: String, val totalConnections: Int) {
 
-  companion object {
+    companion object {
 
-    const val KEY_CLIENT_ID = "com.itsaky.androidide.logreceiver.connectedClientId"
-    const val KEY_CONNECTION_COUNT = "com.itsaky.androidide.logreceiver.connectionCount"
+        const val KEY_CLIENT_ID = "com.itsaky.androidide.logreceiver.connectedClientId"
+        const val KEY_CONNECTION_COUNT = "com.itsaky.androidide.logreceiver.connectionCount"
 
-    @JvmStatic
-    internal fun from(intent: Intent?): ConnectionObserverParams? {
-      val clientId = intent?.getStringExtra(KEY_CLIENT_ID) ?: return null
-      val connectionCount = intent.getIntExtra(KEY_CONNECTION_COUNT, -1)
-      if (connectionCount == -1) {
-        return null
-      }
+        @JvmStatic
+        internal fun from(intent: Intent?): ConnectionObserverParams? {
+            val clientId = intent?.getStringExtra(KEY_CLIENT_ID) ?: return null
+            val connectionCount = intent.getIntExtra(KEY_CONNECTION_COUNT, -1)
+            if (connectionCount == -1) {
+                return null
+            }
 
-      return ConnectionObserverParams(clientId, connectionCount)
+            return ConnectionObserverParams(clientId, connectionCount)
+        }
     }
-  }
 
-  internal fun bundle(): Bundle {
-    return Bundle().apply {
-      putString(KEY_CLIENT_ID, clientId)
-      putInt(KEY_CONNECTION_COUNT, totalConnections)
+    internal fun bundle(): Bundle {
+        return Bundle().apply {
+            putString(KEY_CLIENT_ID, clientId)
+            putInt(KEY_CONNECTION_COUNT, totalConnections)
+        }
     }
-  }
 }

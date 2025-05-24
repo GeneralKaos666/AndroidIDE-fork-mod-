@@ -26,6 +26,6 @@ import java.io.Serializable
  */
 data class GradleArtifact(val group: String, val name: String, val version: String) : Serializable {
 
-  private val gsonType: String = javaClass.name
-  private val serialVersionUID = 1L
+    private val gsonType: String = javaClass.name
+    private val serialVersionUID = 1L
 }

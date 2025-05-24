@@ -17,10 +17,7 @@
 
 package com.itsaky.androidide.templates
 
-/**
- * @author Akash Yadav
- */
-
+/** @author Akash Yadav */
 const val ANDROID_GRADLE_PLUGIN_VERSION = "8.6.0"
 const val GRADLE_DISTRIBUTION_VERSION = "8.8"
 const val KOTLIN_VERSION = "1.9.22"

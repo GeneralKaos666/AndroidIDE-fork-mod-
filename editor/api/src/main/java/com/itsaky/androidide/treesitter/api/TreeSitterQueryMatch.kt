@@ -22,33 +22,37 @@ import com.itsaky.androidide.treesitter.TSQueryMatch
 import com.itsaky.androidide.utils.DefaultRecyclable
 import com.itsaky.androidide.utils.RecyclableObjectPool
 
-/**
- * @author Akash Yadav
- */
-class TreeSitterQueryMatch @JvmOverloads internal constructor(
-  id: Int = 0,
-  patternIndex: Int = 0,
-  captures: Array<out TSQueryCapture?>? = null
-) : TSQueryMatch(id, patternIndex, captures, null),
-  RecyclableObjectPool.Recyclable by DefaultRecyclable() {
+/** @author Akash Yadav */
+class TreeSitterQueryMatch
+@JvmOverloads
+internal constructor(
+    id: Int = 0,
+    patternIndex: Int = 0,
+    captures: Array<out TSQueryCapture?>? = null,
+) :
+    TSQueryMatch(id, patternIndex, captures, null),
+    RecyclableObjectPool.Recyclable by DefaultRecyclable() {
 
-  companion object {
+    companion object {
 
-    @JvmStatic
-    fun obtain(id: Int, patternIndex: Int,
-      captures: Array<out TSQueryCapture?>?): TreeSitterQueryMatch {
-      return obtainFromPool<TreeSitterQueryMatch>().apply {
-        this.id = id
-        this.patternIndex = patternIndex
-        this.captures = captures
-      }
+        @JvmStatic
+        fun obtain(
+            id: Int,
+            patternIndex: Int,
+            captures: Array<out TSQueryCapture?>?,
+        ): TreeSitterQueryMatch {
+            return obtainFromPool<TreeSitterQueryMatch>().apply {
+                this.id = id
+                this.patternIndex = patternIndex
+                this.captures = captures
+            }
+        }
     }
-  }
 
-  override fun recycle() {
-    this.id = 0
-    this.patternIndex = 0
-    this.captures = null
-    returnToPool()
-  }
+    override fun recycle() {
+        this.id = 0
+        this.patternIndex = 0
+        this.captures = null
+        returnToPool()
+    }
 }

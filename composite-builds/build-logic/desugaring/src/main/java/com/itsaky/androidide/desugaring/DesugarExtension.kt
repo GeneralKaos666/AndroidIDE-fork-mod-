@@ -29,21 +29,14 @@ import org.gradle.api.tasks.Nested
  */
 interface DesugarExtension {
 
-  /**
-   * Whether the desugaring is enabled. Defaults to `true`.
-   */
-  val enabled: Property<Boolean>
+    /** Whether the desugaring is enabled. Defaults to `true`. */
+    val enabled: Property<Boolean>
 
-  /**
-   * The method replacement instructions container.
-   */
-  @get:Nested
-  val replacements: DesugarReplacementsContainer
+    /** The method replacement instructions container. */
+    @get:Nested val replacements: DesugarReplacementsContainer
 
-  /**
-   * Define the replacement methods for desugaring.
-   */
-  fun replacements(action: Action<DesugarReplacementsContainer>) {
-    action.execute(replacements)
-  }
+    /** Define the replacement methods for desugaring. */
+    fun replacements(action: Action<DesugarReplacementsContainer>) {
+        action.execute(replacements)
+    }
 }

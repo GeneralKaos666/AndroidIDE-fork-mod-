@@ -35,24 +35,24 @@ package com.android.aaptcompiler
 
 data class Source(val path: String, val line: Int? = null, private val archive: String? = null) {
 
-  override fun toString(): String {
-    var s = path
-    if (archive != null) {
-      s = "$archive@$s"
+    override fun toString(): String {
+        var s = path
+        if (archive != null) {
+            s = "$archive@$s"
+        }
+        if (line != null) {
+            s += ":$line"
+        }
+        return s
     }
-    if (line != null) {
-      s += ":$line"
+
+    fun isNotEmpty() = this != EMPTY
+
+    fun withLine(line: Int?): Source {
+        return Source(path, line, archive)
     }
-    return s
-  }
-
-  fun isNotEmpty() = this != EMPTY
-
-  fun withLine(line: Int?) : Source {
-    return Source(path, line, archive)
-  }
 
     companion object {
-    val EMPTY = Source("")
-  }
+        val EMPTY = Source("")
+    }
 }

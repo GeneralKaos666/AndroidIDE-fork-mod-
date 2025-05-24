@@ -35,30 +35,27 @@ import kotlinx.coroutines.withContext
  */
 class ReloadColorSchemesAction(context: Context, override val order: Int) : EditorActivityAction() {
 
-  override val id: String = "ide.editor.colorScheme.reload"
+    override val id: String = "ide.editor.colorScheme.reload"
 
-  // Schemes are reloaded in a background thread
-  // This property is set to true just to make sure that the ProgressDialog instance is created on
-  // the UI thread
-  override var requiresUIThread: Boolean = true
+    // Schemes are reloaded in a background thread
+    // This property is set to true just to make sure that the ProgressDialog instance is created on
+    // the UI thread
+    override var requiresUIThread: Boolean = true
 
-  init {
-    label = context.getString(R.string.title_reload_color_schemes)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_reload)
-  }
-
-  override suspend fun execAction(data: ActionData): Boolean {
-    val context = data.requireActivity()
-    context.lifecycleScope.launchAsyncWithProgress(
-      context = Dispatchers.Default,
-      configureFlashbar = { builder, _ ->
-        builder.message(R.string.please_wait)
-      }) { flashbar, _ ->
-      IDEColorSchemeProvider.reload()
-      withContext(Dispatchers.Main) {
-        flashbar.dismiss()
-      }
+    init {
+        label = context.getString(R.string.title_reload_color_schemes)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_reload)
     }
-    return true
-  }
+
+    override suspend fun execAction(data: ActionData): Boolean {
+        val context = data.requireActivity()
+        context.lifecycleScope.launchAsyncWithProgress(
+            context = Dispatchers.Default,
+            configureFlashbar = { builder, _ -> builder.message(R.string.please_wait) },
+        ) { flashbar, _ ->
+            IDEColorSchemeProvider.reload()
+            withContext(Dispatchers.Main) { flashbar.dismiss() }
+        }
+        return true
+    }
 }

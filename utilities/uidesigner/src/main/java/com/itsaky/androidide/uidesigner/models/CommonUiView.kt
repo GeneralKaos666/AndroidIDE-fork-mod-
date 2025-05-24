@@ -23,8 +23,8 @@ package com.itsaky.androidide.uidesigner.models
  * @author Akash Yadav
  */
 interface CommonUiView {
-  
-  var includeInIndexComputation: Boolean
-  
-  var needSetup: Boolean
+
+    var includeInIndexComputation: Boolean
+
+    var needSetup: Boolean
 }

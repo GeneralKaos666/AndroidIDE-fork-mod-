@@ -29,36 +29,36 @@ import com.itsaky.androidide.inflater.internal.utils.ViewFactory
 import com.itsaky.androidide.inflater.viewGroup
 import com.itsaky.androidide.lookup.Lookup
 import com.itsaky.androidide.uidesigner.utils.UiInflaterComponentFactory
-import org.robolectric.Robolectric
 import java.io.File
+import org.robolectric.Robolectric
 
 private val activity by lazy { Robolectric.buildActivity(AppCompatActivity::class.java).get() }
 
 fun requiresActivity(initComponentFactory: Boolean = true, block: AppCompatActivity.() -> Unit) {
-  if (initComponentFactory) {
-    Lookup.getDefault().apply {
-      lookup(LAYOUT_INFLATER_COMPONENT_FACTORY_KEY)
-        ?: register(LAYOUT_INFLATER_COMPONENT_FACTORY_KEY, UiInflaterComponentFactory())
+    if (initComponentFactory) {
+        Lookup.getDefault().apply {
+            lookup(LAYOUT_INFLATER_COMPONENT_FACTORY_KEY)
+                ?: register(LAYOUT_INFLATER_COMPONENT_FACTORY_KEY, UiInflaterComponentFactory())
+        }
     }
-  }
-  activity.block()
+    activity.block()
 }
 
 fun Context.createLayout(parent: com.itsaky.androidide.inflater.IViewGroup? = null): ViewGroupImpl {
-  return ViewGroupImpl(
-      LayoutFile(File(""), ""),
-      LinearLayout::class.qualifiedName!!,
-      LinearLayout(this)
-    )
-    .apply { parent?.let { applyLayoutParams(it) } }
+    return ViewGroupImpl(
+            LayoutFile(File(""), ""),
+            LinearLayout::class.qualifiedName!!,
+            LinearLayout(this),
+        )
+        .apply { parent?.let { applyLayoutParams(it) } }
 }
 
 fun Context.createView(parent: com.itsaky.androidide.inflater.IViewGroup? = null): ViewImpl {
-  return ViewImpl(LayoutFile(File(""), ""), View::class.qualifiedName!!, View(this)).apply {
-    parent?.let { applyLayoutParams(it) }
-  }
+    return ViewImpl(LayoutFile(File(""), ""), View::class.qualifiedName!!, View(this)).apply {
+        parent?.let { applyLayoutParams(it) }
+    }
 }
 
 fun ViewImpl.applyLayoutParams(parent: com.itsaky.androidide.inflater.IViewGroup) {
-  view.layoutParams = ViewFactory.generateLayoutParams(parent.viewGroup)
+    view.layoutParams = ViewFactory.generateLayoutParams(parent.viewGroup)
 }

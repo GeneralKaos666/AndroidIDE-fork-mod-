@@ -22,62 +22,63 @@ import com.itsaky.androidide.buildinfo.BuildInfo
 import org.gradle.testkit.runner.BuildResult
 import org.junit.jupiter.api.Test
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 class AndroidIDEInitScriptPluginTest {
 
-  @Test
-  fun `test plugins are applied and log sender dependency is added properly`() {
-    val result = buildProject()
-    assertBasics(result)
-  }
-
-  @Test
-  fun `test behavior on minimum supported version`() {
-    val result = buildProject(agpVersion = BuildInfo.AGP_VERSION_MININUM, gradleVersion = "7.5.1")
-    assertBasics(result)
-  }
-
-  @Test
-  fun `test behavior with apply plugin syntax`() {
-    val result = buildProject(
-      agpVersion = BuildInfo.AGP_VERSION_MININUM,
-      gradleVersion = "7.5.1",
-      useApplyPluginGroovySyntax = true
-    )
-    assertBasics(result)
-  }
-
-  private fun assertBasics(result: BuildResult) {
-    // These plugins must be applied to the
-    for ((project, plugins) in mapOf(
-      ":app" to arrayOf(AndroidIDEGradlePlugin::class, LogSenderPlugin::class))) {
-      for (plugin in plugins) {
-        assertThat(result.output).contains(
-          "Applying ${plugin.simpleName} to project '${project}'"
-        )
-      }
+    @Test
+    fun `test plugins are applied and log sender dependency is added properly`() {
+        val result = buildProject()
+        assertBasics(result)
     }
 
-    // LogSender should be applied to these
-    for ((project, variants) in mapOf(":app" to arrayOf("demoDebug", "fullDebug"))) {
-      for (variant in variants) {
-        assertThat(result.output).contains(
-          "Adding LogSender dependency (version '${
+    @Test
+    fun `test behavior on minimum supported version`() {
+        val result =
+            buildProject(agpVersion = BuildInfo.AGP_VERSION_MININUM, gradleVersion = "7.5.1")
+        assertBasics(result)
+    }
+
+    @Test
+    fun `test behavior with apply plugin syntax`() {
+        val result =
+            buildProject(
+                agpVersion = BuildInfo.AGP_VERSION_MININUM,
+                gradleVersion = "7.5.1",
+                useApplyPluginGroovySyntax = true,
+            )
+        assertBasics(result)
+    }
+
+    private fun assertBasics(result: BuildResult) {
+        // These plugins must be applied to the
+        for ((project, plugins) in
+            mapOf(":app" to arrayOf(AndroidIDEGradlePlugin::class, LogSenderPlugin::class))) {
+            for (plugin in plugins) {
+                assertThat(result.output)
+                    .contains("Applying ${plugin.simpleName} to project '${project}'")
+            }
+        }
+
+        // LogSender should be applied to these
+        for ((project, variants) in mapOf(":app" to arrayOf("demoDebug", "fullDebug"))) {
+            for (variant in variants) {
+                assertThat(result.output)
+                    .contains(
+                        "Adding LogSender dependency (version '${
             depVersion(true)
           }') to variant '${variant}' of project '${project}'"
-        )
-      }
-    }
+                    )
+            }
+        }
 
-    // LogSender should not be applied to these
-    for ((project, variants) in mapOf(":app" to arrayOf("demoRelease", "fullRelease"))) {
-      for (variant in variants) {
-        assertThat(result.output).doesNotContain(
-          "Adding LogSender dependency to variant '${variant}' of project '${project}'"
-        )
-      }
+        // LogSender should not be applied to these
+        for ((project, variants) in mapOf(":app" to arrayOf("demoRelease", "fullRelease"))) {
+            for (variant in variants) {
+                assertThat(result.output)
+                    .doesNotContain(
+                        "Adding LogSender dependency to variant '${variant}' of project '${project}'"
+                    )
+            }
+        }
     }
-  }
 }

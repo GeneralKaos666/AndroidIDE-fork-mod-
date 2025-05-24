@@ -26,19 +26,19 @@ import androidx.annotation.RequiresApi
 @RequiresApi(Build.VERSION_CODES.N)
 internal object ActivityCompatHelperApi24 {
 
-  fun isInMultiWindowMode(activity: Activity): Boolean {
-    return activity.isInMultiWindowMode
-  }
+    fun isInMultiWindowMode(activity: Activity): Boolean {
+        return activity.isInMultiWindowMode
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
 internal object ActivityCompatHelperApi30 {
 
-  fun currentWindowBounds(activity: Activity): Rect {
-    return activity.windowManager.currentWindowMetrics.bounds
-  }
+    fun currentWindowBounds(activity: Activity): Rect {
+        return activity.windowManager.currentWindowMetrics.bounds
+    }
 
-  fun maximumWindowBounds(activity: Activity): Rect {
-    return activity.windowManager.maximumWindowMetrics.bounds
-  }
+    fun maximumWindowBounds(activity: Activity): Rect {
+        return activity.windowManager.maximumWindowMetrics.bounds
+    }
 }

@@ -21,34 +21,29 @@ import com.itsaky.androidide.treesitter.TSTreeCursor
 import com.itsaky.androidide.utils.DefaultRecyclable
 import com.itsaky.androidide.utils.RecyclableObjectPool
 
-/**
- * @author Akash Yadav
- */
-class TreeSitterTreeCursor @JvmOverloads internal constructor(
-  pointer: Long = 0
-) : TSTreeCursor(pointer), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
+/** @author Akash Yadav */
+class TreeSitterTreeCursor @JvmOverloads internal constructor(pointer: Long = 0) :
+    TSTreeCursor(pointer), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
 
-  companion object {
+    companion object {
 
-    @JvmStatic
-    fun obtain(pointer: Long): TreeSitterTreeCursor {
-      return obtainFromPool<TreeSitterTreeCursor>().apply {
-        this.nativeObject = pointer
-      }
+        @JvmStatic
+        fun obtain(pointer: Long): TreeSitterTreeCursor {
+            return obtainFromPool<TreeSitterTreeCursor>().apply { this.nativeObject = pointer }
+        }
     }
-  }
 
-  override fun close() {
-    super.close()
-    recycle()
-  }
+    override fun close() {
+        super.close()
+        recycle()
+    }
 
-  override fun recycle() {
-    this.nativeObject = 0
-    this.context0 = 0
-    this.context1 = 0
-    this.id = 0
-    this.tree = 0
-    returnToPool()
-  }
+    override fun recycle() {
+        this.nativeObject = 0
+        this.context0 = 0
+        this.context1 = 0
+        this.id = 0
+        this.tree = 0
+        returnToPool()
+    }
 }

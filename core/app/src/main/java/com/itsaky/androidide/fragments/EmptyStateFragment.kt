@@ -33,49 +33,53 @@ import com.itsaky.androidide.viewmodel.EmptyStateFragmentViewModel
  */
 abstract class EmptyStateFragment<T : ViewBinding> : FragmentWithBinding<T> {
 
-  constructor(layout: Int, bind: (View) -> T) : super(layout, bind)
-  constructor(inflate: (LayoutInflater, ViewGroup?, Boolean) -> T) : super(inflate)
+    constructor(layout: Int, bind: (View) -> T) : super(layout, bind)
 
-  protected var emptyStateBinding: FragmentEmptyStateBinding? = null
-    private set
+    constructor(inflate: (LayoutInflater, ViewGroup?, Boolean) -> T) : super(inflate)
 
-  protected val emptyStateViewModel by viewModels<EmptyStateFragmentViewModel>()
+    protected var emptyStateBinding: FragmentEmptyStateBinding? = null
+        private set
 
-  internal var isEmpty: Boolean
-    get() = emptyStateViewModel.isEmpty.value ?: false
-    set(value) {
-      emptyStateViewModel.isEmpty.value = value
+    protected val emptyStateViewModel by viewModels<EmptyStateFragmentViewModel>()
+
+    internal var isEmpty: Boolean
+        get() = emptyStateViewModel.isEmpty.value ?: false
+        set(value) {
+            emptyStateViewModel.isEmpty.value = value
+        }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+
+        return FragmentEmptyStateBinding.inflate(inflater, container, false)
+            .also { emptyStateBinding ->
+                this.emptyStateBinding = emptyStateBinding
+
+                // add the main fragment view
+                emptyStateBinding.root.addView(
+                    super.onCreateView(inflater, emptyStateBinding.root, savedInstanceState)
+                )
+            }
+            .root
     }
 
-  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-    savedInstanceState: Bundle?): View {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    return FragmentEmptyStateBinding.inflate(inflater, container, false).also { emptyStateBinding ->
-      this.emptyStateBinding = emptyStateBinding
+        emptyStateViewModel.isEmpty.observe(viewLifecycleOwner) { isEmpty ->
+            emptyStateBinding?.apply { root.displayedChild = if (isEmpty) 0 else 1 }
+        }
 
-      // add the main fragment view
-      emptyStateBinding.root.addView(
-        super.onCreateView(inflater, emptyStateBinding.root, savedInstanceState)
-      )
-    }.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-
-    emptyStateViewModel.isEmpty.observe(viewLifecycleOwner) { isEmpty ->
-      emptyStateBinding?.apply {
-        root.displayedChild = if (isEmpty) 0 else 1
-      }
+        emptyStateViewModel.emptyMessage.observe(viewLifecycleOwner) { message ->
+            emptyStateBinding?.emptyView?.message = message
+        }
     }
 
-    emptyStateViewModel.emptyMessage.observe(viewLifecycleOwner) { message ->
-      emptyStateBinding?.emptyView?.message = message
+    override fun onDestroyView() {
+        this.emptyStateBinding = null
+        super.onDestroyView()
     }
-  }
-
-  override fun onDestroyView() {
-    this.emptyStateBinding = null
-    super.onDestroyView()
-  }
 }

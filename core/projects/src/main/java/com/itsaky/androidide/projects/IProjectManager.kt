@@ -32,94 +32,83 @@ import java.io.File
  */
 interface IProjectManager {
 
-  companion object {
+    companion object {
 
-    private var projectManager: IProjectManager? = null
+        private var projectManager: IProjectManager? = null
 
-    /**
-     * Get the project manager instance.
-     */
-    @JvmStatic
-    fun getInstance(): IProjectManager {
-      return projectManager ?: ServiceLoader.load(IProjectManager::class.java).findFirstOrThrow()
-        .also {
-          projectManager = it
+        /** Get the project manager instance. */
+        @JvmStatic
+        fun getInstance(): IProjectManager {
+            return projectManager
+                ?: ServiceLoader.load(IProjectManager::class.java).findFirstOrThrow().also {
+                    projectManager = it
+                }
         }
     }
-  }
 
-  /**
-   * The path to the project's root directory.
-   */
-  val projectDirPath: String
-    get() = projectDir.path
+    /** The path to the project's root directory. */
+    val projectDirPath: String
+        get() = projectDir.path
 
-  /**
-   * The project's root directory.
-   */
-  val projectDir: File
+    /** The project's root directory. */
+    val projectDir: File
 
-  /**
-   * Issues that were encountered during project synchronization.
-   */
-  val projectSyncIssues: ProjectSyncIssues?
+    /** Issues that were encountered during project synchronization. */
+    val projectSyncIssues: ProjectSyncIssues?
 
-  /**
-   * Open the given project directory.
-   */
-  fun openProject(directory: File)
+    /** Open the given project directory. */
+    fun openProject(directory: File)
 
-  /**
-   * Same as [openProject].
-   */
-  fun openProject(path: String) = openProject(File(path))
+    /** Same as [openProject]. */
+    fun openProject(path: String) = openProject(File(path))
 
-  /**
-   * Setup the project with the given [project proxy][project] from the Tooling API.
-   *
-   * @param project The project proxy.
-   */
-  @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-  suspend fun setupProject(
-    project: IProject = Lookup.getDefault().lookup(BuildService.KEY_PROJECT_PROXY)!!
-  )
+    /**
+     * Setup the project with the given [project proxy][project] from the Tooling API.
+     *
+     * @param project The project proxy.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    suspend fun setupProject(
+        project: IProject = Lookup.getDefault().lookup(BuildService.KEY_PROJECT_PROXY)!!
+    )
 
-  /**
-   * Get the workspace instance.
-   *
-   * @return The configured workspace, or `null`.
-   */
-  fun getWorkspace(): IWorkspace?
+    /**
+     * Get the workspace instance.
+     *
+     * @return The configured workspace, or `null`.
+     */
+    fun getWorkspace(): IWorkspace?
 
-  /**
-   * Get the workspace instance.
-   *
-   * @return The configured workspace.
-   * @throws IWorkspace.NotConfiguredException If the workspace has not been configured yet.
-   */
-  fun requireWorkspace(): IWorkspace = getWorkspace() ?: throw IWorkspace.NotConfiguredException()
+    /**
+     * Get the workspace instance.
+     *
+     * @return The configured workspace.
+     * @throws IWorkspace.NotConfiguredException If the workspace has not been configured yet.
+     */
+    fun requireWorkspace(): IWorkspace = getWorkspace() ?: throw IWorkspace.NotConfiguredException()
 
-  /**
-   * Notify the project manager that the given <code>file</code> was created.
-   * @param file The file that was created.
-   */
-  fun notifyFileCreated(file: File)
+    /**
+     * Notify the project manager that the given <code>file</code> was created.
+     *
+     * @param file The file that was created.
+     */
+    fun notifyFileCreated(file: File)
 
-  /**
-   * Notify the project manager that the given <code>file</code> was deleted.
-   * @param file The file that was deleted.
-   */
-  fun notifyFileDeleted(file: File)
+    /**
+     * Notify the project manager that the given <code>file</code> was deleted.
+     *
+     * @param file The file that was deleted.
+     */
+    fun notifyFileDeleted(file: File)
 
-  /**
-   * Notify the project manager that the file was renamed or moved.
-   * @param from The file that was renamed or moved.
-   * @param to The file after renaming/move.
-   */
-  fun notifyFileRenamed(from: File, to: File)
+    /**
+     * Notify the project manager that the file was renamed or moved.
+     *
+     * @param from The file that was renamed or moved.
+     * @param to The file after renaming/move.
+     */
+    fun notifyFileRenamed(from: File, to: File)
 
-  /**
-   * Destroy the project manager.
-   */
-  fun destroy()
+    /** Destroy the project manager. */
+    fun destroy()
 }

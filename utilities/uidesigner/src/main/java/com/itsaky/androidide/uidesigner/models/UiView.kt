@@ -28,4 +28,4 @@ import com.itsaky.androidide.inflater.internal.ViewImpl
  * @author Akash Yadav
  */
 internal open class UiView(file: LayoutFile, name: String, view: View) :
-  ViewImpl(file, name, view), CommonUiView by CommonUiViewImpl()
+    ViewImpl(file, name, view), CommonUiView by CommonUiViewImpl()

@@ -24,15 +24,14 @@ import com.itsaky.androidide.models.IconTitleDescriptionItem
  *
  * @author Akash Yadav
  */
-open class SimpleIconTitleDescriptionAdapter(
-  protected val items: List<IconTitleDescriptionItem>
-) : IconTitleDescriptionAdapter() {
+open class SimpleIconTitleDescriptionAdapter(protected val items: List<IconTitleDescriptionItem>) :
+    IconTitleDescriptionAdapter() {
 
-  override fun getItem(position: Int): IconTitleDescriptionItem {
-    return items[position]
-  }
+    override fun getItem(position: Int): IconTitleDescriptionItem {
+        return items[position]
+    }
 
-  override fun getItemCount(): Int {
-    return items.size
-  }
+    override fun getItemCount(): Int {
+        return items.size
+    }
 }

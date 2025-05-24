@@ -30,17 +30,17 @@ import com.itsaky.androidide.preferences.databinding.LayoutDialogTextInputBindin
  */
 abstract class EditTextPreference : DialogPreference() {
 
-  override fun onConfigureDialog(preference: Preference, dialog: MaterialAlertDialogBuilder) {
-    super.onConfigureDialog(preference, dialog)
-    val binding = LayoutDialogTextInputBinding.inflate(LayoutInflater.from(dialog.context))
-    onConfigureTextInput(binding.name)
-    dialog.setView(binding.root)
-    dialog.setPositiveButton(android.R.string.ok) { iface, _ ->
-      iface.dismiss()
-      onPreferenceChanged(preference, binding.name.editText?.text?.toString()?.trim())
+    override fun onConfigureDialog(preference: Preference, dialog: MaterialAlertDialogBuilder) {
+        super.onConfigureDialog(preference, dialog)
+        val binding = LayoutDialogTextInputBinding.inflate(LayoutInflater.from(dialog.context))
+        onConfigureTextInput(binding.name)
+        dialog.setView(binding.root)
+        dialog.setPositiveButton(android.R.string.ok) { iface, _ ->
+            iface.dismiss()
+            onPreferenceChanged(preference, binding.name.editText?.text?.toString()?.trim())
+        }
+        dialog.setNegativeButton(android.R.string.cancel) { iface, _ -> iface.dismiss() }
     }
-    dialog.setNegativeButton(android.R.string.cancel) { iface, _ -> iface.dismiss() }
-  }
 
-  protected open fun onConfigureTextInput(input: TextInputLayout) {}
+    protected open fun onConfigureTextInput(input: TextInputLayout) {}
 }

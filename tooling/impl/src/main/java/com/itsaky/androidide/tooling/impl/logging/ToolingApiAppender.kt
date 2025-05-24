@@ -29,17 +29,17 @@ import com.itsaky.androidide.tooling.impl.Main
  */
 class ToolingApiAppender : AppenderBase<ILoggingEvent>() {
 
-  override fun append(eventObject: ILoggingEvent?) {
-    if (eventObject == null || !isStarted) {
-      return
-    }
+    override fun append(eventObject: ILoggingEvent?) {
+        if (eventObject == null || !isStarted) {
+            return
+        }
 
-    Main.client?.logMessage(
-      LogMessageParams(
-        eventObject.level.levelStr[0],
-        eventObject.loggerName,
-        eventObject.formattedMessage
-      )
-    )
-  }
+        Main.client?.logMessage(
+            LogMessageParams(
+                eventObject.level.levelStr[0],
+                eventObject.loggerName,
+                eventObject.formattedMessage,
+            )
+        )
+    }
 }

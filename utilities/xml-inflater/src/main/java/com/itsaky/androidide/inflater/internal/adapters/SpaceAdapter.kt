@@ -32,7 +32,7 @@ import com.itsaky.androidide.resources.R.string
 @com.itsaky.androidide.annotations.inflater.ViewAdapter(Space::class)
 @IncludeInDesigner(group = WIDGETS)
 open class SpaceAdapter<@Suppress("FINAL_UPPER_BOUND") T : Space> : ViewAdapter<T>() {
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(UiWidget(Space::class.java, string.widget_space, drawable.ic_widget_space))
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(UiWidget(Space::class.java, string.widget_space, drawable.ic_widget_space))
+    }
 }

@@ -26,20 +26,21 @@ import com.itsaky.androidide.utils.AndroidPluginVersion
  */
 object ToolingProps {
 
-  val TESTING_IS_TEST_ENV = propName("testing", "isTestEnv")
-  val TESTING_LATEST_AGP_VERSION = propName("testing", "latestAgpVersion")
+    val TESTING_IS_TEST_ENV = propName("testing", "isTestEnv")
+    val TESTING_LATEST_AGP_VERSION = propName("testing", "latestAgpVersion")
 
-  val isTestEnv: Boolean
-    get() = System.getProperty(TESTING_IS_TEST_ENV).toBoolean()
+    val isTestEnv: Boolean
+        get() = System.getProperty(TESTING_IS_TEST_ENV).toBoolean()
 
-  val latestTestedAgpVersion: AndroidPluginVersion
-    get() {
-      if (!isTestEnv) {
-        return AndroidPluginVersion.LATEST_TESTED
-      }
-      return System.getProperty(TESTING_LATEST_AGP_VERSION)?.let { AndroidPluginVersion.parse(it) }
-        ?: AndroidPluginVersion.LATEST_TESTED
-    }
+    val latestTestedAgpVersion: AndroidPluginVersion
+        get() {
+            if (!isTestEnv) {
+                return AndroidPluginVersion.LATEST_TESTED
+            }
+            return System.getProperty(TESTING_LATEST_AGP_VERSION)?.let {
+                AndroidPluginVersion.parse(it)
+            } ?: AndroidPluginVersion.LATEST_TESTED
+        }
 
-  fun propName(cat: String, name: String) = "ide.tooling.$cat.$name"
+    fun propName(cat: String, name: String) = "ide.tooling.$cat.$name"
 }

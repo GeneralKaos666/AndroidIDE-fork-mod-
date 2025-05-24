@@ -10,8 +10,8 @@ import androidx.fragment.app.Fragment
  * Util class to be used when creating a slide with a custom layout.
  * [AppIntroCustomLayoutFragment.newInstance] passing the Layout ID of your custom layout.
  *
- * You can then use this Slide with the [AppIntroBase.addSlide] methods to add this slide
- * to your AppIntro.
+ * You can then use this Slide with the [AppIntroBase.addSlide] methods to add this slide to your
+ * AppIntro.
  */
 class AppIntroCustomLayoutFragment : Fragment() {
 
@@ -25,7 +25,7 @@ class AppIntroCustomLayoutFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? = inflater.inflate(layoutResId, container, false)
 
     companion object {

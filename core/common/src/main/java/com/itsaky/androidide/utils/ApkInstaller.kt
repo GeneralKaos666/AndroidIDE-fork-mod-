@@ -41,116 +41,107 @@ import org.slf4j.LoggerFactory
  */
 object ApkInstaller {
 
-  private val log = LoggerFactory.getLogger(ApkInstaller::class.java)
-  private const val DEBUG_FALLBACK_INSTALLER = false
+    private val log = LoggerFactory.getLogger(ApkInstaller::class.java)
+    private const val DEBUG_FALLBACK_INSTALLER = false
 
-  /**
-   * Starts a session-based package installation workflow.
-   *
-   * @param context The context.
-   * @param sender The componenent which is requesting the installation. This
-   *   component receives the installation result.
-   * @param apk The APK file to install.
-   */
-  @JvmStatic
-  fun installApk(
-    context: Context,
-    sender: IntentSender,
-    apk: File,
-    callback: SessionCallback,
-  ) {
-    if (!apk.exists() || !apk.isFile || apk.extension != "apk") {
-      log.error("File is not an APK: {}", apk)
-      return
-    }
-
-    log.info("Installing APK: {}", apk)
-
-    if (isMiui() || DEBUG_FALLBACK_INSTALLER) {
-      log.warn(
-        "Cannot use session-based installer on this device. Falling back to intent-based installer."
-      )
-
-      @Suppress("DEPRECATION")
-      val intent = Intent(Intent.ACTION_INSTALL_PACKAGE)
-      val authority = "${context.packageName}.providers.fileprovider"
-      val uri = FileProvider.getUriForFile(context, authority, apk)
-      intent.setDataAndType(uri, "application/vnd.android.package-archive")
-      intent.flags =
-        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-
-      try {
-        context.startActivity(intent)
-      } catch (e: Exception) {
-        log.warn("Failed to start installation intent", e.message)
-      }
-
-      return
-    }
-
-    log.info("Starting a new session for installation")
-
-    var session: Session? = null
-    try {
-      val installer =
-        context.packageManager.packageInstaller.apply {
-          registerSessionCallback(callback)
+    /**
+     * Starts a session-based package installation workflow.
+     *
+     * @param context The context.
+     * @param sender The componenent which is requesting the installation. This component receives
+     *   the installation result.
+     * @param apk The APK file to install.
+     */
+    @JvmStatic
+    fun installApk(context: Context, sender: IntentSender, apk: File, callback: SessionCallback) {
+        if (!apk.exists() || !apk.isFile || apk.extension != "apk") {
+            log.error("File is not an APK: {}", apk)
+            return
         }
 
-      val params = SessionParams(SessionParams.MODE_FULL_INSTALL)
-      val sessionId = installer.createSession(params)
-      session = installer.openSession(sessionId)
+        log.info("Installing APK: {}", apk)
 
-      CoroutineScope(Dispatchers.IO).launch {
-        addToSession(session, apk)
+        if (isMiui() || DEBUG_FALLBACK_INSTALLER) {
+            log.warn(
+                "Cannot use session-based installer on this device. Falling back to intent-based installer."
+            )
 
-        withContext(Dispatchers.Main) {
-          session.commit(sender)
-          log.info("Started package install session")
+            @Suppress("DEPRECATION") val intent = Intent(Intent.ACTION_INSTALL_PACKAGE)
+            val authority = "${context.packageName}.providers.fileprovider"
+            val uri = FileProvider.getUriForFile(context, authority, apk)
+            intent.setDataAndType(uri, "application/vnd.android.package-archive")
+            intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+
+            try {
+                context.startActivity(intent)
+            } catch (e: Exception) {
+                log.warn("Failed to start installation intent", e.message)
+            }
+
+            return
         }
-      }
-    } catch (io: IOException) {
-      session?.abandon()
-      log.error("Package installation failed", io)
-    } catch (runtime: RuntimeException) {
-      session?.abandon()
-      log.error("Package installation failed", runtime)
-    }
-  }
 
-  private suspend fun addToSession(session: Session, apk: File) {
-    val length = apk.length()
-    if (length == 0L) {
-      throw RuntimeException("File is empty (has length 0)")
-    }
-    session.openWrite(apk.name, 0, length).use { outStream ->
-      apk.inputStream().use { inStream ->
-        val bytes = ByteArray(8 * 1024)
-        var n: Int = inStream.read(bytes)
-        var count = n
-        while (n >= 0) {
-          outStream.write(bytes, 0, n)
-          n = inStream.read(bytes)
-          count += n
+        log.info("Starting a new session for installation")
+
+        var session: Session? = null
+        try {
+            val installer =
+                context.packageManager.packageInstaller.apply { registerSessionCallback(callback) }
+
+            val params = SessionParams(SessionParams.MODE_FULL_INSTALL)
+            val sessionId = installer.createSession(params)
+            session = installer.openSession(sessionId)
+
+            CoroutineScope(Dispatchers.IO).launch {
+                addToSession(session, apk)
+
+                withContext(Dispatchers.Main) {
+                    session.commit(sender)
+                    log.info("Started package install session")
+                }
+            }
+        } catch (io: IOException) {
+            session?.abandon()
+            log.error("Package installation failed", io)
+        } catch (runtime: RuntimeException) {
+            session?.abandon()
+            log.error("Package installation failed", runtime)
         }
-      }
-      session.fsync(outStream)
     }
-  }
 
-  fun isMiui(): Boolean {
-    return !TextUtils.isEmpty(getSystemProperty("ro.miui.ui.version.name"))
-  }
-
-  @SuppressLint("PrivateApi")
-  fun getSystemProperty(key: String?): String? {
-    return try {
-      Class.forName("android.os.SystemProperties")
-        .getDeclaredMethod("get", String::class.java)
-        .invoke(null, key) as String
-    } catch (e: Exception) {
-      log.warn("Unable to use SystemProperties.get", e)
-      null
+    private suspend fun addToSession(session: Session, apk: File) {
+        val length = apk.length()
+        if (length == 0L) {
+            throw RuntimeException("File is empty (has length 0)")
+        }
+        session.openWrite(apk.name, 0, length).use { outStream ->
+            apk.inputStream().use { inStream ->
+                val bytes = ByteArray(8 * 1024)
+                var n: Int = inStream.read(bytes)
+                var count = n
+                while (n >= 0) {
+                    outStream.write(bytes, 0, n)
+                    n = inStream.read(bytes)
+                    count += n
+                }
+            }
+            session.fsync(outStream)
+        }
     }
-  }
+
+    fun isMiui(): Boolean {
+        return !TextUtils.isEmpty(getSystemProperty("ro.miui.ui.version.name"))
+    }
+
+    @SuppressLint("PrivateApi")
+    fun getSystemProperty(key: String?): String? {
+        return try {
+            Class.forName("android.os.SystemProperties")
+                .getDeclaredMethod("get", String::class.java)
+                .invoke(null, key) as String
+        } catch (e: Exception) {
+            log.warn("Unable to use SystemProperties.get", e)
+            null
+        }
+    }
 }

@@ -42,74 +42,75 @@ import com.itsaky.androidide.uidesigner.viewmodel.WorkspaceViewModel
  */
 class ViewInfoFragment : Fragment() {
 
-  private val viewModel by viewModels<WorkspaceViewModel>(ownerProducer = { requireActivity() })
-  private var binding: LayoutViewInfoBinding? = null
-    set(value) {
-      if (value == null) {
-        field = null
-        header = null
-        return
-      }
+    private val viewModel by viewModels<WorkspaceViewModel>(ownerProducer = { requireActivity() })
+    private var binding: LayoutViewInfoBinding? = null
+        set(value) {
+            if (value == null) {
+                field = null
+                header = null
+                return
+            }
 
-      field = value
-      header = LayoutViewInfoHeaderBinding.bind(value.root)
-    }
-
-  private var header: LayoutViewInfoHeaderBinding? = null
-
-  override fun onCreateView(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    savedInstanceState: Bundle?
-  ): View {
-    this.binding = LayoutViewInfoBinding.inflate(inflater, container, false)
-    return this.binding!!.root
-  }
-
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    viewModel._view.observe(viewLifecycleOwner) { showViewInfo() }
-  }
-
-  override fun onDestroyView() {
-    super.onDestroyView()
-    this.binding = null
-  }
-
-  private fun showViewInfo() {
-    val binding = this.binding ?: return
-    val header = this.header ?: return
-    val view = this.viewModel.view as? ViewImpl ?: return
-
-    header.name.text = view.simpleName
-    header.desc.text = view.name
-    binding.attrList.adapter =
-      ViewAttrListAdapter(
-        attributes = view.attributes,
-        viewModel = viewModel,
-        onDeleteAttr = {
-          view.removeAttribute(it)
-          true
+            field = value
+            header = LayoutViewInfoHeaderBinding.bind(value.root)
         }
-      ) {
-        // Store a copy of the attribute so that we can check if the value of the attribute has
-        // changed in WorkspaceViewModel.notifyAttrUpdated()
-        viewModel.selectedAttr =
-          newAttribute(
-            view = view,
-            namespace = it.namespace as NamespaceImpl?,
-            name = it.name,
-            value = it.value
-          )
-            as UiAttribute
-        findNavController().navigate(R.id.attrValueEditorFragment)
-      }
 
-    binding.btnDelete.setOnClickListener {
-      view.removeFromParent()
-      (parentFragment?.parentFragment as? ViewInfoSheet)?.dismiss()
+    private var header: LayoutViewInfoHeaderBinding? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+        this.binding = LayoutViewInfoBinding.inflate(inflater, container, false)
+        return this.binding!!.root
     }
 
-    binding.btnAdd.setOnClickListener { findNavController().navigate(R.id.addAttrFragment) }
-  }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel._view.observe(viewLifecycleOwner) { showViewInfo() }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        this.binding = null
+    }
+
+    private fun showViewInfo() {
+        val binding = this.binding ?: return
+        val header = this.header ?: return
+        val view = this.viewModel.view as? ViewImpl ?: return
+
+        header.name.text = view.simpleName
+        header.desc.text = view.name
+        binding.attrList.adapter =
+            ViewAttrListAdapter(
+                attributes = view.attributes,
+                viewModel = viewModel,
+                onDeleteAttr = {
+                    view.removeAttribute(it)
+                    true
+                },
+            ) {
+                // Store a copy of the attribute so that we can check if the value of the attribute
+                // has
+                // changed in WorkspaceViewModel.notifyAttrUpdated()
+                viewModel.selectedAttr =
+                    newAttribute(
+                        view = view,
+                        namespace = it.namespace as NamespaceImpl?,
+                        name = it.name,
+                        value = it.value,
+                    )
+                        as UiAttribute
+                findNavController().navigate(R.id.attrValueEditorFragment)
+            }
+
+        binding.btnDelete.setOnClickListener {
+            view.removeFromParent()
+            (parentFragment?.parentFragment as? ViewInfoSheet)?.dismiss()
+        }
+
+        binding.btnAdd.setOnClickListener { findNavController().navigate(R.id.addAttrFragment) }
+    }
 }

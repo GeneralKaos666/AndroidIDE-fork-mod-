@@ -23,61 +23,33 @@ private fun mangleEntry(pck: String, entry: String) = "$pck${'$'}$entry"
  * Processes a XML file as a android resource.
  *
  * This consists of three primary processes:
- * 1. Collect created ID resources.
- * Gather all ids specified in xml attributes with the create marker. i.e.
+ * 1. Collect created ID resources. Gather all ids specified in xml attributes with the create
+ *    marker. i.e.
  *
- *     <TextView
- *       android:id="@+id/player_name"
- *       android:text="@+string/player_name"/>
- * In this XML, the resource id/player_name would be exported by this xml file, since it has the "+"
- * resource creation marker. Even though string/player_name is marked with the creation marker, it
- * is not an id resource and is ignored.
+ *    <TextView android:id="@+id/player_name" android:text="@+string/player_name"/> In this XML, the
+ *    resource id/player_name would be exported by this xml file, since it has the "+" resource
+ *    creation marker. Even though string/player_name is marked with the creation marker, it is not
+ *    an id resource and is ignored.
+ * 2. Outline inlined XML resources. In android XML files (drawables, layouts, etc.) it is possible
+ *    to write an XML resource inside of another XML resource.
  *
- * 2. Outline inlined XML resources.
- * In android XML files (drawables, layouts, etc.) it is possible to write an XML resource inside of
- * another XML resource.
+ * Consider drawable/player_background: <shape
+ * xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle"> <gradient
+ * android:startColor="#FF000000" android:endColor="#FFAA0000" android:angle="35" /> <corners
+ * android:radius="10dp" /> </shape> And consider: <TextView android:id="@+id/player_name"
+ * android:text="@string/player_name" android:background=@"drawable/player_background"/>
  *
- * Consider drawable/player_background:
- *     <shape
- *       xmlns:android="http://schemas.android.com/apk/res/android"
- *       android:shape="rectangle">
- *       <gradient
- *         android:startColor="#FF000000"
- *         android:endColor="#FFAA0000"
- *         android:angle="35" />
- *       <corners
- *         android:radius="10dp" />
- *     </shape>
- * And consider:
- *     <TextView
- *       android:id="@+id/player_name"
- *       android:text="@string/player_name"
- *       android:background=@"drawable/player_background"/>
- *
- * If this drawable is only used here we can simplify this to one file:
- *     <TextView
- *       android:id="@+id/player_name"
- *       android:text="@string/player_name">
- *       <aapt:attr name="android:background">
- *         <shape
- *           xmlns:android="http://schemas.android.com/apk/res/android"
- *           android:shape="rectangle">
- *           <gradient
- *             android:startColor="#FF000000"
- *             android:endColor="#FFAA0000"
- *             android:angle="35" />
- *           <corners
- *             android:radius="10dp" />
- *         </shape>
- *       </aapt:attr>
- *     </TextView>
+ * If this drawable is only used here we can simplify this to one file: <TextView
+ * android:id="@+id/player_name" android:text="@string/player_name"> <aapt:attr
+ * name="android:background"> <shape xmlns:android="http://schemas.android.com/apk/res/android"
+ * android:shape="rectangle"> <gradient android:startColor="#FF000000" android:endColor="#FFAA0000"
+ * android:angle="35" /> <corners android:radius="10dp" /> </shape> </aapt:attr> </TextView>
  *
  * This is possible by outlining the aapt_attr element into a separate XML file. Effectively undoing
  * the inlining by the developer. So this class outlines the inline XML and sets the parent elements
  * attribute to reference the outlned attr.
- *
- * 3. Flatten XMLs to proto.
- * Flatten all XML files (including outlined XMLs in (2.)) to proto to be written as output.
+ * 3. Flatten XMLs to proto. Flatten all XML files (including outlined XMLs in (2.)) to proto to be
+ *    written as output.
  *
  * The XMLProcessor handles all of these processes simultaneously to require only a single pass over
  * the XML file.
@@ -130,21 +102,23 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
                 eventReader,
                 collectedIds,
                 protoBuilders,
-                builder
+                builder,
             )
 
             primaryFile.exportedSymbols.addAll(collectedIds.values.toList().sortedBy { it.name })
 
-            xmlResources = protoBuilders.values.map { it.build() }
-                .sortedWith { left, right ->
-                    when {
-                        // The primary file should come first in the result.
-                        left === right -> 0
-                        left.file.name === primaryFile.name -> -1
-                        right.file.name === primaryFile.name -> 1
-                        else -> left.file.name.compareTo(right.file.name)
+            xmlResources =
+                protoBuilders.values
+                    .map { it.build() }
+                    .sortedWith { left, right ->
+                        when {
+                            // The primary file should come first in the result.
+                            left === right -> 0
+                            left.file.name === primaryFile.name -> -1
+                            right.file.name === primaryFile.name -> 1
+                            else -> left.file.name.compareTo(right.file.name)
+                        }
                     }
-                }
         } catch (xmlException: XMLStreamException) {
             val message = xmlException.message ?: ""
             if (!message.contains("Premature end of file", true)) {
@@ -163,25 +137,25 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
      * and outlines any given aapt:attr xml subtrees that may exist in the given XML.
      *
      * @param startElement the start element that represents the root of the XML tree to be
-     * flattened. The start element should not be pointing to a <aapt:attr> element, as those are
-     * processed in a different method.
+     *   flattened. The start element should not be pointing to a <aapt:attr> element, as those are
+     *   processed in a different method.
      * @param eventReader the stream from which the XML file is read. The event reader should be in
-     * a state where [startElement] was the last event read. When this method finishes,
-     * [eventReader] will be positioned immediately after the [EndElement] that aligns with the
-     * supplied [StartElement].
+     *   a state where [startElement] was the last event read. When this method finishes,
+     *   [eventReader] will be positioned immediately after the [EndElement] that aligns with the
+     *   supplied [StartElement].
      * @param collectedIds The map of all created ID resources in the XML document. Any created ids
-     * found in the XML tree represented by [startElement] will be added to this map.
+     *   found in the XML tree represented by [startElement] will be added to this map.
      * @param resourceBuilders The map of all XML resource builders created for this XML document.
-     * Any new builders created because of <aapt:attr> subelements of [startElement] will be added
-     * to this map.
+     *   Any new builders created because of <aapt:attr> subelements of [startElement] will be added
+     *   to this map.
      * @param currentBuilder The current xml resource builder that this [startElement] is to be
-     * flattened to. When this function returns, current builder will have the same active element
-     * as it did when the method started (or will be finished if this element was the top element of
-     * the builder). The subtree represented by [startElement] will be added as a child element to
-     * the current element.
+     *   flattened to. When this function returns, current builder will have the same active element
+     *   as it did when the method started (or will be finished if this element was the top element
+     *   of the builder). The subtree represented by [startElement] will be added as a child element
+     *   to the current element.
      * @param inheritedNamespaceContext When creating the top element of an extracted <aapt:attr>
-     * element, this variable will contain the context for all the xml namespaces that are active in
-     * [StartElement] that will need to be flattened to proto.
+     *   element, this variable will contain the context for all the xml namespaces that are active
+     *   in [StartElement] that will need to be flattened to proto.
      */
     private fun processElement(
         startElement: StartElement,
@@ -189,7 +163,7 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
         collectedIds: MutableMap<ResourceName, SourcedResourceName>,
         resourceBuilders: MutableMap<ResourceFile, XmlResourceBuilder>,
         currentBuilder: XmlResourceBuilder,
-        inheritedNamespaceContext: NamespaceContext? = null
+        inheritedNamespaceContext: NamespaceContext? = null,
     ) {
         // If the current start element is an aapt:attr, then either it is the root of the xml or
         // there exist consecutively nested aapt:attr tags. I.e.
@@ -202,11 +176,12 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
         // </ListView>
         // Both of these are invalid.
         if (isAaptAttribute(startElement.name)) {
-            val exception = RuntimeException(
-                "${blameSource(source, startElement.location)}: " +
+            val exception =
+                RuntimeException(
+                    "${blameSource(source, startElement.location)}: " +
                         "<aapt:attr> blocks are not allowed as the root of documents, or " +
                         "as a child element under another <aapt:attr>."
-            )
+                )
             walkToEndOfElement(startElement, eventReader)
             throw exception
         }
@@ -221,7 +196,7 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
             elementName.localPart,
             elementName.namespaceURI ?: "",
             elementLocation.lineNumber,
-            elementLocation.columnNumber
+            elementLocation.columnNumber,
         )
 
         // Gather all the namespace declarations.
@@ -236,7 +211,8 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
         inheritedNamespaceContext?.namespacePrefixes()?.forEach { prefix ->
             if (namespaces.firstOrNull { ns -> ns.prefix == prefix } == null) {
                 currentBuilder.addNamespaceDeclaration(
-                    inheritedNamespaceContext.uriForPrefix(prefix)!!, prefix
+                    inheritedNamespaceContext.uriForPrefix(prefix)!!,
+                    prefix,
                 )
             }
         }
@@ -247,7 +223,7 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
                 namespace.namespaceURI,
                 namespace.prefix,
                 elementLocation.lineNumber,
-                elementLocation.columnNumber
+                elementLocation.columnNumber,
             )
         }
 
@@ -261,7 +237,7 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
                 attrName.namespaceURI,
                 attribute.value,
                 elementLocation.lineNumber,
-                elementLocation.columnNumber
+                elementLocation.columnNumber,
             )
         }
 
@@ -279,20 +255,20 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
                 val elName = nextEvent.asStartElement().name
                 if (isAaptAttribute(elName)) {
                     outlineAttribute(
-                      currentBuilder,
-                      nextEvent.asStartElement(),
-                      eventReader,
-                      collectedIds,
-                      resourceBuilders
+                        currentBuilder,
+                        nextEvent.asStartElement(),
+                        eventReader,
+                        collectedIds,
+                        resourceBuilders,
                     )
                 } else {
                     // We're going down a level, so process that element.
                     processElement(
-                      nextEvent.asStartElement(),
-                      eventReader,
-                      collectedIds,
-                      resourceBuilders,
-                      currentBuilder
+                        nextEvent.asStartElement(),
+                        eventReader,
+                        collectedIds,
+                        resourceBuilders,
+                        currentBuilder,
                     )
                 }
                 continue
@@ -316,18 +292,18 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
      * value.
      *
      * @param parentBuilder the xml proto builder that is currently set to the parent element of the
-     * aapt:attr. This is so we can set the attribute on the parent element to a reference of the
-     * outlined xml resource.
+     *   aapt:attr. This is so we can set the attribute on the parent element to a reference of the
+     *   outlined xml resource.
      * @param attrElement the startElement corresponding to the aapt:attr to be outlined.
      * @param eventReader the stream from which the XML file is read. The event reader should be in
-     * a state where [attrElement] was the last event read. When this method finishes, [eventReader]
-     * will be positioned immediately after the [EndElement] that aligns with the supplied
-     * [attrElement].
+     *   a state where [attrElement] was the last event read. When this method finishes,
+     *   [eventReader] will be positioned immediately after the [EndElement] that aligns with the
+     *   supplied [attrElement].
      * @param collectedIds The map of all created ID resources in the XML document. Any created ids
-     * found in the XML tree represented by [attrElement] will be added to this map.
+     *   found in the XML tree represented by [attrElement] will be added to this map.
      * @param resourceBuilders The map of all XML resource builders created for this XML document.
-     * At least one new builder will be added from the outlined aapt:attr (if successful), or more
-     * if there are nested aapt:attr definitions.
+     *   At least one new builder will be added from the outlined aapt:attr (if successful), or more
+     *   if there are nested aapt:attr definitions.
      * @return true if and only if the element was successfully outlined.
      */
     private fun outlineAttribute(
@@ -335,15 +311,16 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
         attrElement: StartElement,
         eventReader: XMLEventReader,
         collectedIds: MutableMap<ResourceName, SourcedResourceName>,
-        resourceBuilders: MutableMap<ResourceFile, XmlResourceBuilder>
+        resourceBuilders: MutableMap<ResourceFile, XmlResourceBuilder>,
     ) {
 
         val nameAttribute = attrElement.getAttributeByName(QName("name"))
         if (nameAttribute == null) {
-            val exception = RuntimeException(
-                "${blameSource(source, attrElement.location)}:" +
+            val exception =
+                RuntimeException(
+                    "${blameSource(source, attrElement.location)}:" +
                         "<${attrElement.name}> tag requires the 'name' attribute."
-            )
+                )
             walkToEndOfElement(attrElement, eventReader)
             throw exception
         }
@@ -353,11 +330,12 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
 
         val extractedPackage = transformPackageAlias(attrElement, nameValue.pck!!)
         if (extractedPackage == null) {
-            val exception = RuntimeException(
-                blameSource(source, attrElement.location).toString() +
+            val exception =
+                RuntimeException(
+                    blameSource(source, attrElement.location).toString() +
                         "Invalid namespace prefix '${nameValue.pck}' " +
                         "for value of 'name' attribute '$nameValue'."
-            )
+                )
             walkToEndOfElement(attrElement, eventReader)
             throw exception
         }
@@ -368,20 +346,22 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
 
         // We need to differentiate between no-namespace defined, or the alias resolves to an empty
         // package. If it is the former, we need to use the res-auto schema.
-        val attrUri = when {
-            nameValue.pck.isNullOrEmpty() -> ""
-            extractedPackage.packageName.isEmpty() -> SCHEMA_AUTO
-            else -> constructPackageUri(extractedPackage.packageName, isPrivateNs)
-        }
+        val attrUri =
+            when {
+                nameValue.pck.isNullOrEmpty() -> ""
+                extractedPackage.packageName.isEmpty() -> SCHEMA_AUTO
+                else -> constructPackageUri(extractedPackage.packageName, isPrivateNs)
+            }
 
         // Now to process the inline xml itself.
-        val resource = processAaptAttr(
-            attrElement,
-            eventReader,
-            collectedIds,
-            resourceBuilders,
-            parentBuilder.namespaceContext
-        )
+        val resource =
+            processAaptAttr(
+                attrElement,
+                eventReader,
+                collectedIds,
+                resourceBuilders,
+                parentBuilder.namespaceContext,
+            )
 
         // Check to see if the attribute would overwrite a previously defined one.
         if (parentBuilder.findAttribute(nameValue.entry!!, attrUri) != null) {
@@ -394,7 +374,7 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
             attrUri,
             "@${resource.name}",
             attrElement.location.lineNumber,
-            attrElement.location.columnNumber
+            attrElement.location.columnNumber,
         )
     }
 
@@ -406,27 +386,27 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
      * element of the outlined XML resource.
      *
      * @param startElement the start element that represents the root of the XML file to be
-     * extracted.
+     *   extracted.
      * @param eventReader the stream from which the XML file is read. The event reader should be in
-     * a state where [startElement] was the last event read. When this method finishes,
-     * [eventReader] will be positioned immediately after the [EndElement] that aligns with the
-     * supplied [StartElement].
+     *   a state where [startElement] was the last event read. When this method finishes,
+     *   [eventReader] will be positioned immediately after the [EndElement] that aligns with the
+     *   supplied [StartElement].
      * @param collectedIds The map of all created ID resources in the XML document. Any created ids
-     * found in the XML tree represented by [startElement] will be added to this map.
+     *   found in the XML tree represented by [startElement] will be added to this map.
      * @param resourceBuilders The map of all XML resource builders created for this XML document.
-     * Any new builders created because of <aapt:attr> subelements of [startElement] will be added
-     * to this map.
+     *   Any new builders created because of <aapt:attr> subelements of [startElement] will be added
+     *   to this map.
      * @param namespaceContext All inherited xmlns definitions so far in the XML document before the
-     * root of this XML subtree.
+     *   root of this XML subtree.
      * @return the ResourceFile corresponding to the outlined element. This value will be null if
-     * the outlining is unsuccessful.
+     *   the outlining is unsuccessful.
      */
     private fun processAaptAttr(
         startElement: StartElement,
         eventReader: XMLEventReader,
         collectedIds: MutableMap<ResourceName, SourcedResourceName>,
         resourceBuilders: MutableMap<ResourceFile, XmlResourceBuilder>,
-        namespaceContext: NamespaceContext
+        namespaceContext: NamespaceContext,
     ): ResourceFile {
 
         val outputFile = getNextAttrResourceFile(resourceBuilders.size - 1, startElement)
@@ -448,7 +428,8 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
             if (event.isCharacters) {
                 // Non-whitespace text is not allowed as children of a aapt:attr
                 if (!event.asCharacters().isWhiteSpace) {
-                    errors += "${blameSource(source, event.location)}: " +
+                    errors +=
+                        "${blameSource(source, event.location)}: " +
                             "Can't extract text into its own resource."
                 }
                 continue
@@ -457,19 +438,20 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
             if (event.isStartElement) {
                 // An aapt:attr element cannot have more than one element child.
                 if (foundChild) {
-                    errors += "${blameSource(source, event.location)}: " +
+                    errors +=
+                        "${blameSource(source, event.location)}: " +
                             "Inline XML resources must have a single root."
                     walkToEndOfElement(event.asStartElement(), eventReader)
                     continue
                 }
                 foundChild = true
                 processElement(
-                  event.asStartElement(),
-                  eventReader,
-                  collectedIds,
-                  resourceBuilders,
-                  outputBuilder,
-                  namespaceContext
+                    event.asStartElement(),
+                    eventReader,
+                    collectedIds,
+                    resourceBuilders,
+                    outputBuilder,
+                    namespaceContext,
                 )
             }
 
@@ -479,7 +461,8 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
         if (!foundChild) {
             error(
                 "${blameSource(source, startElement.location)}:" +
-                        " No resource to outline. <${startElement.name}> block is empty.")
+                    " No resource to outline. <${startElement.name}> block is empty."
+            )
         }
 
         if (errors.any()) {
@@ -496,7 +479,7 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
 
     private fun gatherIds(
         startElement: StartElement,
-        collectedIds: MutableMap<ResourceName, SourcedResourceName>
+        collectedIds: MutableMap<ResourceName, SourcedResourceName>,
     ) {
         val iterator = startElement.attributes
         while (iterator.hasNext()) {
@@ -508,21 +491,21 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
             val resourceName = parsedRef.reference.name
             if (parsedRef.createNew && resourceName.type == AaptResourceType.ID) {
                 if (!isValidResourceEntryName(resourceName.entry!!)) {
-                    error("${blameSource(source, startElement.location)} " +
-                            "Id '$resourceName' has an invalid entry name '${resourceName.entry}'.")
+                    error(
+                        "${blameSource(source, startElement.location)} " +
+                            "Id '$resourceName' has an invalid entry name '${resourceName.entry}'."
+                    )
                 } else {
                     collectedIds.putIfAbsent(
                         resourceName,
-                        SourcedResourceName(resourceName, startElement.location.lineNumber)
+                        SourcedResourceName(resourceName, startElement.location.lineNumber),
                     )
                 }
             }
         }
     }
 
-    private fun getNextAttrResourceFile(
-        suffix: Int, element: StartElement
-    ): ResourceFile {
+    private fun getNextAttrResourceFile(suffix: Int, element: StartElement): ResourceFile {
 
         val newEntryName = mangleEntry("", "${primaryFile.name.entry}__$suffix")
 
@@ -530,7 +513,7 @@ class XmlProcessor(val source: Source, val logger: BlameLogger?) {
             primaryFile.name.copy(entry = newEntryName),
             primaryFile.configuration,
             primaryFile.source.withLine(element.location.lineNumber),
-            ProtoXml
+            ProtoXml,
         )
     }
 }

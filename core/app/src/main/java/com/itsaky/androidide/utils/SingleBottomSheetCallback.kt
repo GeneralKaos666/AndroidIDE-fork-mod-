@@ -26,6 +26,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCa
  * @author Akash Yadav
  */
 open class SingleBottomSheetCallback : BottomSheetCallback() {
-  override fun onStateChanged(bottomSheet: View, newState: Int) {}
-  override fun onSlide(bottomSheet: View, slideOffset: Float) {}
+    override fun onStateChanged(bottomSheet: View, newState: Int) {}
+
+    override fun onSlide(bottomSheet: View, slideOffset: Float) {}
 }

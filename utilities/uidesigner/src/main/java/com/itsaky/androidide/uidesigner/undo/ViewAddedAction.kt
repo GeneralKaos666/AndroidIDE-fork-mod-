@@ -24,14 +24,17 @@ package com.itsaky.androidide.uidesigner.undo
  */
 class ViewAddedAction
 @JvmOverloads
-constructor(view: com.itsaky.androidide.inflater.IView, parent: com.itsaky.androidide.inflater.IViewGroup, index: Int = parent.indexOfChild(view)) :
-  ViewAction(view, parent, index) {
+constructor(
+    view: com.itsaky.androidide.inflater.IView,
+    parent: com.itsaky.androidide.inflater.IViewGroup,
+    index: Int = parent.indexOfChild(view),
+) : ViewAction(view, parent, index) {
 
-  override fun undo() {
-    child.removeFromParent()
-  }
+    override fun undo() {
+        child.removeFromParent()
+    }
 
-  override fun redo() {
-    parent.addChild(index, child)
-  }
+    override fun redo() {
+        parent.addChild(index, child)
+    }
 }

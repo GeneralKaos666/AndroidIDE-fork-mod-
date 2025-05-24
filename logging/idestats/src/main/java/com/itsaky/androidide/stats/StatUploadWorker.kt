@@ -29,55 +29,62 @@ import retrofit2.converter.gson.GsonConverterFactory
  *
  * @author Akash Yadav
  */
-class StatUploadWorker(context: Context, workerParams: WorkerParameters) : Worker(context,
-  workerParams) {
+class StatUploadWorker(context: Context, workerParams: WorkerParameters) :
+    Worker(context, workerParams) {
 
-  companion object {
+    companion object {
 
-    const val STAT_UPLOAD_BASE_URL = "https://androidide.com"
+        const val STAT_UPLOAD_BASE_URL = "https://androidide.com"
 
-    const val WORKER_WORK_NAME = "ide.stats.uploadWorker"
-    const val KEY_DEVICE_ID = "device_hash"
-    const val KEY_DEVICE_NAME = "device_name"
-    const val KEY_DEVICE_COUNTRY = "device_country"
-    const val KEY_ANDROID_VERSION = "android_version"
-    const val KEY_APP_VERSION = "app_version"
-    const val KEY_APP_CPU_ARCH = "app_cpu_arch"
+        const val WORKER_WORK_NAME = "ide.stats.uploadWorker"
+        const val KEY_DEVICE_ID = "device_hash"
+        const val KEY_DEVICE_NAME = "device_name"
+        const val KEY_DEVICE_COUNTRY = "device_country"
+        const val KEY_ANDROID_VERSION = "android_version"
+        const val KEY_APP_VERSION = "app_version"
+        const val KEY_APP_CPU_ARCH = "app_cpu_arch"
 
-    private val log = LoggerFactory.getLogger(StatUploadWorker::class.java)
-  }
-
-  override fun doWork(): Result {
-    val data = StatData.fromInputData(inputData = inputData)
-    log.debug("Uploading stats: {}", data)
-
-    val retrofit = Retrofit.Builder().baseUrl(STAT_UPLOAD_BASE_URL)
-      .addConverterFactory(GsonConverterFactory.create()).build()
-    val service = retrofit.create(StatUploadService::class.java)
-
-    val response = try {
-      service.uploadStats(data).execute()
-    } catch (err: Exception) {
-      log.error("Failed to upload stats to server", err)
-      return Result.retry()
+        private val log = LoggerFactory.getLogger(StatUploadWorker::class.java)
     }
 
-    val body = response.body()
-    if (!response.isSuccessful || body == null) {
-      log.error(
-        "Stat upload failed: responseCode: {}, responseBody: {}, errBody: {}", response.code(),
-        body, response.errorBody()?.string() ?: "(empty)")
+    override fun doWork(): Result {
+        val data = StatData.fromInputData(inputData = inputData)
+        log.debug("Uploading stats: {}", data)
 
-      // try again next time
-      return Result.failure()
+        val retrofit =
+            Retrofit.Builder()
+                .baseUrl(STAT_UPLOAD_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+        val service = retrofit.create(StatUploadService::class.java)
+
+        val response =
+            try {
+                service.uploadStats(data).execute()
+            } catch (err: Exception) {
+                log.error("Failed to upload stats to server", err)
+                return Result.retry()
+            }
+
+        val body = response.body()
+        if (!response.isSuccessful || body == null) {
+            log.error(
+                "Stat upload failed: responseCode: {}, responseBody: {}, errBody: {}",
+                response.code(),
+                body,
+                response.errorBody()?.string() ?: "(empty)",
+            )
+
+            // try again next time
+            return Result.failure()
+        }
+
+        if (body.status != 200) {
+            log.error("Stat upload failed: response: {}", body)
+            return Result.failure()
+        }
+
+        log.info("Stat upload successful: {}", body)
+        return Result.success()
     }
-
-    if (body.status != 200) {
-      log.error("Stat upload failed: response: {}", body)
-      return Result.failure()
-    }
-
-    log.info("Stat upload successful: {}", body)
-    return Result.success()
-  }
 }

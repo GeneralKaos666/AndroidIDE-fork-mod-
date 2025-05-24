@@ -30,14 +30,14 @@ import android.widget.RelativeLayout
 import com.itsaky.androidide.flashbar.Flashbar.Companion.DURATION_INDEFINITE
 import com.itsaky.androidide.flashbar.Flashbar.DismissEvent
 import com.itsaky.androidide.flashbar.Flashbar.DismissEvent.*
-import com.itsaky.androidide.flashbar.Flashbar.Vibration.DISMISS
-import com.itsaky.androidide.flashbar.SwipeDismissTouchListener.DismissCallbacks
-import com.itsaky.androidide.flashbar.anim.FlashAnim
 import com.itsaky.androidide.flashbar.Flashbar.OnBarDismissListener
 import com.itsaky.androidide.flashbar.Flashbar.OnBarShowListener
 import com.itsaky.androidide.flashbar.Flashbar.OnTapListener
 import com.itsaky.androidide.flashbar.Flashbar.Vibration
+import com.itsaky.androidide.flashbar.Flashbar.Vibration.DISMISS
 import com.itsaky.androidide.flashbar.Flashbar.Vibration.SHOW
+import com.itsaky.androidide.flashbar.SwipeDismissTouchListener.DismissCallbacks
+import com.itsaky.androidide.flashbar.anim.FlashAnim
 import com.itsaky.androidide.flashbar.anim.FlashAnimBarBuilder
 import com.itsaky.androidide.flashbar.anim.FlashAnimIconBuilder
 import com.itsaky.androidide.flashbar.util.NavigationBarPosition.*
@@ -47,12 +47,11 @@ import com.itsaky.androidide.flashbar.util.getNavigationBarSizeInPx
 import com.itsaky.androidide.flashbar.util.getRootView
 
 /**
- * Container withView matching the height and width of the parent to hold a FlashbarView.
- * It will occupy the entire screens size but will be completely transparent. The
- * FlashbarView inside is the only visible component in it.
+ * Container withView matching the height and width of the parent to hold a FlashbarView. It will
+ * occupy the entire screens size but will be completely transparent. The FlashbarView inside is the
+ * only visible component in it.
  */
-internal class FlashbarContainerView(context: Context)
-    : RelativeLayout(context), DismissCallbacks {
+internal class FlashbarContainerView(context: Context) : RelativeLayout(context), DismissCallbacks {
 
     private val dismissRunnable = Runnable { dismissInternal(TIMEOUT) }
 
@@ -159,7 +158,6 @@ internal class FlashbarContainerView(context: Context)
         layoutParams = flashbarContainerViewLp
     }
 
-
     internal fun show(activity: Activity) {
         if (isBarShowing || isBarShown) return
 
@@ -170,34 +168,36 @@ internal class FlashbarContainerView(context: Context)
 
         activityRootView.afterMeasured {
             val enterAnim = enterAnimBuilder.withView(flashbarView).build()
-            enterAnim.start(object : FlashAnim.InternalAnimListener {
-                override fun onStart() {
-                    isBarShowing = true
-                    onBarShowListener?.onShowing(parentFlashbar)
-                }
-
-                override fun onUpdate(progress: Float) {
-                    onBarShowListener?.onShowProgress(parentFlashbar, progress)
-                }
-
-                override fun onStop() {
-                    isBarShowing = false
-                    isBarShown = true
-
-                    flashbarView.startIconAnimation(iconAnimBuilder)
-
-                    if (vibrationTargets.contains(SHOW)) {
-                        performHapticFeedback(VIRTUAL_KEY)
+            enterAnim.start(
+                object : FlashAnim.InternalAnimListener {
+                    override fun onStart() {
+                        isBarShowing = true
+                        onBarShowListener?.onShowing(parentFlashbar)
                     }
 
-                    onBarShowListener?.onShown(parentFlashbar)
+                    override fun onUpdate(progress: Float) {
+                        onBarShowListener?.onShowProgress(parentFlashbar, progress)
+                    }
 
-                    if (earlyDismissalRequested) {
-                        dismiss()
-                        earlyDismissalRequested = false
+                    override fun onStop() {
+                        isBarShowing = false
+                        isBarShown = true
+
+                        flashbarView.startIconAnimation(iconAnimBuilder)
+
+                        if (vibrationTargets.contains(SHOW)) {
+                            performHapticFeedback(VIRTUAL_KEY)
+                        }
+
+                        onBarShowListener?.onShown(parentFlashbar)
+
+                        if (earlyDismissalRequested) {
+                            dismiss()
+                            earlyDismissalRequested = false
+                        }
                     }
                 }
-            })
+            )
 
             handleDismiss()
         }
@@ -285,28 +285,30 @@ internal class FlashbarContainerView(context: Context)
         removeCallbacks(dismissRunnable)
 
         val exitAnim = exitAnimBuilder.withView(flashbarView).build()
-        exitAnim.start(object : FlashAnim.InternalAnimListener {
-            override fun onStart() {
-                isBarDismissing = true
-                onBarDismissListener?.onDismissing(parentFlashbar, false)
-            }
-
-            override fun onUpdate(progress: Float) {
-                onBarDismissListener?.onDismissProgress(parentFlashbar, progress)
-            }
-
-            override fun onStop() {
-                isBarDismissing = false
-                isBarShown = false
-
-                if (vibrationTargets.contains(DISMISS)) {
-                    performHapticFeedback(VIRTUAL_KEY)
+        exitAnim.start(
+            object : FlashAnim.InternalAnimListener {
+                override fun onStart() {
+                    isBarDismissing = true
+                    onBarDismissListener?.onDismissing(parentFlashbar, false)
                 }
 
-                onBarDismissListener?.onDismissed(parentFlashbar, event)
+                override fun onUpdate(progress: Float) {
+                    onBarDismissListener?.onDismissProgress(parentFlashbar, progress)
+                }
 
-                post { (parent as? ViewGroup)?.removeView(this@FlashbarContainerView) }
+                override fun onStop() {
+                    isBarDismissing = false
+                    isBarShown = false
+
+                    if (vibrationTargets.contains(DISMISS)) {
+                        performHapticFeedback(VIRTUAL_KEY)
+                    }
+
+                    onBarDismissListener?.onDismissed(parentFlashbar, event)
+
+                    post { (parent as? ViewGroup)?.removeView(this@FlashbarContainerView) }
+                }
             }
-        })
+        )
     }
 }

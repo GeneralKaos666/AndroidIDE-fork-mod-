@@ -36,42 +36,47 @@ import com.itsaky.androidide.utils.flashError
  */
 class ShowXmlAction(context: Context) : UiDesignerAction() {
 
-  override val id: String = "ide.uidesigner.showXml"
+    override val id: String = "ide.uidesigner.showXml"
 
-  init {
-    label = context.getString(R.string.xml)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_language_xml)
-  }
-
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-    if (!data.hasRequiredData(Context::class.java, Fragment::class.java)) {
-      markInvisible()
-      return
+    init {
+        label = context.getString(R.string.xml)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_language_xml)
     }
 
-    val fragment = data.requireWorkspace()
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
+        if (!data.hasRequiredData(Context::class.java, Fragment::class.java)) {
+            markInvisible()
+            return
+        }
 
-    this.visible = true
-    this.enabled = fragment.workspaceView.childCount == 1
-  }
+        val fragment = data.requireWorkspace()
 
-  override suspend fun execAction(data: ActionData): Any {
-    data.requireActivity().apply {
-      val workspace = data.requireWorkspace().workspaceView
-      ViewToXml.generateXml(this, workspace, { result ->
-        val intent = Intent(this, ShowXmlActivity::class.java)
-        intent.putExtra(ShowXmlActivity.KEY_XML, result)
-        startActivity(intent)
-      }) { result, error ->
-        if (result == null || error != null) {
-          val message = "${
+        this.visible = true
+        this.enabled = fragment.workspaceView.childCount == 1
+    }
+
+    override suspend fun execAction(data: ActionData): Any {
+        data.requireActivity().apply {
+            val workspace = data.requireWorkspace().workspaceView
+            ViewToXml.generateXml(
+                this,
+                workspace,
+                { result ->
+                    val intent = Intent(this, ShowXmlActivity::class.java)
+                    intent.putExtra(ShowXmlActivity.KEY_XML, result)
+                    startActivity(intent)
+                },
+            ) { result, error ->
+                if (result == null || error != null) {
+                    val message =
+                        "${
             getString(R.string.msg_generate_xml_failed)
           }: ${error?.cause?.message ?: error?.message ?: "Unknown error"}"
-          flashError(message)
+                    flashError(message)
+                }
+            }
         }
-      }
+        return true
     }
-    return true
-  }
 }

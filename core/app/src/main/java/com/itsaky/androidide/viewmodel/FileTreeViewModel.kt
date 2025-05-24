@@ -21,9 +21,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.unnamed.b.atv.view.AndroidTreeView
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * [ViewModel] for the file tree fragment.
@@ -32,17 +30,17 @@ import kotlinx.coroutines.withContext
  */
 internal class FileTreeViewModel : ViewModel() {
 
-  private val treeState = MutableLiveData<String?>(null)
+    private val treeState = MutableLiveData<String?>(null)
 
-  val savedState: String
-    get() = treeState.value ?: ""
+    val savedState: String
+        get() = treeState.value ?: ""
 
-  fun saveState(treeView: AndroidTreeView?) {
-    if (treeView != null) {
-      viewModelScope.launch {
-        val result = treeView.saveState
-        treeState.postValue(result)
-      }
+    fun saveState(treeView: AndroidTreeView?) {
+        if (treeView != null) {
+            viewModelScope.launch {
+                val result = treeView.saveState
+                treeState.postValue(result)
+            }
+        }
     }
-  }
 }

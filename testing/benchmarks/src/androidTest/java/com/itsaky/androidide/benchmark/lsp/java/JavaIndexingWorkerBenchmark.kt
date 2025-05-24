@@ -24,38 +24,33 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.itsaky.androidide.lsp.java.indexing.JavaJarModelBuilder
+import java.io.File
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.io.File
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 @RunWith(AndroidJUnit4::class)
 class JavaIndexingWorkerBenchmark {
 
-  @get:Rule
-  val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
-  val androidJar: File by lazy {
-    val context = ApplicationProvider.getApplicationContext<Context>()
-    val file = File.createTempFile("ajar", null, context.cacheDir)
-    context.assets.open("android.jar").use { asset ->
-      assertThat(asset).isNotNull()
-      file.outputStream().buffered().use { out ->
-        asset.copyTo(out)
-        out.flush()
-      }
+    val androidJar: File by lazy {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val file = File.createTempFile("ajar", null, context.cacheDir)
+        context.assets.open("android.jar").use { asset ->
+            assertThat(asset).isNotNull()
+            file.outputStream().buffered().use { out ->
+                asset.copyTo(out)
+                out.flush()
+            }
+        }
+        file
     }
-    file
-  }
 
-  @Test
-  fun benchmarkJavaIndexingWorker() {
-    val worker = JavaJarModelBuilder(androidJar)
-    benchmarkRule.measureRepeated {
-      worker.buildTypes()
+    @Test
+    fun benchmarkJavaIndexingWorker() {
+        val worker = JavaJarModelBuilder(androidJar)
+        benchmarkRule.measureRepeated { worker.buildTypes() }
     }
-  }
 }

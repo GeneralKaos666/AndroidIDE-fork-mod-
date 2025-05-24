@@ -36,72 +36,72 @@ import org.slf4j.LoggerFactory
  */
 object TSJavaParser : IJavaParser<TSParseResult> {
 
-  private val cache = TSParseCache(15) // cache 15 results at max
+    private val cache = TSParseCache(15) // cache 15 results at max
 
-  private var isClosed = false
-  private val parser = TSParser.create().also { it.language = TSLanguageJava.getInstance() }
-    get() {
-      check(!isClosed) { "${javaClass.simpleName} instance has been closed" }
-      return field
-    }
-
-  private val log = LoggerFactory.getLogger(TSJavaParser::class.java)
-
-  init {
-    EventBus.getDefault().register(this)
-  }
-
-  @Subscribe(threadMode = ThreadMode.ASYNC)
-  fun onFileDeleted(event: FileDeletionEvent) {
-    synchronized(this.cache) { this.cache.remove(event.file.toPath().toAbsolutePath().toUri()) }
-  }
-
-  @Subscribe(threadMode = ThreadMode.ASYNC)
-  fun onFileRenamed(event: FileRenameEvent) {
-    synchronized(this.cache) {
-      val existing = this.cache.remove(event.file.toPath().toAbsolutePath().toUri())
-      if (existing != null) {
-        this.cache.put(event.newFile.toPath().toAbsolutePath().toUri(), existing)
-      }
-    }
-  }
-
-  override fun parse(file: JavaFileObject): TSParseResult {
-    check(file.kind == JavaFileObject.Kind.SOURCE) { "File must a source file object" }
-
-    synchronized(this.cache) {
-      val result = this.cache[file.toUri()]
-      if (result != null) {
-        if (result.fileModified == file.lastModified) {
-          // cache hit and cache modified == file modified
-          log.info("Using cached parse tree")
-          return result
+    private var isClosed = false
+    private val parser = TSParser.create().also { it.language = TSLanguageJava.getInstance() }
+        get() {
+            check(!isClosed) { "${javaClass.simpleName} instance has been closed" }
+            return field
         }
-        // cache hit, but cache modified != file modified
-        // need to reparse
-      }
+
+    private val log = LoggerFactory.getLogger(TSJavaParser::class.java)
+
+    init {
+        EventBus.getDefault().register(this)
     }
 
-    parser.reset()
-    val watch = StopWatch("[TreeSitter] Parsing")
-    val content = file.getCharContent(false).toString()
-    if (parser.isParsing) {
-      parser.requestCancellationAndWait()
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    fun onFileDeleted(event: FileDeletionEvent) {
+        synchronized(this.cache) { this.cache.remove(event.file.toPath().toAbsolutePath().toUri()) }
     }
-    val parseTree = parser.parseString(content)
-    watch.log()
 
-    val result = TSParseResult(file, parseTree)
+    @Subscribe(threadMode = ThreadMode.ASYNC)
+    fun onFileRenamed(event: FileRenameEvent) {
+        synchronized(this.cache) {
+            val existing = this.cache.remove(event.file.toPath().toAbsolutePath().toUri())
+            if (existing != null) {
+                this.cache.put(event.newFile.toPath().toAbsolutePath().toUri(), existing)
+            }
+        }
+    }
 
-    synchronized(this.cache) { this.cache.put(result.uri, result) }
+    override fun parse(file: JavaFileObject): TSParseResult {
+        check(file.kind == JavaFileObject.Kind.SOURCE) { "File must a source file object" }
 
-    return result
-  }
+        synchronized(this.cache) {
+            val result = this.cache[file.toUri()]
+            if (result != null) {
+                if (result.fileModified == file.lastModified) {
+                    // cache hit and cache modified == file modified
+                    log.info("Using cached parse tree")
+                    return result
+                }
+                // cache hit, but cache modified != file modified
+                // need to reparse
+            }
+        }
 
-  override fun close() {
-    synchronized(this.cache) { this.cache.evictAll() }
-    parser.close()
-    EventBus.getDefault().unregister(this)
-    isClosed = true
-  }
+        parser.reset()
+        val watch = StopWatch("[TreeSitter] Parsing")
+        val content = file.getCharContent(false).toString()
+        if (parser.isParsing) {
+            parser.requestCancellationAndWait()
+        }
+        val parseTree = parser.parseString(content)
+        watch.log()
+
+        val result = TSParseResult(file, parseTree)
+
+        synchronized(this.cache) { this.cache.put(result.uri, result) }
+
+        return result
+    }
+
+    override fun close() {
+        synchronized(this.cache) { this.cache.evictAll() }
+        parser.close()
+        EventBus.getDefault().unregister(this)
+        isClosed = true
+    }
 }

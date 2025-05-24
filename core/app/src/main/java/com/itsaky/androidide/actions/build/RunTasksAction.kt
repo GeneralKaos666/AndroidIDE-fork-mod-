@@ -26,37 +26,37 @@ import com.itsaky.androidide.resources.R
 
 /** @author Akash Yadav */
 class RunTasksAction(context: Context, override val order: Int) : BaseBuildAction() {
-  override val id: String = "ide.editor.build.runTasks"
-  private var dialog: RunTasksDialogFragment? = null
+    override val id: String = "ide.editor.build.runTasks"
+    private var dialog: RunTasksDialogFragment? = null
 
-  init {
-    label = context.getString(R.string.title_run_tasks)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_run_tasks)
-  }
-
-  override suspend fun execAction(data: ActionData): Any {
-    dialog?.dismiss()
-    dialog = null
-    dialog = RunTasksDialogFragment()
-    return dialog!!
-  }
-
-  override fun postExec(data: ActionData, result: Any) {
-    if (result !is RunTasksDialogFragment) {
-      return
+    init {
+        label = context.getString(R.string.title_run_tasks)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_run_tasks)
     }
 
-    val activity = data.getActivity()!!
-    result.show(activity.supportFragmentManager, this.id)
-  }
-  
-  override fun destroy() {
-    super.destroy()
-    try {
-      dialog?.dismiss()
-    } catch (e: Exception) {
-      // ignored
+    override suspend fun execAction(data: ActionData): Any {
+        dialog?.dismiss()
+        dialog = null
+        dialog = RunTasksDialogFragment()
+        return dialog!!
     }
-    dialog = null
-  }
+
+    override fun postExec(data: ActionData, result: Any) {
+        if (result !is RunTasksDialogFragment) {
+            return
+        }
+
+        val activity = data.getActivity()!!
+        result.show(activity.supportFragmentManager, this.id)
+    }
+
+    override fun destroy() {
+        super.destroy()
+        try {
+            dialog?.dismiss()
+        } catch (e: Exception) {
+            // ignored
+        }
+        dialog = null
+    }
 }

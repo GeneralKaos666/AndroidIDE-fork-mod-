@@ -9,7 +9,8 @@ import com.github.appintro.model.SliderPage
 @Suppress("LongParameterList")
 class AppIntroFragment : AppIntroBaseFragment() {
 
-    override val layoutId: Int get() = R.layout.appintro_fragment_intro
+    override val layoutId: Int
+        get() = R.layout.appintro_fragment_intro
 
     companion object {
 
@@ -18,17 +19,16 @@ class AppIntroFragment : AppIntroBaseFragment() {
          *
          * @param title CharSequence which will be the slide title
          * @param description CharSequence which will be the slide description
-         * @param imageDrawable @DrawableRes (Integer) the image that will be
-         *                             displayed, obtained from Resources
+         * @param imageDrawable @DrawableRes (Integer) the image that will be displayed, obtained
+         *   from Resources
          * @param backgroundColor @ColorInt (Integer) custom background color
          * @param titleColor @ColorInt (Integer) custom title color
          * @param descriptionColor @ColorInt (Integer) custom description color
-         * @param titleTypefaceFontRes @FontRes (Integer) custom title typeface obtained
-         *                             from Resources
+         * @param titleTypefaceFontRes @FontRes (Integer) custom title typeface obtained from
+         *   Resources
          * @param descriptionTypefaceFontRes @FontRes (Integer) custom description typeface obtained
-         *                             from Resources
+         *   from Resources
          * @param backgroundDrawable @DrawableRes (Integer) custom background drawable
-         *
          * @return An [AppIntroFragment] created instance
          */
         @JvmOverloads
@@ -40,7 +40,7 @@ class AppIntroFragment : AppIntroBaseFragment() {
                 "createInstance(title, description, imageDrawable, backgroundColor, " +
                     "titleColor, descriptionColor, titleTypefaceFontRes, descriptionTypefaceFontRes, " +
                     "backgroundDrawable)"
-            )
+            ),
         )
         fun newInstance(
             title: CharSequence? = null,
@@ -51,7 +51,7 @@ class AppIntroFragment : AppIntroBaseFragment() {
             @ColorInt descriptionColor: Int? = null,
             @FontRes titleTypefaceFontRes: Int? = null,
             @FontRes descriptionTypefaceFontRes: Int? = null,
-            @DrawableRes backgroundDrawable: Int? = null
+            @DrawableRes backgroundDrawable: Int? = null,
         ): AppIntroFragment {
             return createInstance(
                 SliderPage(
@@ -63,7 +63,7 @@ class AppIntroFragment : AppIntroBaseFragment() {
                     descriptionColor = descriptionColor,
                     titleTypefaceFontRes = titleTypefaceFontRes,
                     descriptionTypefaceFontRes = descriptionTypefaceFontRes,
-                    backgroundDrawable = backgroundDrawable
+                    backgroundDrawable = backgroundDrawable,
                 )
             )
         }
@@ -73,17 +73,16 @@ class AppIntroFragment : AppIntroBaseFragment() {
          *
          * @param title CharSequence which will be the slide title
          * @param description CharSequence which will be the slide description
-         * @param imageDrawable @DrawableRes (Integer) the image that will be
-         *                             displayed, obtained from Resources
+         * @param imageDrawable @DrawableRes (Integer) the image that will be displayed, obtained
+         *   from Resources
          * @param backgroundColorRes @ColorRes (Integer) custom background color
          * @param titleColorRes @ColorRes (Integer) custom title color
          * @param descriptionColorRes @ColorRes (Integer) custom description color
-         * @param titleTypefaceFontRes @FontRes (Integer) custom title typeface obtained
-         *                             from Resources
+         * @param titleTypefaceFontRes @FontRes (Integer) custom title typeface obtained from
+         *   Resources
          * @param descriptionTypefaceFontRes @FontRes (Integer) custom description typeface obtained
-         *                             from Resources
+         *   from Resources
          * @param backgroundDrawable @DrawableRes (Integer) custom background drawable
-         *
          * @return An [AppIntroFragment] created instance
          */
         @JvmOverloads
@@ -97,7 +96,7 @@ class AppIntroFragment : AppIntroBaseFragment() {
             @ColorRes descriptionColorRes: Int? = null,
             @FontRes titleTypefaceFontRes: Int? = null,
             @FontRes descriptionTypefaceFontRes: Int? = null,
-            @DrawableRes backgroundDrawable: Int? = null
+            @DrawableRes backgroundDrawable: Int? = null,
         ): AppIntroFragment {
             return createInstance(
                 SliderPage(
@@ -109,7 +108,7 @@ class AppIntroFragment : AppIntroBaseFragment() {
                     descriptionColorRes = descriptionColorRes,
                     titleTypefaceFontRes = titleTypefaceFontRes,
                     descriptionTypefaceFontRes = descriptionTypefaceFontRes,
-                    backgroundDrawable = backgroundDrawable
+                    backgroundDrawable = backgroundDrawable,
                 )
             )
         }
@@ -117,27 +116,23 @@ class AppIntroFragment : AppIntroBaseFragment() {
         /**
          * Generates an [AppIntroFragment] from a given [SliderPage]
          *
-         * @param sliderPage the [SliderPage] object which contains all attributes for
-         * the current slide
-         *
+         * @param sliderPage the [SliderPage] object which contains all attributes for the current
+         *   slide
          * @return An [AppIntroFragment] created instance
          */
         @JvmStatic
         @Deprecated(
             "`newInstance` is deprecated to support color resources instead of color int " +
                 "for configuration changes and dark theme support",
-            ReplaceWith(
-                "createInstance(sliderPage)"
-            )
+            ReplaceWith("createInstance(sliderPage)"),
         )
         fun newInstance(sliderPage: SliderPage) = createInstance(sliderPage)
 
         /**
          * Generates an [AppIntroFragment] from a given [SliderPage]
          *
-         * @param sliderPage the [SliderPage] object which contains all attributes for
-         * the current slide
-         *
+         * @param sliderPage the [SliderPage] object which contains all attributes for the current
+         *   slide
          * @return An [AppIntroFragment] created instance
          */
         @JvmStatic

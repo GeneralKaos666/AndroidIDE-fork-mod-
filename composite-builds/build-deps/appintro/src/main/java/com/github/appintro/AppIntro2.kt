@@ -48,6 +48,7 @@ abstract class AppIntro2 : AppIntroBase() {
 
     /**
      * Override viewpager bar color
+     *
      * @param color your color resource
      */
     fun setBarColor(@ColorInt color: Int) {
@@ -56,6 +57,7 @@ abstract class AppIntro2 : AppIntroBase() {
 
     /**
      * Override Skip button drawable
+     *
      * @param imageSkipButton your drawable resource
      */
     fun setImageSkipButton(imageSkipButton: Drawable) {

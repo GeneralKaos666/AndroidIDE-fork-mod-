@@ -35,16 +35,16 @@ import com.itsaky.androidide.resources.R.string
 @IncludeInDesigner(group = WIDGETS)
 open class TextClockAdapter<T : TextClock> : TextViewAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("format12Hour") { view.format12Hour = parseString(value) }
-    create("format24Hour") { view.format24Hour = parseString(value) }
-    create("timeZone") { view.timeZone = parseString(value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("format12Hour") { view.format12Hour = parseString(value) }
+        create("format24Hour") { view.format24Hour = parseString(value) }
+        create("timeZone") { view.timeZone = parseString(value) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(TextClock::class.java, string.widget_text_clock, drawable.ic_widget_text_clock)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(TextClock::class.java, string.widget_text_clock, drawable.ic_widget_text_clock)
+        )
+    }
 }

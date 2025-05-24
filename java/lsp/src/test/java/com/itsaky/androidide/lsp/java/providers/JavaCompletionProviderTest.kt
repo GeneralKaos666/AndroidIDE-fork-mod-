@@ -30,65 +30,66 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class JavaCompletionProviderTest {
 
-  @Before
-  fun setup() {
-    JavaLSPTest.setup()
-  }
-
-  @Test
-  fun locals() {
-    JavaLSPTest.apply {
-      openFile("completion/LocalsCompletionTest")
-
-      val pos = cursorPosition()
-      val items = completionTitles(pos)
-      assertThat(items).containsAtLeast("aaString", "aaInt", "aaFloat", "aaDouble", "args")
+    @Before
+    fun setup() {
+        JavaLSPTest.setup()
     }
-  }
 
-  fun members() {
-    JavaLSPTest.apply {
-      // Complete members of String
-      openFile("completion/MembersCompletionTest")
+    @Test
+    fun locals() {
+        JavaLSPTest.apply {
+            openFile("completion/LocalsCompletionTest")
 
-      val pos = cursorPosition()
-      val items = completionTitles(pos)
-      assertThat(items)
-        .containsAtLeast("getClass", "toLowerCase", "toUpperCase", "substring", "charAt")
+            val pos = cursorPosition()
+            val items = completionTitles(pos)
+            assertThat(items).containsAtLeast("aaString", "aaInt", "aaFloat", "aaDouble", "args")
+        }
     }
-  }
 
-  @Test
-  fun lambdaVariableMemberAccess() {
-    JavaLSPTest.apply {
-      // Complete members of Throwable
-      openFile("completion/LambdaMembersCompletionTest")
+    fun members() {
+        JavaLSPTest.apply {
+            // Complete members of String
+            openFile("completion/MembersCompletionTest")
 
-      val pos = cursorPosition()
-      val items = completionTitles(pos)
-      assertThat(items)
-        .containsAtLeast("getMessage", "getCause", "getStackTrace", "printStackTrace")
+            val pos = cursorPosition()
+            val items = completionTitles(pos)
+            assertThat(items)
+                .containsAtLeast("getClass", "toLowerCase", "toUpperCase", "substring", "charAt")
+        }
     }
-  }
 
-  @Test
-  fun staticAccess() {
-    JavaLSPTest.apply {
-      // Complete static members of String
-      openFile("completion/StaticMembersCompletionTest")
+    @Test
+    fun lambdaVariableMemberAccess() {
+        JavaLSPTest.apply {
+            // Complete members of Throwable
+            openFile("completion/LambdaMembersCompletionTest")
 
-      val pos = cursorPosition()
-      val items = completionTitles(pos)
-      assertThat(items)
-        .containsAtLeast("format", "join", "valueOf", "CASE_INSENSITIVE_ORDER", "class")
+            val pos = cursorPosition()
+            val items = completionTitles(pos)
+            assertThat(items)
+                .containsAtLeast("getMessage", "getCause", "getStackTrace", "printStackTrace")
+        }
     }
-  }
 
-  private fun completionTitles(pos: Position): List<CharSequence> {
-    return JavaLSPTest.server
-      .complete(
-        CompletionParams(pos, JavaLSPTest.file!!, ICancelChecker.NOOP).apply { prefix = "" })
-      .items
-      .map { it.ideLabel }
-  }
+    @Test
+    fun staticAccess() {
+        JavaLSPTest.apply {
+            // Complete static members of String
+            openFile("completion/StaticMembersCompletionTest")
+
+            val pos = cursorPosition()
+            val items = completionTitles(pos)
+            assertThat(items)
+                .containsAtLeast("format", "join", "valueOf", "CASE_INSENSITIVE_ORDER", "class")
+        }
+    }
+
+    private fun completionTitles(pos: Position): List<CharSequence> {
+        return JavaLSPTest.server
+            .complete(
+                CompletionParams(pos, JavaLSPTest.file!!, ICancelChecker.NOOP).apply { prefix = "" }
+            )
+            .items
+            .map { it.ideLabel }
+    }
 }

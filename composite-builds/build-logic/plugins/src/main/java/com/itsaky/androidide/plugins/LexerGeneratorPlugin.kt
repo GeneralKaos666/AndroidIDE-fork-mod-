@@ -18,10 +18,10 @@
 package com.itsaky.androidide.plugins
 
 import com.itsaky.androidide.build.config.BuildConfig
+import java.io.File
 import org.antlr.v4.Tool
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import java.io.File
 
 /**
  * Generates lexers from the grammar files in 'src/main/antlr' directory of the project.
@@ -30,58 +30,58 @@ import java.io.File
  */
 class LexerGeneratorPlugin : Plugin<Project> {
 
-  companion object {
+    companion object {
 
-    const val LEXER_BASE_PACKAGE = "${BuildConfig.packageName}.lexers"
-    const val EXT_G4 = "g4"
-  }
-
-  override fun apply(target: Project) {
-    val grammarDir = target.file("src/main/antlr")
-    if (!grammarDir.exists()) {
-      target.logger.warn(
-        "${LexerGeneratorPlugin::class.simpleName} has been applied to project '${target.path}' but antlr grammars directory was not found."
-      )
-      return
+        const val LEXER_BASE_PACKAGE = "${BuildConfig.packageName}.lexers"
+        const val EXT_G4 = "g4"
     }
 
-    grammarDir.listFiles()?.filter { it.isDirectory }?.forEach { target.generateGrammar(it) }
-      ?: run {
-        target.logger.error("Failed to list files in $grammarDir")
-        return
-      }
-  }
-
-  private fun Project.generateGrammar(grammarDir: File) {
-    val pck = "${LEXER_BASE_PACKAGE}.${grammarDir.name}"
-    val files =
-      grammarDir
-        .listFiles()
-        ?.filter { it.isFile && it.extension == EXT_G4 }
-        ?.map { it.absolutePath }
-        ?: run {
-          logger.error("Failed to list grammar files in directory $grammarDir")
-          return
+    override fun apply(target: Project) {
+        val grammarDir = target.file("src/main/antlr")
+        if (!grammarDir.exists()) {
+            target.logger.warn(
+                "${LexerGeneratorPlugin::class.simpleName} has been applied to project '${target.path}' but antlr grammars directory was not found."
+            )
+            return
         }
 
-    val outDir = file("src/main/java/${pck.replace('.', '/')}")
-    if (!outDir.exists() && !outDir.mkdirs()) {
-      logger.error("Failed to create directory $outDir")
-      return
+        grammarDir.listFiles()?.filter { it.isDirectory }?.forEach { target.generateGrammar(it) }
+            ?: run {
+                target.logger.error("Failed to list files in $grammarDir")
+                return
+            }
     }
 
-    val options =
-      mutableListOf(
-        "-o",
-        outDir.absolutePath,
-        "-package",
-        pck,
-        "-listener",
-        "-visitor",
-        "-Xexact-output-dir"
-      )
-    options.addAll(files)
+    private fun Project.generateGrammar(grammarDir: File) {
+        val pck = "${LEXER_BASE_PACKAGE}.${grammarDir.name}"
+        val files =
+            grammarDir
+                .listFiles()
+                ?.filter { it.isFile && it.extension == EXT_G4 }
+                ?.map { it.absolutePath }
+                ?: run {
+                    logger.error("Failed to list grammar files in directory $grammarDir")
+                    return
+                }
 
-    Tool(options.toTypedArray()).processGrammarsOnCommandLine()
-  }
+        val outDir = file("src/main/java/${pck.replace('.', '/')}")
+        if (!outDir.exists() && !outDir.mkdirs()) {
+            logger.error("Failed to create directory $outDir")
+            return
+        }
+
+        val options =
+            mutableListOf(
+                "-o",
+                outDir.absolutePath,
+                "-package",
+                pck,
+                "-listener",
+                "-visitor",
+                "-Xexact-output-dir",
+            )
+        options.addAll(files)
+
+        Tool(options.toTypedArray()).processGrammarsOnCommandLine()
+    }
 }

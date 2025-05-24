@@ -35,19 +35,19 @@ import com.itsaky.androidide.resources.R.string
 @IncludeInDesigner(group = WIDGETS)
 open class CheckedTextViewAdapter<T : CheckedTextView> : TextViewAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("checkMarkTintMode") { view.checkMarkTintMode = parsePorterDuffMode(value) }
-    create("checkMarkTint") { view.checkMarkTintList = parseColorStateList(context, value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("checkMarkTintMode") { view.checkMarkTintMode = parsePorterDuffMode(value) }
+        create("checkMarkTint") { view.checkMarkTintList = parseColorStateList(context, value) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(
-        CheckedTextView::class.java,
-        string.widget_checked_textview,
-        drawable.ic_widget_checked_textview
-      )
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                CheckedTextView::class.java,
+                string.widget_checked_textview,
+                drawable.ic_widget_checked_textview,
+            )
+        )
+    }
 }

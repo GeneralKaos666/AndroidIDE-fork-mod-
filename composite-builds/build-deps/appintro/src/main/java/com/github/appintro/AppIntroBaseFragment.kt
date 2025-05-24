@@ -18,19 +18,19 @@ import androidx.fragment.app.viewModels
 import com.github.appintro.internal.LogHelper
 import com.github.appintro.internal.TypefaceContainer
 
-abstract class AppIntroBaseFragment : Fragment(), SlideSelectionListener, SlideBackgroundColorHolder {
+abstract class AppIntroBaseFragment :
+    Fragment(), SlideSelectionListener, SlideBackgroundColorHolder {
 
     private val viewModel: AppIntroFragmentViewModel by viewModels()
 
     private val logTAG = LogHelper.makeLogTag(AppIntroBaseFragment::class.java)
 
-    @get:LayoutRes
-    protected abstract val layoutId: Int
+    @get:LayoutRes protected abstract val layoutId: Int
 
     @ColorInt
     @Deprecated(
         "`defaultBackgroundColor` has been deprecated to support configuration changes",
-        ReplaceWith("defaultBackgroundColorRes")
+        ReplaceWith("defaultBackgroundColorRes"),
     )
     final override var defaultBackgroundColor: Int = 0
         private set
@@ -84,7 +84,7 @@ abstract class AppIntroBaseFragment : Fragment(), SlideSelectionListener, SlideB
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         val view = inflater.inflate(layoutId, container, false)
         val titleText = view.findViewById<TextView>(R.id.ide_title)
@@ -114,18 +114,18 @@ abstract class AppIntroBaseFragment : Fragment(), SlideSelectionListener, SlideB
         }
 
         TypefaceContainer(
-            typeFaceUrl = viewModel.titleTypefaceUrl,
-            typeFaceResource = viewModel.titleTypefaceRes ?: 0
-        ).applyTo(titleText)
+                typeFaceUrl = viewModel.titleTypefaceUrl,
+                typeFaceResource = viewModel.titleTypefaceRes ?: 0,
+            )
+            .applyTo(titleText)
 
         TypefaceContainer(
-            typeFaceUrl = viewModel.descTypefaceUrl,
-            typeFaceResource = viewModel.descTypefaceRes ?: 0
-        ).applyTo(descriptionText)
+                typeFaceUrl = viewModel.descTypefaceUrl,
+                typeFaceResource = viewModel.descTypefaceRes ?: 0,
+            )
+            .applyTo(descriptionText)
 
-        viewModel.drawable?.let {
-            slideImage.setImageResource(it)
-        }
+        viewModel.drawable?.let { slideImage.setImageResource(it) }
 
         val bgDrawable = viewModel.bgDrawable
 
@@ -134,11 +134,12 @@ abstract class AppIntroBaseFragment : Fragment(), SlideSelectionListener, SlideB
                 mainLayout?.setBackgroundResource(bgDrawable)
             }
             defaultBackgroundColorRes != 0 -> {
-                mainLayout?.setBackgroundColor(ContextCompat.getColor(requireContext(), defaultBackgroundColorRes))
+                mainLayout?.setBackgroundColor(
+                    ContextCompat.getColor(requireContext(), defaultBackgroundColorRes)
+                )
             }
             else -> {
-                @Suppress("DEPRECATION")
-                mainLayout?.setBackgroundColor(defaultBackgroundColor)
+                @Suppress("DEPRECATION") mainLayout?.setBackgroundColor(defaultBackgroundColor)
             }
         }
 

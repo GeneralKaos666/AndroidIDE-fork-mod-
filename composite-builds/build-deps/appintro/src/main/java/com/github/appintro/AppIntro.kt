@@ -11,12 +11,14 @@ import androidx.annotation.StringRes
 import androidx.annotation.StyleRes
 import androidx.core.widget.TextViewCompat
 import com.github.appintro.internal.TypefaceContainer
+
 abstract class AppIntro : AppIntroBase() {
 
     override val layoutId = R.layout.appintro_intro_layout
 
     /**
      * Override viewpager bar color
+     *
      * @param color your color resource
      */
     fun setBarColor(@ColorInt color: Int) {
@@ -185,9 +187,8 @@ abstract class AppIntro : AppIntroBase() {
     }
 
     /**
-     * Show or hide the Separator line.
-     * This is a static setting and Separator state is maintained across slides
-     * until explicitly changed.
+     * Show or hide the Separator line. This is a static setting and Separator state is maintained
+     * across slides until explicitly changed.
      *
      * @param showSeparator Set : true to display. false to hide.
      */

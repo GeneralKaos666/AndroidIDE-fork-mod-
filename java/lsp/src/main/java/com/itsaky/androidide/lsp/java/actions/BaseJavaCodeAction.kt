@@ -45,71 +45,75 @@ import java.io.File
  */
 abstract class BaseJavaCodeAction : EditorActionItem {
 
-  override var visible: Boolean = true
-  override var enabled: Boolean = true
-  override var icon: Drawable? = null
-  override var requiresUIThread: Boolean = false
-  override var location: ActionItem.Location = ActionItem.Location.EDITOR_CODE_ACTIONS
+    override var visible: Boolean = true
+    override var enabled: Boolean = true
+    override var icon: Drawable? = null
+    override var requiresUIThread: Boolean = false
+    override var location: ActionItem.Location = ActionItem.Location.EDITOR_CODE_ACTIONS
 
-  protected abstract val titleTextRes: Int
+    protected abstract val titleTextRes: Int
 
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-    if (
-      !data.hasRequiredData(Context::class.java, JavaLanguageServer::class.java, File::class.java)
-    ) {
-      markInvisible()
-      return
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
+        if (
+            !data.hasRequiredData(
+                Context::class.java,
+                JavaLanguageServer::class.java,
+                File::class.java,
+            )
+        ) {
+            markInvisible()
+            return
+        }
+
+        if (titleTextRes != -1) {
+            label = data[Context::class.java]!!.getString(titleTextRes)
+        }
+
+        val file = data.requireFile()
+        visible = DocumentUtils.isJavaFile(file.toPath())
+        enabled = visible
     }
 
-    if (titleTextRes != -1) {
-      label = data[Context::class.java]!!.getString(titleTextRes)
+    fun performCodeAction(data: ActionData, result: Rewrite) {
+        val compiler = data.requireCompiler()
+
+        val actions =
+            try {
+                result.asCodeActions(compiler, label)
+            } catch (e: Exception) {
+                flashError(e.cause?.message ?: e.message)
+                ILogger.ROOT.error(e.cause?.message ?: e.message, e)
+                return
+            }
+
+        if (actions == null) {
+            onPerformCodeActionFailed(data)
+            return
+        }
+
+        data.getLanguageClient()?.performCodeAction(actions)
     }
 
-    val file = data.requireFile()
-    visible = DocumentUtils.isJavaFile(file.toPath())
-    enabled = visible
-  }
-
-  fun performCodeAction(data: ActionData, result: Rewrite) {
-    val compiler = data.requireCompiler()
-
-    val actions =
-      try {
-        result.asCodeActions(compiler, label)
-      } catch (e: Exception) {
-        flashError(e.cause?.message ?: e.message)
-        ILogger.ROOT.error(e.cause?.message ?: e.message, e)
-        return
-      }
-
-    if (actions == null) {
-      onPerformCodeActionFailed(data)
-      return
+    protected open fun onPerformCodeActionFailed(data: ActionData) {
+        flashError(R.string.msg_codeaction_failed)
     }
 
-    data.getLanguageClient()?.performCodeAction(actions)
-  }
-
-  protected open fun onPerformCodeActionFailed(data: ActionData) {
-    flashError(R.string.msg_codeaction_failed)
-  }
-
-  protected fun ActionData.requireLanguageServer(): JavaLanguageServer {
-    return ILanguageServerRegistry.getDefault().getServer(JavaLanguageServer.SERVER_ID)
-        as JavaLanguageServer
-  }
-
-  protected fun ActionData.getLanguageClient(): ILanguageClient? {
-    return requireLanguageServer().client
-  }
-
-  protected fun ActionData.requireCompiler(): JavaCompilerService {
-    val module =
-      IProjectManager.getInstance().getWorkspace()?.findModuleForFile(requireFile(), false)
-    requireNotNull(module) {
-      "Cannot get compiler instance. Unable to find module for file: ${requireFile().name}"
+    protected fun ActionData.requireLanguageServer(): JavaLanguageServer {
+        return ILanguageServerRegistry.getDefault().getServer(JavaLanguageServer.SERVER_ID)
+            as JavaLanguageServer
     }
-    return JavaCompilerProvider.get(module)
-  }
+
+    protected fun ActionData.getLanguageClient(): ILanguageClient? {
+        return requireLanguageServer().client
+    }
+
+    protected fun ActionData.requireCompiler(): JavaCompilerService {
+        val module =
+            IProjectManager.getInstance().getWorkspace()?.findModuleForFile(requireFile(), false)
+        requireNotNull(module) {
+            "Cannot get compiler instance. Unable to find module for file: ${requireFile().name}"
+        }
+        return JavaCompilerProvider.get(module)
+    }
 }

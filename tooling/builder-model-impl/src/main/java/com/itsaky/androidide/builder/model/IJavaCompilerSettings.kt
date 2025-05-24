@@ -23,13 +23,13 @@ package com.itsaky.androidide.builder.model
  * @author Akash Yadav
  */
 abstract class IJavaCompilerSettings {
-  
-  private val gsonType: String = javaClass.name
-  private val serialVersionUID = 1L
 
-  /** Source java version. */
-  abstract val javaSourceVersion: String
+    private val gsonType: String = javaClass.name
+    private val serialVersionUID = 1L
 
-  /** Target java version. */
-  abstract val javaBytecodeVersion: String
+    /** Source java version. */
+    abstract val javaSourceVersion: String
+
+    /** Target java version. */
+    abstract val javaBytecodeVersion: String
 }

@@ -34,56 +34,57 @@ import org.slf4j.LoggerFactory
 /** @author Akash Yadav */
 class FieldToBlockAction : BaseJavaCodeAction() {
 
-  override val id: String = "ide.editor.lsp.java.diagnostics.fieldToBlock"
-  override var label: String = ""
-  private val diagnosticCode = DiagnosticCode.UNUSED_FIELD.id
+    override val id: String = "ide.editor.lsp.java.diagnostics.fieldToBlock"
+    override var label: String = ""
+    private val diagnosticCode = DiagnosticCode.UNUSED_FIELD.id
 
-  override val titleTextRes: Int = R.string.action_convert_to_block
+    override val titleTextRes: Int = R.string.action_convert_to_block
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(FieldToBlockAction::class.java)
-  }
-
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-
-    if (!visible) {
-      return
+        private val log = LoggerFactory.getLogger(FieldToBlockAction::class.java)
     }
 
-    if (!data.hasRequiredData(DiagnosticItem::class.java)) {
-      markInvisible()
-      return
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
+
+        if (!visible) {
+            return
+        }
+
+        if (!data.hasRequiredData(DiagnosticItem::class.java)) {
+            markInvisible()
+            return
+        }
+
+        val diagnostic = data.get(DiagnosticItem::class.java)!!
+        if (diagnosticCode != diagnostic.code) {
+            markInvisible()
+            return
+        }
     }
 
-    val diagnostic = data.get(DiagnosticItem::class.java)!!
-    if (diagnosticCode != diagnostic.code) {
-      markInvisible()
-      return
-    }
-  }
+    override suspend fun execAction(data: ActionData): Any {
+        val compiler =
+            JavaCompilerProvider.get(
+                IProjectManager.getInstance()
+                    .getWorkspace()
+                    ?.findModuleForFile(data.requireFile(), false) ?: return Any()
+            )
+        val diagnostic = data[DiagnosticItem::class.java]!!
+        val file = data.requirePath()
 
-  override suspend fun execAction(data: ActionData): Any {
-    val compiler =
-      JavaCompilerProvider.get(
-        IProjectManager.getInstance().getWorkspace()?.findModuleForFile(data.requireFile(), false)
-          ?: return Any()
-      )
-    val diagnostic = data[DiagnosticItem::class.java]!!
-    val file = data.requirePath()
-
-    return compiler.compile(file).get {
-      ConvertFieldToBlock(file, findPosition(it, diagnostic.range.start))
-    }
-  }
-
-  override fun postExec(data: ActionData, result: Any) {
-    if (result !is ConvertFieldToBlock) {
-      log.warn("Unable to convert field to block")
-      return
+        return compiler.compile(file).get {
+            ConvertFieldToBlock(file, findPosition(it, diagnostic.range.start))
+        }
     }
 
-    performCodeAction(data, result)
-  }
+    override fun postExec(data: ActionData, result: Any) {
+        if (result !is ConvertFieldToBlock) {
+            log.warn("Unable to convert field to block")
+            return
+        }
+
+        performCodeAction(data, result)
+    }
 }

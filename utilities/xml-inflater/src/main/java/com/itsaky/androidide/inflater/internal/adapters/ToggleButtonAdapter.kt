@@ -33,20 +33,20 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(ToggleButton::class)
 open class ToggleButtonAdapter<T : ToggleButton> : CompoundButtonAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("disabledAlpha") { reflect(view).field("mDisabledAlpha", parseFloat(value, 0.5f)) }
-    create("textOff") { view.textOff = parseString(value) }
-    create("textOn") { view.textOn = parseString(value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("disabledAlpha") { reflect(view).field("mDisabledAlpha", parseFloat(value, 0.5f)) }
+        create("textOff") { view.textOff = parseString(value) }
+        create("textOn") { view.textOn = parseString(value) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(
-        ToggleButton::class.java,
-        string.widget_togglebutton,
-        drawable.ic_widget_toggle_button
-      )
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                ToggleButton::class.java,
+                string.widget_togglebutton,
+                drawable.ic_widget_toggle_button,
+            )
+        )
+    }
 }

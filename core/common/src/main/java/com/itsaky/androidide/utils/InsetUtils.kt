@@ -31,8 +31,8 @@ import androidx.core.view.WindowInsetsCompat
  * @author Smooth E
  */
 fun getSystemBarInsets(view: View): Insets {
-  val rootWindowInsets = view.rootWindowInsets
-  return getSystemBarInsets(WindowInsetsCompat.toWindowInsetsCompat(rootWindowInsets))
+    val rootWindowInsets = view.rootWindowInsets
+    return getSystemBarInsets(WindowInsetsCompat.toWindowInsetsCompat(rootWindowInsets))
 }
 
 /**
@@ -42,18 +42,18 @@ fun getSystemBarInsets(view: View): Insets {
  * @return [Insets] containing acquired insets.
  */
 fun getSystemBarInsets(insets: WindowInsetsCompat): Insets {
-  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-    @Suppress("DEPRECATION")
-    return insets.stableInsets
-  }
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        @Suppress("DEPRECATION")
+        return insets.stableInsets
+    }
 
-  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-    @Suppress("DEPRECATION")
-    return insets.stableInsets
-  }
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        @Suppress("DEPRECATION")
+        return insets.stableInsets
+    }
 
-  val typeMask = WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()
+    val typeMask = WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout()
 
-  // noinspection WrongConstant
-  return insets.getInsetsIgnoringVisibility(typeMask)
+    // noinspection WrongConstant
+    return insets.getInsetsIgnoringVisibility(typeMask)
 }

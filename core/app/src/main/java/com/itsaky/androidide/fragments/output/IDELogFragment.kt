@@ -28,42 +28,44 @@ import org.slf4j.LoggerFactory
 
 /**
  * Fragment to show IDE logs.
+ *
  * @author Akash Yadav
  */
 class IDELogFragment : LogViewFragment() {
 
-  private val lifecycleAwareAppender = LifecycleAwareAppender(Lifecycle.State.CREATED)
+    private val lifecycleAwareAppender = LifecycleAwareAppender(Lifecycle.State.CREATED)
 
-  override fun isSimpleFormattingEnabled() = true
-  override fun getFilename() = "ide_logs"
+    override fun isSimpleFormattingEnabled() = true
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    emptyStateViewModel.emptyMessage.value = getString(R.string.msg_emptyview_idelogs)
+    override fun getFilename() = "ide_logs"
 
-    lifecycleAwareAppender.consumer = this::appendLine
-    lifecycleAwareAppender.attachTo(viewLifecycleOwner)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        emptyStateViewModel.emptyMessage.value = getString(R.string.msg_emptyview_idelogs)
 
-    val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
-    val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
+        lifecycleAwareAppender.consumer = this::appendLine
+        lifecycleAwareAppender.attachTo(viewLifecycleOwner)
 
-    lifecycleAwareAppender.context = loggerContext
-    lifecycleAwareAppender.start()
+        val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+        val rootLogger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
 
-    rootLogger.addAppender(lifecycleAwareAppender)
-  }
+        lifecycleAwareAppender.context = loggerContext
+        lifecycleAwareAppender.start()
 
-  override fun onDestroy() {
-    super.onDestroy()
-    lifecycleAwareAppender.stop()
+        rootLogger.addAppender(lifecycleAwareAppender)
+    }
 
-    val logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
-    logger.detachAppender(lifecycleAwareAppender)
-  }
-  
-  override fun clearOutput() {
-    lifecycleAwareAppender.pauseAppender = true
-    super.clearOutput()
-    lifecycleAwareAppender.pauseAppender = false
-  }
+    override fun onDestroy() {
+        super.onDestroy()
+        lifecycleAwareAppender.stop()
+
+        val logger = LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME) as Logger
+        logger.detachAppender(lifecycleAwareAppender)
+    }
+
+    override fun clearOutput() {
+        lifecycleAwareAppender.pauseAppender = true
+        super.clearOutput()
+        lifecycleAwareAppender.pauseAppender = false
+    }
 }

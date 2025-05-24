@@ -27,7 +27,7 @@ import java.time.Instant
  * @author Akash Yadav
  */
 class ActiveJavaDocument(file: Path, content: String, version: Int, modified: Instant) :
-  ActiveDocument(file = file, version = version, modified = modified, content = content) {
+    ActiveDocument(file = file, version = version, modified = modified, content = content) {
 
-  val packageName: String = StringSearch.packageName(reader())
+    val packageName: String = StringSearch.packageName(reader())
 }

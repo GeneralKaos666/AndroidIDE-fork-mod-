@@ -35,22 +35,22 @@ import com.itsaky.androidide.resources.R.string
 @IncludeInDesigner(group = WIDGETS)
 open class AutoCompleteTextViewAdapter<T : AutoCompleteTextView> : EditTextAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("completionHint") { view.completionHint = parseString(value) }
-    create("completionThreshold") { view.threshold = parseInteger(value, 1) }
-    create("dropDownAnchor") { view.dropDownAnchor = parseId(file.resName, value) }
-    create("dropDownWidth") { view.dropDownWidth = parseDimension(context, value) }
-    create("dropDownHeight") { view.dropDownHeight = parseDimension(context, value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("completionHint") { view.completionHint = parseString(value) }
+        create("completionThreshold") { view.threshold = parseInteger(value, 1) }
+        create("dropDownAnchor") { view.dropDownAnchor = parseId(file.resName, value) }
+        create("dropDownWidth") { view.dropDownWidth = parseDimension(context, value) }
+        create("dropDownHeight") { view.dropDownHeight = parseDimension(context, value) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(
-        AutoCompleteTextView::class.java,
-        string.widget_auto_complete_textview,
-        drawable.ic_widget_auto_complete_textview
-      )
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                AutoCompleteTextView::class.java,
+                string.widget_auto_complete_textview,
+                drawable.ic_widget_auto_complete_textview,
+            )
+        )
+    }
 }

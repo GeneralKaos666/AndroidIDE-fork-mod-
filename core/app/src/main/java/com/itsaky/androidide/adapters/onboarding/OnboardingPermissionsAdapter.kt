@@ -28,50 +28,53 @@ import com.itsaky.androidide.R
 import com.itsaky.androidide.databinding.LayoutOnboardingPermissionItemBinding
 import com.itsaky.androidide.models.OnboardingPermissionItem
 
-/**
- * @author Akash Yadav
- */
-class OnboardingPermissionsAdapter(private val permissions: List<OnboardingPermissionItem>,
-  private val requestPermission: (String) -> Unit) :
-  RecyclerView.Adapter<OnboardingPermissionsAdapter.ViewHolder>() {
+/** @author Akash Yadav */
+class OnboardingPermissionsAdapter(
+    private val permissions: List<OnboardingPermissionItem>,
+    private val requestPermission: (String) -> Unit,
+) : RecyclerView.Adapter<OnboardingPermissionsAdapter.ViewHolder>() {
 
-  class ViewHolder(val binding: LayoutOnboardingPermissionItemBinding) :
-    RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: LayoutOnboardingPermissionItemBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-    return ViewHolder(
-      LayoutOnboardingPermissionItemBinding.inflate(LayoutInflater.from(parent.context), parent,
-        false))
-  }
-
-  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val binding = holder.binding
-    val permission = permissions[position]
-
-    binding.infoContent.apply {
-      title.setText(permission.title)
-      description.setText(permission.description)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(
+            LayoutOnboardingPermissionItemBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false,
+            )
+        )
     }
 
-    binding.grantButton.setOnClickListener {
-      requestPermission(permission.permission)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val binding = holder.binding
+        val permission = permissions[position]
+
+        binding.infoContent.apply {
+            title.setText(permission.title)
+            description.setText(permission.description)
+        }
+
+        binding.grantButton.setOnClickListener { requestPermission(permission.permission) }
+
+        if (permission.isGranted) {
+            binding.grantButton.apply {
+                isEnabled = false
+                text = ""
+                icon = ContextCompat.getDrawable(binding.root.context, R.drawable.ic_ok)
+                iconTint =
+                    ColorStateList.valueOf(
+                        ContextCompat.getColor(binding.root.context, R.color.green_500)
+                    )
+                iconGravity = MaterialButton.ICON_GRAVITY_TEXT_TOP
+                iconPadding = 0
+                iconSize = SizeUtils.dp2px(28f)
+            }
+        }
     }
 
-    if (permission.isGranted) {
-      binding.grantButton.apply {
-        isEnabled = false
-        text = ""
-        icon = ContextCompat.getDrawable(binding.root.context, R.drawable.ic_ok)
-        iconTint = ColorStateList.valueOf(
-          ContextCompat.getColor(binding.root.context, R.color.green_500))
-        iconGravity = MaterialButton.ICON_GRAVITY_TEXT_TOP
-        iconPadding = 0
-        iconSize = SizeUtils.dp2px(28f)
-      }
+    override fun getItemCount(): Int {
+        return permissions.size
     }
-  }
-
-  override fun getItemCount(): Int {
-    return permissions.size
-  }
 }

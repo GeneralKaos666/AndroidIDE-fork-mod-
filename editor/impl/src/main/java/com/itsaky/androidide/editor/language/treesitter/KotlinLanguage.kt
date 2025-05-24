@@ -30,20 +30,20 @@ import io.github.rosemoe.sora.lang.Language.INTERRUPTION_LEVEL_STRONG
  * @author Akash Yadav
  */
 open class KotlinLanguage(context: Context) :
-  TreeSitterLanguage(context, TSLanguageKotlin.getInstance(), TS_TYPE_KT) {
+    TreeSitterLanguage(context, TSLanguageKotlin.getInstance(), TS_TYPE_KT) {
 
-  companion object {
+    companion object {
 
-    val FACTORY = Factory { KotlinLanguage(it) }
-    const val TS_TYPE_KT = "kt"
-    const val TS_TYPE_KTS = "kts"
-  }
+        val FACTORY = Factory { KotlinLanguage(it) }
+        const val TS_TYPE_KT = "kt"
+        const val TS_TYPE_KTS = "kts"
+    }
 
-  override fun getInterruptionLevel(): Int {
-    return INTERRUPTION_LEVEL_STRONG
-  }
+    override fun getInterruptionLevel(): Int {
+        return INTERRUPTION_LEVEL_STRONG
+    }
 
-  override fun createNewlineHandlers(): Array<TSBracketsHandler> {
-    return arrayOf(TSCStyleBracketsHandler(this))
-  }
+    override fun createNewlineHandlers(): Array<TSBracketsHandler> {
+        return arrayOf(TSCStyleBracketsHandler(this))
+    }
 }

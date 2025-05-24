@@ -21,8 +21,8 @@ import com.itsaky.androidide.adapters.SearchListAdapter
 
 class SearchResultFragment : RecyclerViewFragment<SearchListAdapter>() {
 
-  override fun onCreateAdapter(): RecyclerView.Adapter<*> {
-    val noOp: (Any) -> Unit = {}
-    return SearchListAdapter(emptyMap(), noOp, noOp)
-  }
+    override fun onCreateAdapter(): RecyclerView.Adapter<*> {
+        val noOp: (Any) -> Unit = {}
+        return SearchListAdapter(emptyMap(), noOp, noOp)
+    }
 }

@@ -22,8 +22,8 @@ import android.view.View
 import android.view.ViewGroup.MarginLayoutParams
 import androidx.core.graphics.Insets
 import androidx.core.view.marginBottom
-import androidx.core.view.marginTop
 import androidx.core.view.marginLeft
+import androidx.core.view.marginTop
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMarginsRelative
 import androidx.core.view.updatePadding
@@ -36,42 +36,33 @@ import com.itsaky.androidide.utils.EditorSidebarActions
  *
  * @author Akash Yadav
  */
-class EditorSidebarFragment : FragmentWithBinding<FragmentEditorSidebarBinding>(
-  FragmentEditorSidebarBinding::inflate
-) {
+class EditorSidebarFragment :
+    FragmentWithBinding<FragmentEditorSidebarBinding>(FragmentEditorSidebarBinding::inflate) {
 
-  internal fun onApplyWindowInsets(insets: Insets) {
-    _binding?.apply {
-      title.updateLayoutParams<MarginLayoutParams> {
-        updateMarginsRelative(
-          top = title.marginTop + insets.top,
-        )
-      }
-      fragmentContainer.updateLayoutParams<MarginLayoutParams> {
-        updateMarginsRelative(
-          bottom = fragmentContainer.marginBottom + insets.bottom,
-        )
-      }
-      navigation.updateLayoutParams<MarginLayoutParams> {
-        updateMarginsRelative(
-          start = navigation.marginLeft + insets.left,
-        )
-      }
-      navigation.updatePadding(
-        top = navigation.paddingTop + insets.top,
-        bottom = navigation.paddingBottom + insets.bottom,
-        //left = navigation.paddingLeft + insets.left,
-      )
+    internal fun onApplyWindowInsets(insets: Insets) {
+        _binding?.apply {
+            title.updateLayoutParams<MarginLayoutParams> {
+                updateMarginsRelative(top = title.marginTop + insets.top)
+            }
+            fragmentContainer.updateLayoutParams<MarginLayoutParams> {
+                updateMarginsRelative(bottom = fragmentContainer.marginBottom + insets.bottom)
+            }
+            navigation.updateLayoutParams<MarginLayoutParams> {
+                updateMarginsRelative(start = navigation.marginLeft + insets.left)
+            }
+            navigation.updatePadding(
+                top = navigation.paddingTop + insets.top,
+                bottom = navigation.paddingBottom + insets.bottom,
+                // left = navigation.paddingLeft + insets.left,
+            )
+        }
     }
-  }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    EditorSidebarActions.setup(this)
-  }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        EditorSidebarActions.setup(this)
+    }
 
-  /**
-   * Get the (nullable) binding object for this fragment.
-   */
-  internal fun getBinding() = _binding
+    /** Get the (nullable) binding object for this fragment. */
+    internal fun getBinding() = _binding
 }

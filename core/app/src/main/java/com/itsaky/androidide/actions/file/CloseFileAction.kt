@@ -30,19 +30,17 @@ import com.itsaky.androidide.activities.editor.EditorHandlerActivity
  */
 class CloseFileAction(context: Context, override val order: Int) : FileTabAction() {
 
-  override val id: String = "ide.editor.fileTab.close.current"
+    override val id: String = "ide.editor.fileTab.close.current"
 
-  init {
-    label = context.getString(R.string.action_closeThis)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_close_this)
-  }
-
-  override fun EditorHandlerActivity.doAction(data: ActionData): Boolean {
-    content.tabs.selectedTabPosition.let { index ->
-      closeFile(index) {
-        invalidateOptionsMenu()
-      }
+    init {
+        label = context.getString(R.string.action_closeThis)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_close_this)
     }
-    return true
-  }
+
+    override fun EditorHandlerActivity.doAction(data: ActionData): Boolean {
+        content.tabs.selectedTabPosition.let { index ->
+            closeFile(index) { invalidateOptionsMenu() }
+        }
+        return true
+    }
 }

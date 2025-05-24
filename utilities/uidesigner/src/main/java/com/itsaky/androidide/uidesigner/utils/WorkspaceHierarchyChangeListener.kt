@@ -26,9 +26,6 @@ import com.itsaky.androidide.uidesigner.viewmodel.WorkspaceViewModel
  * @author Akash Yadav
  */
 internal class WorkspaceHierarchyChangeListener(
-  private val viewModel: WorkspaceViewModel,
-  private val workspaceView: UiViewGroup
-) : com.itsaky.androidide.inflater.IViewGroup.SingleOnHierarchyChangeListener() {
-
-
-}
+    private val viewModel: WorkspaceViewModel,
+    private val workspaceView: UiViewGroup,
+) : com.itsaky.androidide.inflater.IViewGroup.SingleOnHierarchyChangeListener() {}

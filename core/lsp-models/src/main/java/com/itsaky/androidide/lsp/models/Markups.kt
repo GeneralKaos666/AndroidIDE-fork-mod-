@@ -20,10 +20,10 @@ package com.itsaky.androidide.lsp.models
 import com.itsaky.androidide.lsp.models.MarkupKind.PLAIN
 
 data class MarkupContent(var value: String, var kind: MarkupKind) {
-  constructor() : this("", PLAIN)
+    constructor() : this("", PLAIN)
 }
 
 enum class MarkupKind {
-  PLAIN,
-  MARKDOWN
+    PLAIN,
+    MARKDOWN,
 }

@@ -25,14 +25,13 @@ package com.itsaky.androidide.tooling.impl.sync
  */
 interface IModelBuilder<P, R> {
 
-  /**
-   * Builds the model.
-   *
-   * @param param Parameter for building the model.
-   * @return The built model. Implementations should throw [ModelBuilderException] instead of
-   * returning `null`.
-   * @throws ModelBuilderException If the model could not be built.
-   */
-  @Throws(ModelBuilderException::class)
-  fun build(param: P): R
+    /**
+     * Builds the model.
+     *
+     * @param param Parameter for building the model.
+     * @return The built model. Implementations should throw [ModelBuilderException] instead of
+     *   returning `null`.
+     * @throws ModelBuilderException If the model could not be built.
+     */
+    @Throws(ModelBuilderException::class) fun build(param: P): R
 }

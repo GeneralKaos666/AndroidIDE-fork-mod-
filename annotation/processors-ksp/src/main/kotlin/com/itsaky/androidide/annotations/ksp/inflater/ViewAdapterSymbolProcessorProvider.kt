@@ -31,7 +31,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 @AutoService(SymbolProcessorProvider::class)
 class ViewAdapterSymbolProcessorProvider : SymbolProcessorProvider {
 
-  override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
-    return ViewAdapterSymbolProcessor(environment.codeGenerator, environment.logger)
-  }
+    override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
+        return ViewAdapterSymbolProcessor(environment.codeGenerator, environment.logger)
+    }
 }

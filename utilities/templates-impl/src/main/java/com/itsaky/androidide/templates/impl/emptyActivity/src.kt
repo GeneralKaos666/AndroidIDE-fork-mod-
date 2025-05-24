@@ -23,7 +23,7 @@ import com.itsaky.androidide.templates.impl.base.baseLayoutContentMain
 internal fun emptyLayoutSrc() = baseLayoutContentMain()
 
 internal fun AndroidModuleTemplateBuilder.emptyActivitySrcKt(): String {
-  return """
+    return """
 package ${data.packageName}
 
 import androidx.appcompat.app.AppCompatActivity
@@ -56,7 +56,7 @@ public class MainActivity : AppCompatActivity() {
 }
 
 internal fun AndroidModuleTemplateBuilder.emptyActivitySrcJava(): String {
-  return """
+    return """
 package ${data.packageName};
 
 import androidx.appcompat.app.AppCompatActivity;

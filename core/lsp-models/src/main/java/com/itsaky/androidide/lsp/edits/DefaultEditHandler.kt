@@ -35,105 +35,107 @@ import org.slf4j.LoggerFactory
  */
 open class DefaultEditHandler : IEditHandler {
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(DefaultEditHandler::class.java)
-  }
-
-  override fun performEdits(
-    item: CompletionItem,
-    editor: CodeEditor,
-    text: Content,
-    line: Int,
-    column: Int,
-    index: Int
-  ) {
-    if (Looper.myLooper() != Looper.getMainLooper()) {
-      ThreadUtils.runOnUiThread { performEditsInternal(item, editor, text, line, column, index) }
-      return
+        private val log = LoggerFactory.getLogger(DefaultEditHandler::class.java)
     }
 
-    performEditsInternal(item, editor, text, line, column, index)
-  }
+    override fun performEdits(
+        item: CompletionItem,
+        editor: CodeEditor,
+        text: Content,
+        line: Int,
+        column: Int,
+        index: Int,
+    ) {
+        if (Looper.myLooper() != Looper.getMainLooper()) {
+            ThreadUtils.runOnUiThread {
+                performEditsInternal(item, editor, text, line, column, index)
+            }
+            return
+        }
 
-  protected open fun performEditsInternal(
-    item: CompletionItem,
-    editor: CodeEditor,
-    text: Content,
-    line: Int,
-    column: Int,
-    index: Int
-  ) {
-    if (item.insertTextFormat == SNIPPET) {
-      insertSnippet(item, editor, text, line, column, index)
-      return
+        performEditsInternal(item, editor, text, line, column, index)
     }
 
-    val start = getIdentifierStart(text.getLine(line), column)
-    text.delete(line, start, line, column)
-    editor.commitText(item.insertText)
+    protected open fun performEditsInternal(
+        item: CompletionItem,
+        editor: CodeEditor,
+        text: Content,
+        line: Int,
+        column: Int,
+        index: Int,
+    ) {
+        if (item.insertTextFormat == SNIPPET) {
+            insertSnippet(item, editor, text, line, column, index)
+            return
+        }
 
-    text.beginBatchEdit()
-    if (item.additionalEditHandler != null) {
-      item.additionalEditHandler!!.performEdits(item, editor, text, line, column, index)
-    } else if (item.additionalTextEdits != null && item.additionalTextEdits!!.isNotEmpty()) {
-      RewriteHelper.performEdits(item.additionalTextEdits!!, editor)
-    }
-    text.beginBatchEdit()
+        val start = getIdentifierStart(text.getLine(line), column)
+        text.delete(line, start, line, column)
+        editor.commitText(item.insertText)
 
-    executeCommand(editor, item.command)
-  }
+        text.beginBatchEdit()
+        if (item.additionalEditHandler != null) {
+            item.additionalEditHandler!!.performEdits(item, editor, text, line, column, index)
+        } else if (item.additionalTextEdits != null && item.additionalTextEdits!!.isNotEmpty()) {
+            RewriteHelper.performEdits(item.additionalTextEdits!!, editor)
+        }
+        text.beginBatchEdit()
 
-  protected open fun insertSnippet(
-    item: CompletionItem,
-    editor: CodeEditor,
-    text: Content,
-    line: Int,
-    column: Int,
-    index: Int
-  ) {
-    val snippetDescription = item.snippetDescription!!
-    val snippet = CodeSnippetParser.parse(item.insertText)
-    val prefixLength = snippetDescription.selectedLength
-    val selectedText = text.subSequence(index - prefixLength, index).toString()
-    var actionIndex = index
-    if (snippetDescription.deleteSelected) {
-      text.delete(index - prefixLength, index)
-      actionIndex -= prefixLength
-    }
-    editor.snippetController.startSnippet(actionIndex, snippet, selectedText)
-
-    if (snippetDescription.allowCommandExecution) {
-      executeCommand(editor, item.command)
-    }
-  }
-
-  protected open fun executeCommand(editor: CodeEditor, command: Command?) {
-    if (command == null) {
-      return
+        executeCommand(editor, item.command)
     }
 
-    try {
-      val klass = editor::class.java
-      val method = klass.getMethod("executeCommand", Command::class.java)
-      method.isAccessible = true
-      method.invoke(editor, command)
-    } catch (th: Throwable) {
-      log.error("Unable to invoke 'executeCommand(Command) method in IDEEditor.", th)
-    }
-  }
+    protected open fun insertSnippet(
+        item: CompletionItem,
+        editor: CodeEditor,
+        text: Content,
+        line: Int,
+        column: Int,
+        index: Int,
+    ) {
+        val snippetDescription = item.snippetDescription!!
+        val snippet = CodeSnippetParser.parse(item.insertText)
+        val prefixLength = snippetDescription.selectedLength
+        val selectedText = text.subSequence(index - prefixLength, index).toString()
+        var actionIndex = index
+        if (snippetDescription.deleteSelected) {
+            text.delete(index - prefixLength, index)
+            actionIndex -= prefixLength
+        }
+        editor.snippetController.startSnippet(actionIndex, snippet, selectedText)
 
-  protected open fun getIdentifierStart(text: CharSequence, end: Int): Int {
-    var start = end
-    while (start > 0) {
-      if (isPartialPart(text[start - 1])) {
-        start--
-        continue
-      }
-      break
+        if (snippetDescription.allowCommandExecution) {
+            executeCommand(editor, item.command)
+        }
     }
-    return start
-  }
 
-  protected open fun isPartialPart(c: Char) = Character.isJavaIdentifierPart(c)
+    protected open fun executeCommand(editor: CodeEditor, command: Command?) {
+        if (command == null) {
+            return
+        }
+
+        try {
+            val klass = editor::class.java
+            val method = klass.getMethod("executeCommand", Command::class.java)
+            method.isAccessible = true
+            method.invoke(editor, command)
+        } catch (th: Throwable) {
+            log.error("Unable to invoke 'executeCommand(Command) method in IDEEditor.", th)
+        }
+    }
+
+    protected open fun getIdentifierStart(text: CharSequence, end: Int): Int {
+        var start = end
+        while (start > 0) {
+            if (isPartialPart(text[start - 1])) {
+                start--
+                continue
+            }
+            break
+        }
+        return start
+    }
+
+    protected open fun isPartialPart(c: Char) = Character.isJavaIdentifierPart(c)
 }

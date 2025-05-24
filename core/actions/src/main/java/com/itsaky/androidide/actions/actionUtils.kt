@@ -25,29 +25,29 @@ import java.io.File
 import java.nio.file.Path
 
 fun ActionData.getContext(): Context? {
-  return get(Context::class.java)
+    return get(Context::class.java)
 }
 
 fun ActionData.requireContext(): Context {
-  return getContext() ?: throw IllegalArgumentException("No context instance provided")
+    return getContext() ?: throw IllegalArgumentException("No context instance provided")
 }
 
 fun ActionData.requireFile(): File {
-  return get(File::class.java) ?: throw IllegalArgumentException("No file instance provided")
+    return get(File::class.java) ?: throw IllegalArgumentException("No file instance provided")
 }
 
 fun ActionData.requirePath(): Path {
-  return requireFile().toPath()
+    return requireFile().toPath()
 }
 
 fun ActionData.requireEditor(): CodeEditor {
-  return get(CodeEditor::class.java)
-    ?: throw IllegalArgumentException("An editor instance is required but none was provided")
+    return get(CodeEditor::class.java)
+        ?: throw IllegalArgumentException("An editor instance is required but none was provided")
 }
 
 fun newDialogBuilder(data: ActionData): MaterialAlertDialogBuilder {
-  val context = data.get(Context::class.java)!!
-  return DialogUtils.newMaterialDialogBuilder(context)
+    val context = data.get(Context::class.java)!!
+    return DialogUtils.newMaterialDialogBuilder(context)
 }
 
 /**
@@ -57,15 +57,15 @@ fun newDialogBuilder(data: ActionData): MaterialAlertDialogBuilder {
  * @return `true` if this [ActionData] has the given [types], `false` otherwise.
  */
 fun ActionData.hasRequiredData(vararg types: Class<*>): Boolean {
-  for (type in types) {
-    get(type) ?: return false
-  }
+    for (type in types) {
+        get(type) ?: return false
+    }
 
-  return true
+    return true
 }
 
 /** Marks this action item as invisible. */
 fun ActionItem.markInvisible() {
-  visible = false
-  enabled = false
+    visible = false
+    enabled = false
 }

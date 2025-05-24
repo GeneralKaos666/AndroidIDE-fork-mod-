@@ -34,18 +34,18 @@ import com.itsaky.androidide.resources.R
 @IncludeInDesigner(group = LAYOUTS)
 open class ViewAnimatorAdapter<T : ViewAnimator> : FrameLayoutAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("animateFirstView") { view.animateFirstView = parseBoolean(value, false) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("animateFirstView") { view.animateFirstView = parseBoolean(value, false) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(
-        ViewAnimator::class.java,
-        R.string.widget_viewanimator,
-        R.drawable.ic_widget_viewanimator
-      )
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                ViewAnimator::class.java,
+                R.string.widget_viewanimator,
+                R.drawable.ic_widget_viewanimator,
+            )
+        )
+    }
 }

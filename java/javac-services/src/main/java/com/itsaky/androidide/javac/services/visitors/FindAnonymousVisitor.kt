@@ -31,45 +31,45 @@ import openjdk.source.tree.VariableTree
  */
 class FindAnonymousVisitor : ErrorAwareTreeScanner<Unit, Unit>() {
 
-  private enum class Mode {
-    COLLECT,
-    CHECK
-  }
-
-  var noInner = 0
-  var hasLocalClass = false
-  val docOwners: MutableSet<Tree> = HashSet<Tree>()
-  private var mode = COLLECT
-
-  fun reset() {
-    noInner = 0
-    hasLocalClass = false
-    mode = CHECK
-  }
-
-  override fun visitClass(node: ClassTree, p: Unit?): Unit? {
-    if (node.simpleName.isNotEmpty()) {
-      hasLocalClass = true
+    private enum class Mode {
+        COLLECT,
+        CHECK,
     }
 
-    noInner++
-    handleDoc(node)
-    return super.visitClass(node, p)
-  }
+    var noInner = 0
+    var hasLocalClass = false
+    val docOwners: MutableSet<Tree> = HashSet<Tree>()
+    private var mode = COLLECT
 
-  override fun visitMethod(node: MethodTree, p: Unit?): Unit? {
-    handleDoc(node)
-    return super.visitMethod(node, p)
-  }
-
-  override fun visitVariable(node: VariableTree, p: Unit?): Unit? {
-    handleDoc(node)
-    return super.visitVariable(node, p)
-  }
-
-  private fun handleDoc(tree: Tree) {
-    if (mode == COLLECT) {
-      docOwners.add(tree)
+    fun reset() {
+        noInner = 0
+        hasLocalClass = false
+        mode = CHECK
     }
-  }
+
+    override fun visitClass(node: ClassTree, p: Unit?): Unit? {
+        if (node.simpleName.isNotEmpty()) {
+            hasLocalClass = true
+        }
+
+        noInner++
+        handleDoc(node)
+        return super.visitClass(node, p)
+    }
+
+    override fun visitMethod(node: MethodTree, p: Unit?): Unit? {
+        handleDoc(node)
+        return super.visitMethod(node, p)
+    }
+
+    override fun visitVariable(node: VariableTree, p: Unit?): Unit? {
+        handleDoc(node)
+        return super.visitVariable(node, p)
+    }
+
+    private fun handleDoc(tree: Tree) {
+        if (mode == COLLECT) {
+            docOwners.add(tree)
+        }
+    }
 }

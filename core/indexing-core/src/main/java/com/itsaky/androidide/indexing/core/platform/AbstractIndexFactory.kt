@@ -28,5 +28,5 @@ import com.itsaky.androidide.indexing.IIndexable
  */
 abstract class AbstractIndexFactory<I : IIndexable, P : IIndexParams> : IIndexFactory<I, P> {
 
-  override var params: P? = null
+    override var params: P? = null
 }

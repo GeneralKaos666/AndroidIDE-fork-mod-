@@ -35,63 +35,63 @@ import org.slf4j.LoggerFactory
  * @author Akash Yadav
  */
 class MethodRangeScanner(val task: JavacTaskImpl) :
-  TreePathScanner<Unit, MutableList<Pair<Range, TreePath>>>() {
+    TreePathScanner<Unit, MutableList<Pair<Range, TreePath>>>() {
 
-  var root: CompilationUnitTree? = null
-  var lines: LineMap? = null
-  val pos = Trees.instance(task).sourcePositions
+    var root: CompilationUnitTree? = null
+    var lines: LineMap? = null
+    val pos = Trees.instance(task).sourcePositions
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(MethodRangeScanner::class.java)
-  }
-
-  override fun visitCompilationUnit(
-    node: CompilationUnitTree?,
-    p: MutableList<Pair<Range, TreePath>>?
-  ) {
-    this.root = node
-    this.lines = node?.lineMap
-    return super.visitCompilationUnit(node, p)
-  }
-
-  override fun visitMethod(node: MethodTree?, list: MutableList<Pair<Range, TreePath>>) {
-    // Do not call super.visitMethod
-    // We only want methods defined directly in declared (not anonymous) classes.
-    if (node == null || this.root == null) {
-      return
+        private val log = LoggerFactory.getLogger(MethodRangeScanner::class.java)
     }
 
-    val start = getStartPosition(node)
-    val end = getEndPosition(node)
-
-    if (start == null || end == null) {
-      log.warn("Method '{}' skipped. Invalid position.", node.name)
-      return
+    override fun visitCompilationUnit(
+        node: CompilationUnitTree?,
+        p: MutableList<Pair<Range, TreePath>>?,
+    ) {
+        this.root = node
+        this.lines = node?.lineMap
+        return super.visitCompilationUnit(node, p)
     }
 
-    list.add(Pair.create(Range(start, end), currentPath))
-  }
+    override fun visitMethod(node: MethodTree?, list: MutableList<Pair<Range, TreePath>>) {
+        // Do not call super.visitMethod
+        // We only want methods defined directly in declared (not anonymous) classes.
+        if (node == null || this.root == null) {
+            return
+        }
 
-  fun getStartPosition(node: MethodTree): Position? {
-    val position = this.pos.getStartPosition(this.root!!, node)
-    if (position.toInt() == -1) {
-      return null
+        val start = getStartPosition(node)
+        val end = getEndPosition(node)
+
+        if (start == null || end == null) {
+            log.warn("Method '{}' skipped. Invalid position.", node.name)
+            return
+        }
+
+        list.add(Pair.create(Range(start, end), currentPath))
     }
-    return getPosition(position)
-  }
 
-  fun getEndPosition(node: MethodTree): Position? {
-    val position = this.pos.getEndPosition(this.root!!, node)
-    if (position.toInt() == -1) {
-      return null
+    fun getStartPosition(node: MethodTree): Position? {
+        val position = this.pos.getStartPosition(this.root!!, node)
+        if (position.toInt() == -1) {
+            return null
+        }
+        return getPosition(position)
     }
-    return getPosition(position)
-  }
 
-  fun getPosition(position: Long): Position {
-    val line = lines!!.getLineNumber(position).toInt()
-    val column = lines!!.getColumnNumber(position).toInt()
-    return Position(line, column).apply { index = position.toInt() }
-  }
+    fun getEndPosition(node: MethodTree): Position? {
+        val position = this.pos.getEndPosition(this.root!!, node)
+        if (position.toInt() == -1) {
+            return null
+        }
+        return getPosition(position)
+    }
+
+    fun getPosition(position: Long): Position {
+        val line = lines!!.getLineNumber(position).toInt()
+        val column = lines!!.getColumnNumber(position).toInt()
+        return Position(line, column).apply { index = position.toInt() }
+    }
 }

@@ -28,29 +28,21 @@ internal class AppIntroFragmentViewModel(state: SavedStateHandle) : ViewModel() 
     internal var drawable by state.delegate<Int?>(ARG_DRAWABLE)
     internal var bgDrawable by state.delegate<Int?>(ARG_BG_DRAWABLE)
 
-    @get:ColorInt
-    internal var titleColor by state.delegate<Int?>(ARG_TITLE_COLOR)
+    @get:ColorInt internal var titleColor by state.delegate<Int?>(ARG_TITLE_COLOR)
 
-    @get:ColorRes
-    internal var titleColorRes by state.delegate<Int?>(ARG_TITLE_COLOR_RES)
+    @get:ColorRes internal var titleColorRes by state.delegate<Int?>(ARG_TITLE_COLOR_RES)
 
-    @get:ColorInt
-    internal var descColor by state.delegate<Int?>(ARG_DESC_COLOR)
+    @get:ColorInt internal var descColor by state.delegate<Int?>(ARG_DESC_COLOR)
 
-    @get:ColorRes
-    internal var descColorRes by state.delegate<Int?>(ARG_DESC_COLOR_RES)
+    @get:ColorRes internal var descColorRes by state.delegate<Int?>(ARG_DESC_COLOR_RES)
 
-    @get:ColorRes
-    internal var defaultBackgroundColorRes by state.delegate<Int?>(ARG_BG_COLOR_RES)
+    @get:ColorRes internal var defaultBackgroundColorRes by state.delegate<Int?>(ARG_BG_COLOR_RES)
 
-    @get:ColorInt
-    internal var defaultBackgroundColor by state.delegate<Int?>(ARG_BG_COLOR)
+    @get:ColorInt internal var defaultBackgroundColor by state.delegate<Int?>(ARG_BG_COLOR)
 
-    @get:FontRes
-    internal var titleTypefaceRes by state.delegate<Int?>(ARG_TITLE_TYPEFACE_RES)
+    @get:FontRes internal var titleTypefaceRes by state.delegate<Int?>(ARG_TITLE_TYPEFACE_RES)
     internal var titleTypefaceUrl by state.delegate<String?>(ARG_TITLE_TYPEFACE_URL)
 
-    @get:FontRes
-    internal var descTypefaceRes by state.delegate<Int?>(ARG_DESC_TYPEFACE_RES)
+    @get:FontRes internal var descTypefaceRes by state.delegate<Int?>(ARG_DESC_TYPEFACE_RES)
     internal var descTypefaceUrl by state.delegate<String?>(ARG_DESC_TYPEFACE_URL)
 }

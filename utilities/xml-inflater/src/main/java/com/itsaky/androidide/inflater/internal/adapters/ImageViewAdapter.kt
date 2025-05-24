@@ -45,42 +45,42 @@ import com.itsaky.androidide.resources.R.string
 @IncludeInDesigner(group = WIDGETS)
 open class ImageViewAdapter<T : ImageView> : ViewAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("adjustViewBounds") { view.adjustViewBounds = parseBoolean(value) }
-    create("baseline") { view.baseline = parseDimension(context, value, 0) }
-    create("baselineAlignBottom") { view.baselineAlignBottom = parseBoolean(value) }
-    create("cropToPadding") { view.cropToPadding = parseBoolean(value) }
-    create("maxHeight") { view.maxHeight = parseDimension(context, value, 0) }
-    create("maxWidth") { view.maxWidth = parseDimension(context, value, 0) }
-    create("scaleType") { view.scaleType = parseScaleType(value) }
-    create("src") { view.setImageDrawable(parseDrawable(context, value)) }
-    create("tint") { view.imageTintList = parseColorStateList(context, value) }
-    create("tintMode") { view.imageTintMode = parsePorterDuffMode(value) }
-  }
-
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(ImageView::class.java, string.widget_image_view, drawable.ic_widget_imageview)
-    )
-  }
-
-  override fun applyBasic(view: IView) {
-    super.applyBasic(view)
-    (view.view as ImageView).setImageResource(R.drawable.ic_android)
-  }
-
-  private fun parseScaleType(value: String): ScaleType {
-    return when (value) {
-      "center" -> CENTER
-      "centerCrop" -> CENTER_CROP
-      "centerInside" -> CENTER_INSIDE
-      "fitEnd" -> FIT_END
-      "fitStart" -> FIT_START
-      "fitXY" -> FIT_XY
-      "matrix" -> MATRIX
-      "fitCenter" -> FIT_CENTER
-      else -> FIT_CENTER
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("adjustViewBounds") { view.adjustViewBounds = parseBoolean(value) }
+        create("baseline") { view.baseline = parseDimension(context, value, 0) }
+        create("baselineAlignBottom") { view.baselineAlignBottom = parseBoolean(value) }
+        create("cropToPadding") { view.cropToPadding = parseBoolean(value) }
+        create("maxHeight") { view.maxHeight = parseDimension(context, value, 0) }
+        create("maxWidth") { view.maxWidth = parseDimension(context, value, 0) }
+        create("scaleType") { view.scaleType = parseScaleType(value) }
+        create("src") { view.setImageDrawable(parseDrawable(context, value)) }
+        create("tint") { view.imageTintList = parseColorStateList(context, value) }
+        create("tintMode") { view.imageTintMode = parsePorterDuffMode(value) }
     }
-  }
+
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(ImageView::class.java, string.widget_image_view, drawable.ic_widget_imageview)
+        )
+    }
+
+    override fun applyBasic(view: IView) {
+        super.applyBasic(view)
+        (view.view as ImageView).setImageResource(R.drawable.ic_android)
+    }
+
+    private fun parseScaleType(value: String): ScaleType {
+        return when (value) {
+            "center" -> CENTER
+            "centerCrop" -> CENTER_CROP
+            "centerInside" -> CENTER_INSIDE
+            "fitEnd" -> FIT_END
+            "fitStart" -> FIT_START
+            "fitXY" -> FIT_XY
+            "matrix" -> MATRIX
+            "fitCenter" -> FIT_CENTER
+            else -> FIT_CENTER
+        }
+    }
 }

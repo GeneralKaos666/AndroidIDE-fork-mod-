@@ -22,48 +22,51 @@ import com.itsaky.androidide.treesitter.TSPoint
 import com.itsaky.androidide.utils.DefaultRecyclable
 import com.itsaky.androidide.utils.RecyclableObjectPool
 
-class TreeSitterInputEdit @JvmOverloads internal constructor(
-  startByte: Int = 0,
-  oldEndByte: Int = 0,
-  newEndByte: Int = 0,
-  startPoint: TSPoint? = null,
-  oldEndPoint: TSPoint? = null,
-  newEndPoint: TSPoint? = null
-) : TSInputEdit(startByte, oldEndByte, newEndByte, startPoint, oldEndPoint, newEndPoint),
-  RecyclableObjectPool.Recyclable by DefaultRecyclable() {
+class TreeSitterInputEdit
+@JvmOverloads
+internal constructor(
+    startByte: Int = 0,
+    oldEndByte: Int = 0,
+    newEndByte: Int = 0,
+    startPoint: TSPoint? = null,
+    oldEndPoint: TSPoint? = null,
+    newEndPoint: TSPoint? = null,
+) :
+    TSInputEdit(startByte, oldEndByte, newEndByte, startPoint, oldEndPoint, newEndPoint),
+    RecyclableObjectPool.Recyclable by DefaultRecyclable() {
 
-  companion object {
+    companion object {
 
-    /**
-     * Obtain an instance of [TreeSitterInputEdit].
-     */
-    @JvmStatic
-    fun obtain(startByte: Int,
-      oldEndByte: Int,
-      newEndByte: Int,
-      startPoint: TSPoint,
-      oldEndPoint: TSPoint,
-      newEndPoint: TSPoint): TreeSitterInputEdit {
+        /** Obtain an instance of [TreeSitterInputEdit]. */
+        @JvmStatic
+        fun obtain(
+            startByte: Int,
+            oldEndByte: Int,
+            newEndByte: Int,
+            startPoint: TSPoint,
+            oldEndPoint: TSPoint,
+            newEndPoint: TSPoint,
+        ): TreeSitterInputEdit {
 
-      return obtainFromPool<TreeSitterInputEdit>().apply {
-        this.startByte = startByte
-        this.oldEndByte = oldEndByte
-        this.newEndByte = newEndByte
-        this.startPoint = startPoint
-        this.oldEndPoint = oldEndPoint
-        this.newEndPoint = newEndPoint
-      }
+            return obtainFromPool<TreeSitterInputEdit>().apply {
+                this.startByte = startByte
+                this.oldEndByte = oldEndByte
+                this.newEndByte = newEndByte
+                this.startPoint = startPoint
+                this.oldEndPoint = oldEndPoint
+                this.newEndPoint = newEndPoint
+            }
+        }
     }
-  }
 
-  override fun recycle() {
-    this.startByte = 0
-    this.oldEndByte = 0
-    this.newEndByte = 0
-    this.startPoint = null
-    this.oldEndPoint = null
-    this.newEndPoint = null
+    override fun recycle() {
+        this.startByte = 0
+        this.oldEndByte = 0
+        this.newEndByte = 0
+        this.startPoint = null
+        this.oldEndPoint = null
+        this.newEndPoint = null
 
-    returnToPool()
-  }
+        returnToPool()
+    }
 }

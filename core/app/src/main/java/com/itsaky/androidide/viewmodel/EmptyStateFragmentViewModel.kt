@@ -20,11 +20,9 @@ package com.itsaky.androidide.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 class EmptyStateFragmentViewModel : ViewModel() {
 
-  val isEmpty = MutableLiveData(true)
-  val emptyMessage = MutableLiveData<CharSequence>("")
+    val isEmpty = MutableLiveData(true)
+    val emptyMessage = MutableLiveData<CharSequence>("")
 }

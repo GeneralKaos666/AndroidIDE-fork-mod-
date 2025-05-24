@@ -34,102 +34,99 @@ package com.itsaky.androidide.lsp.java.compiler
 
 import com.itsaky.androidide.lsp.java.CompilationCancellationException
 import com.itsaky.androidide.lsp.java.utils.CancelChecker.Companion.isCancelled
-import org.slf4j.LoggerFactory
 import java.util.concurrent.Semaphore
+import org.slf4j.LoggerFactory
 
 class SynchronizedTask {
 
-  @Volatile
-  @PublishedApi
-  internal var isCompiling = false
+    @Volatile @PublishedApi internal var isCompiling = false
 
-  @PublishedApi
-  internal val semaphore = Semaphore(1)
-
-  @PublishedApi
-  internal var task: CompileTask? = null
-    private set
-
-  companion object {
+    @PublishedApi internal val semaphore = Semaphore(1)
 
     @PublishedApi
-    internal val log = LoggerFactory.getLogger(SynchronizedTask::class.java)
-  }
+    internal var task: CompileTask? = null
+        private set
 
-  inline fun run(crossinline taskConsumer: (CompileTask) -> Unit) {
-    try {
-      semaphore.acquire()
-    } catch (e: InterruptedException) {
-      throw CompilationCancellationException(e)
+    companion object {
+
+        @PublishedApi internal val log = LoggerFactory.getLogger(SynchronizedTask::class.java)
     }
-    try {
-      taskConsumer(task!!)
-    } catch (err: Throwable) {
-      if (!isCancelled(err)) {
-        log.error("An error occurred while working with compilation task", err)
-      }
-      throw err
-    } finally {
-      semaphore.release()
+
+    inline fun run(crossinline taskConsumer: (CompileTask) -> Unit) {
+        try {
+            semaphore.acquire()
+        } catch (e: InterruptedException) {
+            throw CompilationCancellationException(e)
+        }
+        try {
+            taskConsumer(task!!)
+        } catch (err: Throwable) {
+            if (!isCancelled(err)) {
+                log.error("An error occurred while working with compilation task", err)
+            }
+            throw err
+        } finally {
+            semaphore.release()
+        }
     }
-  }
 
-  inline fun <T : Any?> get(crossinline action: (CompileTask) -> T): T {
-    try {
-      semaphore.acquire()
-    } catch (e: InterruptedException) {
-      throw CompilationCancellationException(e)
+    inline fun <T : Any?> get(crossinline action: (CompileTask) -> T): T {
+        try {
+            semaphore.acquire()
+        } catch (e: InterruptedException) {
+            throw CompilationCancellationException(e)
+        }
+        return try {
+            action(task!!)
+        } catch (err: Throwable) {
+            if (!isCancelled(err)) {
+                log.error("An error occurred while working with compilation task", err)
+            }
+            throw err
+        } finally {
+            semaphore.release()
+        }
     }
-    return try {
-      action(task!!)
-    } catch (err: Throwable) {
-      if (!isCancelled(err)) {
-        log.error("An error occurred while working with compilation task", err)
-      }
-      throw err
-    } finally {
-      semaphore.release()
+
+    fun post(action: Runnable) = post { action.run() }
+
+    inline fun post(action: () -> Unit) {
+        try {
+            semaphore.acquire()
+        } catch (e: InterruptedException) {
+            throw CompilationCancellationException(e)
+        }
+        isCompiling = true
+        try {
+            if (task != null) {
+                task!!.close()
+            }
+            action()
+        } catch (err: Throwable) {
+            if (!isCancelled(err)) {
+                log.error("An error occurred", err)
+            }
+            throw err
+        } finally {
+            semaphore.release()
+            isCompiling = false
+        }
     }
-  }
 
-  fun post(action: Runnable) = post { action.run() }
-
-  inline fun post(action: () -> Unit) {
-    try {
-      semaphore.acquire()
-    } catch (e: InterruptedException) {
-      throw CompilationCancellationException(e)
+    fun setTask(task: CompileTask?) {
+        this.task = task
     }
-    isCompiling = true
-    try {
-      if (task != null) {
-        task!!.close()
-      }
-      action()
-    } catch (err: Throwable) {
-      if (!isCancelled(err)) {
-        log.error("An error occurred", err)
-      }
-      throw err
-    } finally {
-      semaphore.release()
-      isCompiling = false
+
+    @get:Synchronized
+    val isBusy: Boolean
+        get() = isCompiling || semaphore.availablePermits() == 0
+
+    /** **FOR INTERNAL USE ONLY!** */
+    fun logStats() {
+        log.warn(
+            "[SynchronizedTask] isCompiling={} queuedLength={}",
+            isCompiling,
+            semaphore.queueLength,
+        )
     }
-  }
-
-  fun setTask(task: CompileTask?) {
-    this.task = task
-  }
-
-  @get:Synchronized
-  val isBusy: Boolean
-    get() = isCompiling || semaphore.availablePermits() == 0
-
-  /**
-   * **FOR INTERNAL USE ONLY!**
-   */
-  fun logStats() {
-    log.warn("[SynchronizedTask] isCompiling={} queuedLength={}", isCompiling,
-      semaphore.queueLength)
-  }
 }

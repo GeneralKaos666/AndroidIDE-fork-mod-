@@ -33,22 +33,22 @@ import java.io.File
  */
 class GoToDefinitionAction : BaseJavaCodeAction() {
 
-  override val titleTextRes: Int = R.string.action_goto_definition
-  override val id: String = "ide.editor.lsp.java.gotoDefinition"
-  override var label: String = ""
-  override var requiresUIThread: Boolean = true
+    override val titleTextRes: Int = R.string.action_goto_definition
+    override val id: String = "ide.editor.lsp.java.gotoDefinition"
+    override var label: String = ""
+    override var requiresUIThread: Boolean = true
 
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
 
-    if (!visible || !data.hasRequiredData(CodeEditor::class.java, File::class.java)) {
-      markInvisible()
-      return
+        if (!visible || !data.hasRequiredData(CodeEditor::class.java, File::class.java)) {
+            markInvisible()
+            return
+        }
     }
-  }
 
-  override suspend fun execAction(data: ActionData): Any {
-    val editor = data[CodeEditor::class.java]!!
-    return (editor as? ILspEditor)?.findDefinition() ?: false
-  }
+    override suspend fun execAction(data: ActionData): Any {
+        val editor = data[CodeEditor::class.java]!!
+        return (editor as? ILspEditor)?.findDefinition() ?: false
+    }
 }

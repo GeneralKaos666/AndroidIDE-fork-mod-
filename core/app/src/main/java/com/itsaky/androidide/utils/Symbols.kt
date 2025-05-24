@@ -22,112 +22,112 @@ import java.io.File
 
 object Symbols {
 
-  @JvmStatic
-  fun forFile(file: File?): List<Symbol> {
-    if (file == null || !file.isFile) {
-      return emptyList()
+    @JvmStatic
+    fun forFile(file: File?): List<Symbol> {
+        if (file == null || !file.isFile) {
+            return emptyList()
+        }
+
+        return when (file.extension) {
+            "java",
+            "gradle",
+            "kt",
+            "kts" -> javaSymbols
+
+            "xml" -> xmlSymbols
+            else -> plainTextSymbols
+        }
     }
 
-    return when (file.extension) {
-      "java",
-      "gradle",
-      "kt",
-      "kts" -> javaSymbols
-
-      "xml" -> xmlSymbols
-      else -> plainTextSymbols
+    private val javaSymbols by lazy {
+        listOf(
+            TabSymbol(),
+            Symbol("{", "{}"),
+            Symbol("}"),
+            Symbol("(", "()"),
+            Symbol(")"),
+            Symbol(";"),
+            Symbol("="),
+            Symbol("\"", "\"\""),
+            Symbol("|"),
+            Symbol("&"),
+            Symbol("!"),
+            Symbol("[", "[]"),
+            Symbol("]"),
+            Symbol("<", "<>"),
+            Symbol(">"),
+            Symbol("+"),
+            Symbol("-"),
+            Symbol("/"),
+            Symbol("*"),
+            Symbol("?"),
+            Symbol(":"),
+            Symbol("_"),
+        )
     }
-  }
 
-  private val javaSymbols by lazy {
-    listOf(
-      TabSymbol(),
-      Symbol("{", "{}"),
-      Symbol("}"),
-      Symbol("(", "()"),
-      Symbol(")"),
-      Symbol(";"),
-      Symbol("="),
-      Symbol("\"", "\"\""),
-      Symbol("|"),
-      Symbol("&"),
-      Symbol("!"),
-      Symbol("[", "[]"),
-      Symbol("]"),
-      Symbol("<", "<>"),
-      Symbol(">"),
-      Symbol("+"),
-      Symbol("-"),
-      Symbol("/"),
-      Symbol("*"),
-      Symbol("?"),
-      Symbol(":"),
-      Symbol("_")
-    )
-  }
+    private val xmlSymbols by lazy {
+        listOf(
+            TabSymbol(),
+            Symbol("<", "<>"),
+            Symbol(">"),
+            Symbol("/"),
+            Symbol("="),
+            Symbol("\"", "\"\""),
+            Symbol(":"),
+            Symbol("@"),
+            Symbol("+"),
+            Symbol("(", "()"),
+            Symbol(")"),
+            Symbol(";"),
+            Symbol(","),
+            Symbol("."),
+            Symbol("?"),
+            Symbol("|"),
+            Symbol("\\"),
+            Symbol("&"),
+            Symbol("[", "[]"),
+            Symbol("]"),
+            Symbol("{", "{}"),
+            Symbol("}"),
+            Symbol("_"),
+            Symbol("-"),
+        )
+    }
 
-  private val xmlSymbols by lazy {
-    listOf(
-      TabSymbol(),
-      Symbol("<", "<>"),
-      Symbol(">"),
-      Symbol("/"),
-      Symbol("="),
-      Symbol("\"", "\"\""),
-      Symbol(":"),
-      Symbol("@"),
-      Symbol("+"),
-      Symbol("(", "()"),
-      Symbol(")"),
-      Symbol(";"),
-      Symbol(","),
-      Symbol("."),
-      Symbol("?"),
-      Symbol("|"),
-      Symbol("\\"),
-      Symbol("&"),
-      Symbol("[", "[]"),
-      Symbol("]"),
-      Symbol("{", "{}"),
-      Symbol("}"),
-      Symbol("_"),
-      Symbol("-")
-    )
-  }
+    val plainTextSymbols by lazy {
+        listOf(
+            TabSymbol(),
+            Symbol("{", "{}"),
+            Symbol("}"),
+            Symbol("(", "()"),
+            Symbol(")"),
+            Symbol("="),
+            Symbol("\"", "\"\""),
+            Symbol("'", "''"),
+            Symbol("|"),
+            Symbol("&"),
+            Symbol("!"),
+            Symbol("[", "[]"),
+            Symbol("]"),
+            Symbol("<", "<>"),
+            Symbol(">"),
+            Symbol("+"),
+            Symbol("-"),
+            Symbol("/"),
+            Symbol("~"),
+            Symbol("`"),
+            Symbol(":"),
+            Symbol("_"),
+        )
+    }
 
-  val plainTextSymbols by lazy {
-    listOf(
-      TabSymbol(),
-      Symbol("{", "{}"),
-      Symbol("}"),
-      Symbol("(", "()"),
-      Symbol(")"),
-      Symbol("="),
-      Symbol("\"", "\"\""),
-      Symbol("'", "''"),
-      Symbol("|"),
-      Symbol("&"),
-      Symbol("!"),
-      Symbol("[", "[]"),
-      Symbol("]"),
-      Symbol("<", "<>"),
-      Symbol(">"),
-      Symbol("+"),
-      Symbol("-"),
-      Symbol("/"),
-      Symbol("~"),
-      Symbol("`"),
-      Symbol(":"),
-      Symbol("_")
-    )
-  }
+    private class TabSymbol : Symbol("↹") {
 
-  private class TabSymbol : Symbol("↹") {
+        override val commit: String
+            get() = "\t"
 
-    override val commit: String
-      get() = "\t"
-
-    override val offset: Int
-      get() = 1
-  }
+        override val offset: Int
+            get() = 1
+    }
 }

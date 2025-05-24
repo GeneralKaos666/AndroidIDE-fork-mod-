@@ -20,6 +20,6 @@ package com.itsaky.androidide.uidesigner.undo
 import kotlin.math.max
 import kotlin.math.min
 
-internal fun com.itsaky.androidide.inflater.IViewGroup.validateIndex(index: Int) : Int {
-  return min(max(0, index), childCount)
+internal fun com.itsaky.androidide.inflater.IViewGroup.validateIndex(index: Int): Int {
+    return min(max(0, index), childCount)
 }

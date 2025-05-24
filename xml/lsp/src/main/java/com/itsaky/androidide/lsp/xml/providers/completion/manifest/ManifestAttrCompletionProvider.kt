@@ -36,23 +36,25 @@ import org.eclipse.lemminx.dom.DOMNode
  * @author Akash Yadav
  */
 class ManifestAttrCompletionProvider(provider: ICompletionProvider) :
-  AttrCompletionProvider(provider) {
+    AttrCompletionProvider(provider) {
 
-  override fun canProvideCompletions(pathData: ResourcePathData, type: NodeType): Boolean {
-    return super.canProvideCompletions(pathData, type) && canCompleteManifest(pathData, type)
-  }
-
-  override fun findResourceTables(nsUri: String?) = manifestResourceTable()
-
-  override fun findNodeStyleables(node: DOMNode, styleables: IResourceGroup): Set<Styleable> {
-    val name = node.nodeName
-    val styleable =
-      styleables.findEntry(transformToEntryName(name, MANIFEST_TAG_PREFIX))
-        ?.findValue(ConfigDescription())?.value
-    if (styleable != null && styleable is Styleable) {
-      return setOf(styleable)
+    override fun canProvideCompletions(pathData: ResourcePathData, type: NodeType): Boolean {
+        return super.canProvideCompletions(pathData, type) && canCompleteManifest(pathData, type)
     }
 
-    return emptySet()
-  }
+    override fun findResourceTables(nsUri: String?) = manifestResourceTable()
+
+    override fun findNodeStyleables(node: DOMNode, styleables: IResourceGroup): Set<Styleable> {
+        val name = node.nodeName
+        val styleable =
+            styleables
+                .findEntry(transformToEntryName(name, MANIFEST_TAG_PREFIX))
+                ?.findValue(ConfigDescription())
+                ?.value
+        if (styleable != null && styleable is Styleable) {
+            return setOf(styleable)
+        }
+
+        return emptySet()
+    }
 }

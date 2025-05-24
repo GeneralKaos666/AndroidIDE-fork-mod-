@@ -32,17 +32,13 @@ import com.android.builder.model.PROPERTY_SIGNING_STORE_FILE
 import com.android.builder.model.PROPERTY_SIGNING_STORE_PASSWORD
 import com.android.builder.model.PROPERTY_SIGNING_STORE_TYPE
 
-enum class StringOption(
-    override val propertyName: String,
-    stage: ApiStage
-) : Option<String> {
+enum class StringOption(override val propertyName: String, stage: ApiStage) : Option<String> {
 
     /* -----------
      * STABLE APIs
      */
 
     IDE_BUILD_TARGET_ABI(PROPERTY_BUILD_ABI, ApiStage.Stable),
-
     IDE_ATTRIBUTION_FILE_LOCATION(PROPERTY_ATTRIBUTION_FILE_LOCATION, ApiStage.Stable),
 
     /** Absolute path to a file containing the result of the `CheckJetifier` task. */
@@ -60,7 +56,6 @@ enum class StringOption(
 
     // location where to write the APK/BUNDLE
     IDE_APK_LOCATION(PROPERTY_APK_LOCATION, ApiStage.Stable),
-
     IDE_TARGET_DEVICE_CODENAME(PROPERTY_BUILD_API_CODENAME, ApiStage.Stable),
 
     // Profiler plugin
@@ -97,16 +92,14 @@ enum class StringOption(
     // Testing
     DEVICE_POOL_SERIAL("com.android.test.devicepool.serial", ApiStage.Experimental),
     PROFILE_OUTPUT_DIR("android.advanced.profileOutputDir", ApiStage.Experimental),
-
     BUILD_ARTIFACT_REPORT_FILE("android.buildartifact.reportfile", ApiStage.Experimental),
-
     AAPT2_FROM_MAVEN_OVERRIDE("android.aapt2FromMavenOverride", ApiStage.Experimental),
-
     AAPT2_FROM_MAVEN_VERSION_OVERRIDE("android.aapt2Version", ApiStage.Experimental),
-
     AAPT2_FROM_MAVEN_PLATFORM_OVERRIDE("android.aapt2Platform", ApiStage.Experimental),
-
-    SUPPRESS_UNSUPPORTED_OPTION_WARNINGS("android.suppressUnsupportedOptionWarnings", ApiStage.Experimental),
+    SUPPRESS_UNSUPPORTED_OPTION_WARNINGS(
+        "android.suppressUnsupportedOptionWarnings",
+        ApiStage.Experimental,
+    ),
 
     // User-specified path to Prefab jar to return from getPrefabFromMaven.
     PREFAB_CLASSPATH("android.prefabClassPath", ApiStage.Experimental),
@@ -122,7 +115,10 @@ enum class StringOption(
 
     // Lint: Allow customization of the amount of memory earmarked for each lint task (when lint
     // runs in process)
-    LINT_RESERVED_MEMORY_PER_TASK("android.experimental.lint.reservedMemoryPerTask", ApiStage.Experimental),
+    LINT_RESERVED_MEMORY_PER_TASK(
+        "android.experimental.lint.reservedMemoryPerTask",
+        ApiStage.Experimental,
+    ),
 
     // Lint: Allow override of the version. Note that lint versions are generally 23 higher than
     // the version of Android Gradle Plugin. So AGP 7.0.0-beta02 defaults to using lint
@@ -133,13 +129,22 @@ enum class StringOption(
     // If the flag is not set, the emulator gpu mode will default to auto-no-window.
     // Supported values are "auto", "auto-no-window", "host", "swiftshader_indirect",
     // "angle_indirect"
-    GRADLE_MANAGED_DEVICE_EMULATOR_GPU_MODE("android.testoptions.manageddevices.emulator.gpu", ApiStage.Experimental),
-
-    ANDROID_PRIVACY_SANDBOX_SDK_API_GENERATOR("android.privacySandboxSdk.apiGenerator", ApiStage.Experimental),
-
-    ANDROID_PRIVACY_SANDBOX_SDK_API_GENERATOR_GENERATED_RUNTIME_DEPENDENCIES("android.privacySandboxSdk.apiGenerator.generatedRuntimeDependencies", ApiStage.Experimental),
-
-    ANDROID_PRIVACY_SANDBOX_SDK_API_PACKAGER("android.privacySandboxSdk.apiPackager", ApiStage.Experimental),
+    GRADLE_MANAGED_DEVICE_EMULATOR_GPU_MODE(
+        "android.testoptions.manageddevices.emulator.gpu",
+        ApiStage.Experimental,
+    ),
+    ANDROID_PRIVACY_SANDBOX_SDK_API_GENERATOR(
+        "android.privacySandboxSdk.apiGenerator",
+        ApiStage.Experimental,
+    ),
+    ANDROID_PRIVACY_SANDBOX_SDK_API_GENERATOR_GENERATED_RUNTIME_DEPENDENCIES(
+        "android.privacySandboxSdk.apiGenerator.generatedRuntimeDependencies",
+        ApiStage.Experimental,
+    ),
+    ANDROID_PRIVACY_SANDBOX_SDK_API_PACKAGER(
+        "android.privacySandboxSdk.apiPackager",
+        ApiStage.Experimental,
+    ),
     /* ---------------
      * DEPRECATED APIs
      */
@@ -151,16 +156,19 @@ enum class StringOption(
     @Suppress("unused")
     BUILD_CACHE_DIR(
         "android.buildCacheDir",
-        ApiStage.Removed(Version.VERSION_7_0, "The Android-specific build caches were superseded by the Gradle build cache (https://docs.gradle.org/current/userguide/build_cache.html).")
+        ApiStage.Removed(
+            Version.VERSION_7_0,
+            "The Android-specific build caches were superseded by the Gradle build cache (https://docs.gradle.org/current/userguide/build_cache.html).",
+        ),
     ),
-
     @Suppress("unused")
     IDE_BUILD_TARGET_DENSITY(
-            PROPERTY_BUILD_DENSITY,
-            ApiStage.Removed(Version.VERSION_8_0, "Density property injection from Android Studio has been removed.")
-    ),
-
-    ;
+        PROPERTY_BUILD_DENSITY,
+        ApiStage.Removed(
+            Version.VERSION_8_0,
+            "Density property injection from Android Studio has been removed.",
+        ),
+    );
 
     override val status = stage.status
 
@@ -169,13 +177,13 @@ enum class StringOption(
             return value.toString()
         }
         throw IllegalArgumentException(
-            "Cannot parse project property "
-                    + this.propertyName
-                    + "='"
-                    + value
-                    + "' of type '"
-                    + value.javaClass
-                    + "' as string."
+            "Cannot parse project property " +
+                this.propertyName +
+                "='" +
+                value +
+                "' of type '" +
+                value.javaClass +
+                "' as string."
         )
     }
 }

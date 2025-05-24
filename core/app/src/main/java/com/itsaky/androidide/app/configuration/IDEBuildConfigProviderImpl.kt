@@ -21,31 +21,29 @@ import android.os.Build
 import com.google.auto.service.AutoService
 import com.itsaky.androidide.app.IDEApplication
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 @AutoService(IDEBuildConfigProvider::class)
 @Suppress("UNUSED")
 open class IDEBuildConfigProviderImpl : IDEBuildConfigProvider {
 
-  override val cpuAbiName: String by lazy {
-    val applicationInfo = IDEApplication.instance.applicationInfo!!
+    override val cpuAbiName: String by lazy {
+        val applicationInfo = IDEApplication.instance.applicationInfo!!
 
-    // transform to valid ABI names
-    return@lazy when (val abi = applicationInfo.nativeLibraryDir!!.substringAfterLast('/')) {
-      "arm64" -> CpuArch.AARCH64.abi
-      "arm" -> CpuArch.ARM.abi
-      else -> abi
+        // transform to valid ABI names
+        return@lazy when (val abi = applicationInfo.nativeLibraryDir!!.substringAfterLast('/')) {
+            "arm64" -> CpuArch.AARCH64.abi
+            "arm" -> CpuArch.ARM.abi
+            else -> abi
+        }
     }
-  }
 
-  override val cpuArch: CpuArch
-    get() = CpuArch.forAbi(cpuAbiName)!!
+    override val cpuArch: CpuArch
+        get() = CpuArch.forAbi(cpuAbiName)!!
 
-  override val deviceArch: CpuArch
-    get() = CpuArch.forAbi(Build.SUPPORTED_ABIS[0])!!
+    override val deviceArch: CpuArch
+        get() = CpuArch.forAbi(Build.SUPPORTED_ABIS[0])!!
 
-  override val supportedAbis: Array<String> by lazy {
-    arrayOf(CpuArch.AARCH64.abi, CpuArch.ARM.abi, CpuArch.X86_64.abi)
-  }
+    override val supportedAbis: Array<String> by lazy {
+        arrayOf(CpuArch.AARCH64.abi, CpuArch.ARM.abi, CpuArch.X86_64.abi)
+    }
 }

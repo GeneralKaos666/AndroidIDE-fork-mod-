@@ -5,21 +5,18 @@ import android.view.View
 import androidx.annotation.ColorInt
 
 /**
- * A controller that is used to provide custom indicator implementations and to control
- * their behaviour. This is used for [AppIntro.setCustomIndicator] and
- * [AppIntro2.setCustomIndicator]
+ * A controller that is used to provide custom indicator implementations and to control their
+ * behaviour. This is used for [AppIntro.setCustomIndicator] and [AppIntro2.setCustomIndicator]
  */
 interface IndicatorController {
 
-    @get:ColorInt
-    var selectedIndicatorColor: Int
+    @get:ColorInt var selectedIndicatorColor: Int
 
-    @get:ColorInt
-    var unselectedIndicatorColor: Int
+    @get:ColorInt var unselectedIndicatorColor: Int
 
     /**
-     * Create a new instance of the view to be inserted in the AppIntro layout.
-     * This method is only called once for each creation of the activity.
+     * Create a new instance of the view to be inserted in the AppIntro layout. This method is only
+     * called once for each creation of the activity.
      *
      * [IndicatorController.initialize] is called after this.
      *
@@ -29,9 +26,9 @@ interface IndicatorController {
     fun newInstance(context: Context): View
 
     /**
-     * Initialize the indicator view with the requested amount of elements.
-     * As with [IndicatorController.newInstance], this method is only called once for each
-     * creation of the activity as well.
+     * Initialize the indicator view with the requested amount of elements. As with
+     * [IndicatorController.newInstance], this method is only called once for each creation of the
+     * activity as well.
      *
      * [IndicatorController.newInstance] is called before this.
      *
@@ -40,8 +37,8 @@ interface IndicatorController {
     fun initialize(slideCount: Int)
 
     /**
-     * Select the position for the new page that became selected.
-     * This method is called every time the selected page changed.
+     * Select the position for the new page that became selected. This method is called every time
+     * the selected page changed.
      *
      * @param index The index of the page that became selected
      */

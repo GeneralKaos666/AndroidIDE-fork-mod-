@@ -26,41 +26,43 @@ import com.itsaky.androidide.uidesigner.models.UiWidgetCategory
 
 internal object Widgets {
 
-  @JvmField val CATEGORY_WIDGETS = UiWidgetCategory(string.ui_category_widgets)
-  @JvmField val CATEGORY_LAYOUTS = UiWidgetCategory(string.ui_category_layouts)
+    @JvmField val CATEGORY_WIDGETS = UiWidgetCategory(string.ui_category_widgets)
+    @JvmField val CATEGORY_LAYOUTS = UiWidgetCategory(string.ui_category_layouts)
 
-  private val internalCategories = mutableListOf<UiWidgetCategory>()
+    private val internalCategories = mutableListOf<UiWidgetCategory>()
 
-  val categories: List<UiWidgetCategory>
-    get() = this.internalCategories
+    val categories: List<UiWidgetCategory>
+        get() = this.internalCategories
 
-  init {
-    internalCategories.add(getLayouts())
-    internalCategories.add(getWidgets())
-  }
-
-  private fun getWidgets(): UiWidgetCategory {
-    return CATEGORY_WIDGETS.apply {
-      if (widgets.isNotEmpty()) {
-        return@apply
-      }
-      this.widgets =
-        IViewAdapterIndex.instance.getWidgetProviders(WIDGETS)
-          ?.flatMap { it.getUiWidgets() }
-          ?.sortedBy { it.name.simpleName() } ?: emptyList()
+    init {
+        internalCategories.add(getLayouts())
+        internalCategories.add(getWidgets())
     }
-  }
 
-  private fun getLayouts(): UiWidgetCategory {
-    return CATEGORY_LAYOUTS.apply {
-      if (widgets.isNotEmpty()) {
-        return@apply
-      }
-
-      this.widgets =
-        IViewAdapterIndex.instance.getWidgetProviders(LAYOUTS)
-          ?.flatMap { it.getUiWidgets() }
-          ?.sortedBy { it.name.simpleName() } ?: emptyList()
+    private fun getWidgets(): UiWidgetCategory {
+        return CATEGORY_WIDGETS.apply {
+            if (widgets.isNotEmpty()) {
+                return@apply
+            }
+            this.widgets =
+                IViewAdapterIndex.instance
+                    .getWidgetProviders(WIDGETS)
+                    ?.flatMap { it.getUiWidgets() }
+                    ?.sortedBy { it.name.simpleName() } ?: emptyList()
+        }
     }
-  }
+
+    private fun getLayouts(): UiWidgetCategory {
+        return CATEGORY_LAYOUTS.apply {
+            if (widgets.isNotEmpty()) {
+                return@apply
+            }
+
+            this.widgets =
+                IViewAdapterIndex.instance
+                    .getWidgetProviders(LAYOUTS)
+                    ?.flatMap { it.getUiWidgets() }
+                    ?.sortedBy { it.name.simpleName() } ?: emptyList()
+        }
+    }
 }

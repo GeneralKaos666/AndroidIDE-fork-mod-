@@ -38,14 +38,14 @@ package com.android.build.gradle.options
  *
  * An API or feature has an associated [Option] to allow the users to change the behavior of the
  * Android Gradle plugin. The difference between them is that:
- *   - The [Option] associated with an API is intended to be used in the long term. For example, if
- *     it is a [BooleanOption] (or [OptionalBooleanOption]), one value of the option may be
- *     experimental at first, but eventually both values of the option will be supported.
- *   - The [Option] associated with a feature is intended to be used only in the short term. It can
- *     only be a [BooleanOption] (or [OptionalBooleanOption]). One value of the [BooleanOption] may
- *     be experimental at first to enable the new behavior, but eventually the option will be
- *     removed, either because the feature is fully supported and now enforced, or because the
- *     feature was not / is no longer useful and now removed.
+ * - The [Option] associated with an API is intended to be used in the long term. For example, if it
+ *   is a [BooleanOption] (or [OptionalBooleanOption]), one value of the option may be experimental
+ *   at first, but eventually both values of the option will be supported.
+ * - The [Option] associated with a feature is intended to be used only in the short term. It can
+ *   only be a [BooleanOption] (or [OptionalBooleanOption]). One value of the [BooleanOption] may be
+ *   experimental at first to enable the new behavior, but eventually the option will be removed,
+ *   either because the feature is fully supported and now enforced, or because the feature was not
+ *   / is no longer useful and now removed.
  */
 open class Stage(
 
@@ -71,9 +71,7 @@ sealed class ApiStage(status: Option.Status) : Stage(status) {
      */
     object Experimental : ApiStage(Option.Status.EXPERIMENTAL)
 
-    /**
-     * Indicates that the API is stable.
-     */
+    /** Indicates that the API is stable. */
     object Stable : ApiStage(Option.Status.STABLE)
 
     /**
@@ -128,8 +126,7 @@ sealed class FeatureStage(status: Option.Status) : Stage(status) {
      * Indicates that the feature will be enforced soon (see stage [Enforced]).
      *
      * @param enforcementTarget a target when the feature will be enforced, at which point the
-     *     corresponding [Option] will be removed (hence this parameter has type
-     *     `DeprecationTarget`)
+     *   corresponding [Option] will be removed (hence this parameter has type `DeprecationTarget`)
      */
     class SoftlyEnforced(enforcementTarget: DeprecationTarget) :
         FeatureStage(Option.Status.Deprecated(enforcementTarget))
@@ -139,7 +136,7 @@ sealed class FeatureStage(status: Option.Status) : Stage(status) {
      * been removed.
      *
      * @param enforcedVersion the version when the feature is enforced and the corresponding
-     *     [Option] was removed
+     *   [Option] was removed
      * @param additionalMessage the additional message to be shown if the [Option] is used
      */
     class Enforced(enforcedVersion: Version, additionalMessage: String? = null) :
@@ -159,7 +156,7 @@ sealed class FeatureStage(status: Option.Status) : Stage(status) {
      * has been removed.
      *
      * @param removedVersion the version when the feature and the corresponding [Option] were
-     *     removed
+     *   removed
      * @param additionalMessage the additional message to be shown if the [Option] is used
      */
     class Removed(removedVersion: Version, additionalMessage: String? = null) :

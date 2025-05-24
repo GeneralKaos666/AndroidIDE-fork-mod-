@@ -25,32 +25,30 @@ import com.github.appintro.ARG_TITLE_TYPEFACE_URL
  *
  * This data class represent a single page that can be visualized with AppIntro.
  */
-data class SliderPage @JvmOverloads constructor(
+data class SliderPage
+@JvmOverloads
+constructor(
     var title: CharSequence? = null,
     var description: CharSequence? = null,
     @DrawableRes var imageDrawable: Int? = null,
-
     @ColorInt
     @Deprecated(
         "`backgroundColor` has been deprecated to support configuration changes",
-        ReplaceWith("backgroundColorRes")
+        ReplaceWith("backgroundColorRes"),
     )
     var backgroundColor: Int? = null,
-
     @ColorInt
     @Deprecated(
         "`titleColor` has been deprecated to support configuration changes",
-        ReplaceWith("titleColorRes")
+        ReplaceWith("titleColorRes"),
     )
     var titleColor: Int? = null,
-
     @ColorInt
     @Deprecated(
         "`descriptionColor` has been deprecated to support configuration changes",
-        ReplaceWith("descriptionColorRes")
+        ReplaceWith("descriptionColorRes"),
     )
     var descriptionColor: Int? = null,
-
     @ColorRes var backgroundColorRes: Int? = null,
     @ColorRes var titleColorRes: Int? = null,
     @ColorRes var descriptionColorRes: Int? = null,
@@ -58,14 +56,17 @@ data class SliderPage @JvmOverloads constructor(
     @FontRes var descriptionTypefaceFontRes: Int? = null,
     var titleTypeface: String? = null,
     var descriptionTypeface: String? = null,
-    @DrawableRes var backgroundDrawable: Int? = null
+    @DrawableRes var backgroundDrawable: Int? = null,
 ) {
-    val titleString: CharSequence? get() = title
-    val descriptionString: CharSequence? get() = description
+    val titleString: CharSequence?
+        get() = title
+
+    val descriptionString: CharSequence?
+        get() = description
 
     /**
-     * Util method to convert a [SliderPage] into an Android [Bundle].
-     * This method will be used to pass the [SliderPage] to [AppIntroBaseFragment] implementations.
+     * Util method to convert a [SliderPage] into an Android [Bundle]. This method will be used to
+     * pass the [SliderPage] to [AppIntroBaseFragment] implementations.
      */
     @Suppress("DEPRECATION")
     fun toBundle(): Bundle {

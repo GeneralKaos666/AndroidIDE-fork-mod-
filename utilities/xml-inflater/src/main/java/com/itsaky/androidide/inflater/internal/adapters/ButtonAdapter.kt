@@ -33,7 +33,7 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(Button::class)
 @IncludeInDesigner(group = WIDGETS)
 open class ButtonAdapter<T : Button> : TextViewAdapter<T>() {
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(UiWidget(Button::class.java, string.widget_button, drawable.ic_widget_button))
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(UiWidget(Button::class.java, string.widget_button, drawable.ic_widget_button))
+    }
 }

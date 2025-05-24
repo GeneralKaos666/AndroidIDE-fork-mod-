@@ -26,5 +26,5 @@ import org.gradle.api.Project
  * @author Akash Yadav
  */
 class NoDesugarPlugin : Plugin<Project> {
-  override fun apply(target: Project) {}
+    override fun apply(target: Project) {}
 }

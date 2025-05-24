@@ -23,35 +23,33 @@ import ch.qos.logback.core.util.StatusPrinter
 import com.itsaky.androidide.tooling.api.messages.LogMessageParams
 import com.itsaky.androidide.tooling.impl.Main
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 class LogbackStatusListener : StatusListener {
 
-  companion object {
+    companion object {
 
-    private fun levelChar(level: Int): Char {
-      return when (level) {
-        Status.ERROR -> 'E'
-        Status.WARN -> 'W'
-        Status.INFO -> 'I'
-        else -> 'D'
-      }
+        private fun levelChar(level: Int): Char {
+            return when (level) {
+                Status.ERROR -> 'E'
+                Status.WARN -> 'W'
+                Status.INFO -> 'I'
+                else -> 'D'
+            }
+        }
     }
-  }
 
-  override fun addStatusEvent(status: Status?) {
-    status ?: return
-    val sb = StringBuilder(256)
-    val client = Main.client
-    StatusPrinter.buildStr(sb, "", status)
+    override fun addStatusEvent(status: Status?) {
+        status ?: return
+        val sb = StringBuilder(256)
+        val client = Main.client
+        StatusPrinter.buildStr(sb, "", status)
 
-    client?.logMessage(
-      LogMessageParams(
-        levelChar(status.level),
-        status.origin.javaClass.simpleName,
-        sb.toString()
-      )
-    )
-  }
+        client?.logMessage(
+            LogMessageParams(
+                levelChar(status.level),
+                status.origin.javaClass.simpleName,
+                sb.toString(),
+            )
+        )
+    }
 }

@@ -30,67 +30,71 @@ import com.itsaky.androidide.logging.encoder.IDELogFormatLayout
  *
  * @author Akash Yadav
  */
-class LifecycleAwareAppender @JvmOverloads constructor(
-  private val requireLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
-  var consumer: ((String) -> Unit)? = null
+class LifecycleAwareAppender
+@JvmOverloads
+constructor(
+    private val requireLifecycleState: Lifecycle.State = Lifecycle.State.CREATED,
+    var consumer: ((String) -> Unit)? = null,
 ) : AppenderBase<ILoggingEvent>(), LifecycleEventObserver {
 
-  private var currentState: Lifecycle.State? = null
-  private val logLayout = IDELogFormatLayout()
+    private var currentState: Lifecycle.State? = null
+    private val logLayout = IDELogFormatLayout()
 
-  var pauseAppender = false
+    var pauseAppender = false
 
-  init {
-    setName("LifecycleAwareAppender")
-    logLayout.isOmitMessage = true
-  }
-
-  fun attachTo(lifecycleOwner: LifecycleOwner) = attachTo(lifecycleOwner.lifecycle)
-  fun attachTo(lifecycle: Lifecycle) = lifecycle.addObserver(this)
-
-  fun detachFrom(lifecycleOwner: LifecycleOwner) = detachFrom(lifecycleOwner.lifecycle)
-  fun detachFrom(lifecycle: Lifecycle) = lifecycle.removeObserver(this)
-
-  override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-
-    this.currentState = when (event) {
-      Lifecycle.Event.ON_ANY -> null
-      else -> event.targetState
-    }
-  }
-
-  override fun isStarted(): Boolean {
-    return (super.isStarted()
-        && currentState?.isAtLeast(this.requireLifecycleState) == true
-        && consumer != null)
-  }
-
-  override fun start() {
-    this.logLayout.start()
-    super.start()
-  }
-
-  override fun stop() {
-    super.stop()
-    this.logLayout.stop()
-    this.consumer = null
-  }
-
-  override fun setContext(context: Context?) {
-    super.setContext(context)
-    this.logLayout.context = context
-  }
-
-  override fun append(eventObject: ILoggingEvent?) {
-    if (eventObject == null || !isStarted || pauseAppender) {
-      return
+    init {
+        setName("LifecycleAwareAppender")
+        logLayout.isOmitMessage = true
     }
 
-    // When rendering the logs in the GUI, we need to ensure that the message does not span multiple lines
-    // if it does, we need to prefix the message with the layout header
-    val prefix = logLayout.doLayout(eventObject)
-    eventObject.formattedMessage.split('\n').forEach {
-      consumer?.invoke("$prefix $it")
+    fun attachTo(lifecycleOwner: LifecycleOwner) = attachTo(lifecycleOwner.lifecycle)
+
+    fun attachTo(lifecycle: Lifecycle) = lifecycle.addObserver(this)
+
+    fun detachFrom(lifecycleOwner: LifecycleOwner) = detachFrom(lifecycleOwner.lifecycle)
+
+    fun detachFrom(lifecycle: Lifecycle) = lifecycle.removeObserver(this)
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+
+        this.currentState =
+            when (event) {
+                Lifecycle.Event.ON_ANY -> null
+                else -> event.targetState
+            }
     }
-  }
+
+    override fun isStarted(): Boolean {
+        return (super.isStarted() &&
+            currentState?.isAtLeast(this.requireLifecycleState) == true &&
+            consumer != null)
+    }
+
+    override fun start() {
+        this.logLayout.start()
+        super.start()
+    }
+
+    override fun stop() {
+        super.stop()
+        this.logLayout.stop()
+        this.consumer = null
+    }
+
+    override fun setContext(context: Context?) {
+        super.setContext(context)
+        this.logLayout.context = context
+    }
+
+    override fun append(eventObject: ILoggingEvent?) {
+        if (eventObject == null || !isStarted || pauseAppender) {
+            return
+        }
+
+        // When rendering the logs in the GUI, we need to ensure that the message does not span
+        // multiple lines
+        // if it does, we need to prefix the message with the layout header
+        val prefix = logLayout.doLayout(eventObject)
+        eventObject.formattedMessage.split('\n').forEach { consumer?.invoke("$prefix $it") }
+    }
 }

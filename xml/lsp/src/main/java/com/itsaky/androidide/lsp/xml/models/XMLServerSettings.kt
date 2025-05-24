@@ -25,10 +25,10 @@ import com.itsaky.androidide.lsp.util.PrefBasedServerSettings
  */
 object XMLServerSettings : PrefBasedServerSettings() {
 
-  /** Options for XML code formatting. */
-  val formattingOptions = XMLFormattingOptions()
+    /** Options for XML code formatting. */
+    val formattingOptions = XMLFormattingOptions()
 
-  override fun completionFuzzyMatchMinRatio(): Int {
-    return 50
-  }
+    override fun completionFuzzyMatchMinRatio(): Int {
+        return 50
+    }
 }

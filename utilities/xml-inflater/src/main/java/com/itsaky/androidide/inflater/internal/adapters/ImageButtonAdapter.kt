@@ -33,9 +33,13 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(ImageButton::class)
 @IncludeInDesigner(group = WIDGETS)
 open class ImageButtonAdapter<T : ImageButton> : ImageViewAdapter<T>() {
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(ImageButton::class.java, string.widget_image_button, drawable.ic_widget_imagebutton)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                ImageButton::class.java,
+                string.widget_image_button,
+                drawable.ic_widget_imagebutton,
+            )
+        )
+    }
 }

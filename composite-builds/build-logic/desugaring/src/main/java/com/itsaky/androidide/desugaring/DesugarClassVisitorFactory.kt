@@ -28,51 +28,55 @@ import org.slf4j.LoggerFactory
  *
  * @author Akash Yadav
  */
-abstract class DesugarClassVisitorFactory :
-  AsmClassVisitorFactory<DesugarParams> {
+abstract class DesugarClassVisitorFactory : AsmClassVisitorFactory<DesugarParams> {
 
-  companion object {
+    companion object {
 
-    private val log =
-      LoggerFactory.getLogger(DesugarClassVisitorFactory::class.java)
-  }
-
-  override fun createClassVisitor(classContext: ClassContext,
-                                  nextClassVisitor: ClassVisitor
-  ): ClassVisitor {
-    val params = parameters.orNull
-    if (params == null) {
-      log.warn("Could not find desugaring parameters. Disabling desugaring.")
-      return nextClassVisitor
+        private val log = LoggerFactory.getLogger(DesugarClassVisitorFactory::class.java)
     }
 
-    return DesugarClassVisitor(params, classContext,
-      instrumentationContext.apiVersion.get(), nextClassVisitor)
-  }
+    override fun createClassVisitor(
+        classContext: ClassContext,
+        nextClassVisitor: ClassVisitor,
+    ): ClassVisitor {
+        val params = parameters.orNull
+        if (params == null) {
+            log.warn("Could not find desugaring parameters. Disabling desugaring.")
+            return nextClassVisitor
+        }
 
-  override fun isInstrumentable(classData: ClassData): Boolean {
-    val params = parameters.orNull
-    if (params == null) {
-      log.warn("Could not find desugaring parameters. Disabling desugaring.")
-      return false
+        return DesugarClassVisitor(
+            params,
+            classContext,
+            instrumentationContext.apiVersion.get(),
+            nextClassVisitor,
+        )
     }
 
-    val isEnabled = params.enabled.get().also { isEnabled ->
-      log.debug("Is desugaring enabled: $isEnabled")
-    }
+    override fun isInstrumentable(classData: ClassData): Boolean {
+        val params = parameters.orNull
+        if (params == null) {
+            log.warn("Could not find desugaring parameters. Disabling desugaring.")
+            return false
+        }
 
-    if (!isEnabled) {
-      return false
-    }
+        val isEnabled =
+            params.enabled.get().also { isEnabled ->
+                log.debug("Is desugaring enabled: $isEnabled")
+            }
 
-    val includedPackages = params.includedPackages.get()
-    if (includedPackages.isNotEmpty()) {
-      val className = classData.className
-      if (!includedPackages.any { className.startsWith(it) }) {
-        return false
-      }
-    }
+        if (!isEnabled) {
+            return false
+        }
 
-    return true
-  }
+        val includedPackages = params.includedPackages.get()
+        if (includedPackages.isNotEmpty()) {
+            val className = classData.className
+            if (!includedPackages.any { className.startsWith(it) }) {
+                return false
+            }
+        }
+
+        return true
+    }
 }

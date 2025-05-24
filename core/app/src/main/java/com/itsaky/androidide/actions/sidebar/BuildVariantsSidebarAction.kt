@@ -30,13 +30,13 @@ import kotlin.reflect.KClass
  * @author Akash Yadav
  */
 class BuildVariantsSidebarAction(context: Context, override val order: Int) :
-  AbstractSidebarAction() {
+    AbstractSidebarAction() {
 
-  override val fragmentClass: KClass<out Fragment> = BuildVariantsFragment::class
-  override val id: String = "ide.editor.sidebar.buildVariants"
+    override val fragmentClass: KClass<out Fragment> = BuildVariantsFragment::class
+    override val id: String = "ide.editor.sidebar.buildVariants"
 
-  init {
-    label = context.getString(R.string.title_build_variants)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_android)
-  }
+    init {
+        label = context.getString(R.string.title_build_variants)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_android)
+    }
 }

@@ -19,22 +19,14 @@ package com.itsaky.androidide.projects.android
 
 import com.itsaky.androidide.projects.IWorkspace
 
-/**
- * Get a sequence of all Android application projects in this workspace.
- */
+/** Get a sequence of all Android application projects in this workspace. */
 fun IWorkspace.androidAppProjects() = androidProjects().filterIsAndroidApp()
 
-/**
- * Get a sequence of all Android library projects in this workspace.
- */
+/** Get a sequence of all Android library projects in this workspace. */
 fun IWorkspace.androidLibraryProjects() = androidProjects().filterIsAndroidLib()
 
-/**
- * Returns a sequence containing only Android application projects.
- */
+/** Returns a sequence containing only Android application projects. */
 fun Sequence<AndroidModule>.filterIsAndroidApp() = filter(AndroidModule::isApplication)
 
-/**
- * Returns a sequence containing only Android library projects.
- */
+/** Returns a sequence containing only Android library projects. */
 fun Sequence<AndroidModule>.filterIsAndroidLib() = filter(AndroidModule::isApplication)

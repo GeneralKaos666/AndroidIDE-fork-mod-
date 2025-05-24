@@ -7,27 +7,17 @@ private const val LOG_PREFIX = "Log: "
 private const val LOG_PREFIX_LENGTH = LOG_PREFIX.length
 private const val MAX_LOG_TAG_LENGTH = 23
 
-/**
- * Helper object to interact with the Android [Log] class.
- */
+/** Helper object to interact with the Android [Log] class. */
 internal object LogHelper {
 
-    /**
-     * Creates a tag for the logs from a [Class]
-     * Don't use this when obfuscating class names!
-     */
+    /** Creates a tag for the logs from a [Class] Don't use this when obfuscating class names! */
     @JvmStatic
     fun makeLogTag(cls: Class<*>) =
-        LOG_PREFIX +
-            cutTagLength(cls.simpleName, MAX_LOG_TAG_LENGTH - LOG_PREFIX_LENGTH)
+        LOG_PREFIX + cutTagLength(cls.simpleName, MAX_LOG_TAG_LENGTH - LOG_PREFIX_LENGTH)
 
-    /**
-     * Creates a tag for the logs from a [KClass]
-     * Don't use this when obfuscating class names!
-     */
+    /** Creates a tag for the logs from a [KClass] Don't use this when obfuscating class names! */
     fun makeLogTag(cls: KClass<*>) =
-        LOG_PREFIX +
-            cutTagLength(cls.simpleName ?: "", MAX_LOG_TAG_LENGTH - LOG_PREFIX_LENGTH)
+        LOG_PREFIX + cutTagLength(cls.simpleName ?: "", MAX_LOG_TAG_LENGTH - LOG_PREFIX_LENGTH)
 
     private fun cutTagLength(tag: String, length: Int): String {
         return if (tag.length > length) {
@@ -37,14 +27,11 @@ internal object LogHelper {
         }
     }
 
-    @JvmStatic
-    fun d(tag: String, message: String) = Log.d(tag, message)
+    @JvmStatic fun d(tag: String, message: String) = Log.d(tag, message)
 
-    @JvmStatic
-    fun v(tag: String, message: String) = Log.v(tag, message)
+    @JvmStatic fun v(tag: String, message: String) = Log.v(tag, message)
 
-    @JvmStatic
-    fun i(tag: String, message: String) = Log.i(tag, message)
+    @JvmStatic fun i(tag: String, message: String) = Log.i(tag, message)
 
     @JvmOverloads
     @JvmStatic

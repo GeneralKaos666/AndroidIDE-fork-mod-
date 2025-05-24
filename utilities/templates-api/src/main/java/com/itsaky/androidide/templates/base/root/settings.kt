@@ -20,7 +20,7 @@ package com.itsaky.androidide.templates.base.root
 import com.itsaky.androidide.templates.base.ProjectTemplateBuilder
 
 internal fun ProjectTemplateBuilder.settingsGradleSrcStr(): String {
-  return """
+    return """
 pluginManagement {
   repositories {
     gradlePluginPortal()
@@ -40,5 +40,6 @@ dependencyResolutionManagement {
 rootProject.name = "${data.name}"
 
 ${modules.joinToString(separator = ", ") { "include(\"${it.name}\")" }}    
-  """.trim()
+  """
+        .trim()
 }

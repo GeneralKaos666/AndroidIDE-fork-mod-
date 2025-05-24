@@ -18,23 +18,22 @@
 package com.itsaky.androidide.utils
 
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import java.io.File
 import java.nio.file.Files
+import org.junit.Test
 
 class FileProviderTest {
 
-  @Test
-  fun testPath() {
-    val path = FileProvider.sourceFile("SourceFileTest", "java")
-    assertThat(Files.exists(path)).isTrue()
-    assertThat(path.fileName.toString()).isEqualTo("SourceFileTest_template.java")
-  }
+    @Test
+    fun testPath() {
+        val path = FileProvider.sourceFile("SourceFileTest", "java")
+        assertThat(Files.exists(path)).isTrue()
+        assertThat(path.fileName.toString()).isEqualTo("SourceFileTest_template.java")
+    }
 
-  @Test
-  fun testNested() {
-    val path = FileProvider.sourceFile("package/SourceFileTest", "java")
-    assertThat(Files.exists(path)).isTrue()
-    assertThat(path.fileName.toString()).isEqualTo("SourceFileTest_template.java")
-  }
+    @Test
+    fun testNested() {
+        val path = FileProvider.sourceFile("package/SourceFileTest", "java")
+        assertThat(Files.exists(path)).isTrue()
+        assertThat(path.fileName.toString()).isEqualTo("SourceFileTest_template.java")
+    }
 }

@@ -32,24 +32,23 @@ import io.github.rosemoe.sora.util.MyCharacter
  * @author Akash Yadav
  */
 class XMLLanguage(context: Context) :
-  TreeSitterLanguage(context, lang = TSLanguageXml.getInstance(), langType = TS_TYPE) {
+    TreeSitterLanguage(context, lang = TSLanguageXml.getInstance(), langType = TS_TYPE) {
 
-  override val languageServer: ILanguageServer?
-    get() = ILanguageServerRegistry.getDefault().getServer(XMLLanguageServer.SERVER_ID)
+    override val languageServer: ILanguageServer?
+        get() = ILanguageServerRegistry.getDefault().getServer(XMLLanguageServer.SERVER_ID)
 
-  companion object {
+    companion object {
 
-    const val TS_TYPE = "xml"
+        const val TS_TYPE = "xml"
 
-    @JvmField
-    val FACTORY = Factory { XMLLanguage(it) }
-  }
+        @JvmField val FACTORY = Factory { XMLLanguage(it) }
+    }
 
-  override fun checkIsCompletionChar(c: Char): Boolean {
-    return MyCharacter.isJavaIdentifierPart(c) || c == '<' || c == '/'
-  }
+    override fun checkIsCompletionChar(c: Char): Boolean {
+        return MyCharacter.isJavaIdentifierPart(c) || c == '<' || c == '/'
+    }
 
-  override fun getInterruptionLevel(): Int {
-    return INTERRUPTION_LEVEL_STRONG
-  }
+    override fun getInterruptionLevel(): Int {
+        return INTERRUPTION_LEVEL_STRONG
+    }
 }

@@ -24,13 +24,13 @@ package io.github.rosemoe.sora.text
  */
 object ContentLockAccessor {
 
-  @JvmStatic
-  fun lock(content: Content, write: Boolean) {
-    content.lock(write)
-  }
+    @JvmStatic
+    fun lock(content: Content, write: Boolean) {
+        content.lock(write)
+    }
 
-  @JvmStatic
-  fun unlock(content: Content, write: Boolean) {
-    content.unlock(write)
-  }
+    @JvmStatic
+    fun unlock(content: Content, write: Boolean) {
+        content.unlock(write)
+    }
 }

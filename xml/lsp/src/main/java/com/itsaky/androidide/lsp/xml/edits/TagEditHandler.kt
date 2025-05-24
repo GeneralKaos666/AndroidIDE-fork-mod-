@@ -24,7 +24,7 @@ package com.itsaky.androidide.lsp.xml.edits
  */
 open class TagEditHandler : QualifiedValueEditHandler() {
 
-  override fun isPartialPart(c: Char): Boolean {
-    return super.isPartialPart(c) || c == '-' // Tags can contain '-' as well
-  }
+    override fun isPartialPart(c: Char): Boolean {
+        return super.isPartialPart(c) || c == '-' // Tags can contain '-' as well
+    }
 }

@@ -23,23 +23,21 @@ import retrofit2.http.GET
 
 private interface CrowdinTranslatorsService {
 
-  @GET(CrowdinTranslators.CROWDIN_CONTRIBUTORS_JSON)
-  fun getAllTranslators(): Call<List<CrowdinTranslator>>
+    @GET(CrowdinTranslators.CROWDIN_CONTRIBUTORS_JSON)
+    fun getAllTranslators(): Call<List<CrowdinTranslator>>
 }
 
 object CrowdinTranslators {
 
-  internal const val CROWDIN_CONTRIBUTORS_JSON = "crowdin-contributors.json"
+    internal const val CROWDIN_CONTRIBUTORS_JSON = "crowdin-contributors.json"
 
-  /**
-   * Get all Crowdin translators.
-   */
-  suspend fun getAllTranslators(): List<CrowdinTranslator> {
-    return Contributors.getAllContributors<CrowdinTranslatorsService, CrowdinTranslator>(
-      "${GITHUB_RAW_API_REPO_BRANCH_URL}/",
-      CrowdinTranslatorsService::getAllTranslators
-    )
-  }
+    /** Get all Crowdin translators. */
+    suspend fun getAllTranslators(): List<CrowdinTranslator> {
+        return Contributors.getAllContributors<CrowdinTranslatorsService, CrowdinTranslator>(
+            "${GITHUB_RAW_API_REPO_BRANCH_URL}/",
+            CrowdinTranslatorsService::getAllTranslators,
+        )
+    }
 }
 
 /**
@@ -48,19 +46,19 @@ object CrowdinTranslators {
  * @author Akash Yadav
  */
 data class CrowdinTranslator(
-  @SerializedName("id") private val _id: String,
-  @SerializedName("username") override val username: String,
-  @SerializedName("picture") override val avatarUrl: String,
+    @SerializedName("id") private val _id: String,
+    @SerializedName("username") override val username: String,
+    @SerializedName("picture") override val avatarUrl: String,
 ) : Contributor {
 
-  override val id: Int
-    get() = _id.toInt()
+    override val id: Int
+        get() = _id.toInt()
 
-  override val profileUrl: String
-    get() = "${CROWDIN_PROFILE_BASE_URL}/$username"
+    override val profileUrl: String
+        get() = "${CROWDIN_PROFILE_BASE_URL}/$username"
 
-  companion object {
+    companion object {
 
-    const val CROWDIN_PROFILE_BASE_URL = "https://crowdin.com/profile"
-  }
+        const val CROWDIN_PROFILE_BASE_URL = "https://crowdin.com/profile"
+    }
 }

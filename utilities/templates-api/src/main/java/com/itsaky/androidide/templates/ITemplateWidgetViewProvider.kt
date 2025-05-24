@@ -28,29 +28,29 @@ import com.itsaky.androidide.utils.ServiceLoader
  */
 interface ITemplateWidgetViewProvider {
 
-  companion object {
+    companion object {
 
-    private var service: ITemplateWidgetViewProvider? = null
+        private var service: ITemplateWidgetViewProvider? = null
 
-    @JvmStatic
-    @JvmOverloads
-    fun getInstance(reload: Boolean = false): ITemplateWidgetViewProvider {
-      if (reload) {
-        service = null
-      }
-      return service ?: ServiceLoader.load(
-        ITemplateWidgetViewProvider::class.java)
-        .findFirstOrThrow()
-        .also { service = it }
+        @JvmStatic
+        @JvmOverloads
+        fun getInstance(reload: Boolean = false): ITemplateWidgetViewProvider {
+            if (reload) {
+                service = null
+            }
+            return service
+                ?: ServiceLoader.load(ITemplateWidgetViewProvider::class.java)
+                    .findFirstOrThrow()
+                    .also { service = it }
+        }
     }
-  }
 
-  /**
-   * Creates [View] objects for the given widget.
-   *
-   * @param context The context used to create the views.
-   * @param widget The widget to create the view for.
-   * @return The view.
-   */
-  fun <T> createView(context: Context, widget: Widget<T>): View
+    /**
+     * Creates [View] objects for the given widget.
+     *
+     * @param context The context used to create the views.
+     * @param widget The widget to create the view for.
+     * @return The view.
+     */
+    fun <T> createView(context: Context, widget: Widget<T>): View
 }

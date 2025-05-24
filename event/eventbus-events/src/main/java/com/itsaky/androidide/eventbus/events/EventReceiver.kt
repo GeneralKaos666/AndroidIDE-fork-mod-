@@ -26,15 +26,15 @@ import org.greenrobot.eventbus.EventBus
  */
 interface EventReceiver {
 
-  /** Registeres this handler with [EventBus]. */
-  fun register() {
-    if (!EventBus.getDefault().isRegistered(this)) {
-      EventBus.getDefault().register(this)
+    /** Registeres this handler with [EventBus]. */
+    fun register() {
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this)
+        }
     }
-  }
 
-  /** Unregisteres this handler from [EventBus]. */
-  fun unregister() {
-    EventBus.getDefault().unregister(this)
-  }
+    /** Unregisteres this handler from [EventBus]. */
+    fun unregister() {
+        EventBus.getDefault().unregister(this)
+    }
 }

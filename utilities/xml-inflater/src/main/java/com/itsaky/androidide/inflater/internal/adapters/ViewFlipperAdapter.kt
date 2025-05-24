@@ -34,15 +34,19 @@ import com.itsaky.androidide.resources.R.string
 @ViewAdapter(ViewFlipper::class)
 @IncludeInDesigner(group = LAYOUTS)
 open class ViewFlipperAdapter<T : ViewFlipper> : ViewAnimatorAdapter<T>() {
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("autoStart") { view.isAutoStart = parseBoolean(value) }
-    create("flipInterval") { view.flipInterval = parseInteger(value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("autoStart") { view.isAutoStart = parseBoolean(value) }
+        create("flipInterval") { view.flipInterval = parseInteger(value) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(ViewFlipper::class.java, string.widget_viewflipper, drawable.ic_widget_viewflipper)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                ViewFlipper::class.java,
+                string.widget_viewflipper,
+                drawable.ic_widget_viewflipper,
+            )
+        )
+    }
 }

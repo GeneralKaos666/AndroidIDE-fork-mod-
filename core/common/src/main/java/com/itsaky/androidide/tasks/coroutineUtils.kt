@@ -20,28 +20,24 @@ package com.itsaky.androidide.tasks
 import com.itsaky.androidide.flashbar.Flashbar
 import com.itsaky.androidide.progress.ICancelChecker
 import com.itsaky.androidide.utils.flashProgress
+import java.io.InterruptedIOException
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import java.io.InterruptedIOException
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
-/**
- * An [ICancelChecker] which when cancelled, cancels the corresponding [Job].
- */
-class JobCancelChecker @JvmOverloads constructor(
-  var job: Job? = null
-) : ICancelChecker.Default() {
+/** An [ICancelChecker] which when cancelled, cancels the corresponding [Job]. */
+class JobCancelChecker @JvmOverloads constructor(var job: Job? = null) : ICancelChecker.Default() {
 
-  override fun cancel() {
-    job?.cancel("Cancelled by user")
-    job = null
-    super.cancel()
-  }
+    override fun cancel() {
+        job?.cancel("Cancelled by user")
+        job = null
+        super.cancel()
+    }
 }
 
 /**
@@ -52,7 +48,7 @@ class JobCancelChecker @JvmOverloads constructor(
  * @see cancelIfActive
  */
 fun CoroutineScope.cancelIfActive(message: String, cause: Throwable? = null) =
-  cancelIfActive(CancellationException(message, cause))
+    cancelIfActive(CancellationException(message, cause))
 
 /**
  * Calls [CoroutineScope.cancel] only if a job is active in the scope.
@@ -60,8 +56,8 @@ fun CoroutineScope.cancelIfActive(message: String, cause: Throwable? = null) =
  * @param exception Optional cause of the cancellation.
  */
 fun CoroutineScope.cancelIfActive(exception: CancellationException? = null) {
-  val job = coroutineContext[Job]
-  job?.cancel(exception)
+    val job = coroutineContext[Job]
+    job?.cancel(exception)
 }
 
 /**
@@ -70,34 +66,34 @@ fun CoroutineScope.cancelIfActive(exception: CancellationException? = null) {
  * dismissed after the action completes, no matter if it fails or succeeds.
  *
  * @param configureFlashbar A function to configure the [Flashbar.Builder] as necessary.
- * @param invokeOnCompletion A function which is called when the job completes, fails or is cancelled.
- * This function must follow [Job.invokeOnCompletion]'s contract.
+ * @param invokeOnCompletion A function which is called when the job completes, fails or is
+ *   cancelled. This function must follow [Job.invokeOnCompletion]'s contract.
  * @param action The action to be executed.
  * @see CoroutineScope.launch
  */
 inline fun CoroutineScope.launchAsyncWithProgress(
-  context: CoroutineContext = EmptyCoroutineContext,
-  start: CoroutineStart = CoroutineStart.DEFAULT,
-  crossinline configureFlashbar: (Flashbar.Builder, ICancelChecker) -> Unit = { _, _ -> },
-  crossinline invokeOnCompletion: (Throwable?) -> Unit = {},
-  crossinline action: suspend CoroutineScope.(flashbar: Flashbar, cancelChecker: ICancelChecker) -> Unit
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    crossinline configureFlashbar: (Flashbar.Builder, ICancelChecker) -> Unit = { _, _ -> },
+    crossinline invokeOnCompletion: (Throwable?) -> Unit = {},
+    crossinline action:
+        suspend CoroutineScope.(flashbar: Flashbar, cancelChecker: ICancelChecker) -> Unit,
 ): Job? {
 
-  val cancelChecker = JobCancelChecker()
+    val cancelChecker = JobCancelChecker()
 
-  return flashProgress({
-    configureFlashbar(this, cancelChecker)
-  }) { flashbar ->
-    return@flashProgress launch(context = context, start = start) {
-      cancelChecker.job = coroutineContext[Job]
-      action(flashbar, cancelChecker)
-    }.also { job ->
-      job.invokeOnCompletion { throwable ->
-        runOnUiThread { flashbar.dismiss() }
-        invokeOnCompletion(throwable)
-      }
+    return flashProgress({ configureFlashbar(this, cancelChecker) }) { flashbar ->
+        return@flashProgress launch(context = context, start = start) {
+                cancelChecker.job = coroutineContext[Job]
+                action(flashbar, cancelChecker)
+            }
+            .also { job ->
+                job.invokeOnCompletion { throwable ->
+                    runOnUiThread { flashbar.dismiss() }
+                    invokeOnCompletion(throwable)
+                }
+            }
     }
-  }
 }
 
 /**
@@ -107,14 +103,14 @@ inline fun CoroutineScope.launchAsyncWithProgress(
  * @param action The action to run if this [Throwable] was cancelled or interrupted.
  */
 inline fun Throwable.ifCancelledOrInterrupted(suppress: Boolean = false, action: () -> Unit) {
-  when (this) {
-    is CancellationException,
-    is InterruptedException,
-    is InterruptedIOException -> {
-      action()
-      if (!suppress) {
-        throw this
-      }
+    when (this) {
+        is CancellationException,
+        is InterruptedException,
+        is InterruptedIOException -> {
+            action()
+            if (!suppress) {
+                throw this
+            }
+        }
     }
-  }
 }

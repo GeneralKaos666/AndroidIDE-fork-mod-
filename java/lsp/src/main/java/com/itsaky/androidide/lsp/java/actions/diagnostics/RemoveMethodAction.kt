@@ -33,59 +33,61 @@ import org.slf4j.LoggerFactory
 /** @author Akash Yadav */
 class RemoveMethodAction : BaseJavaCodeAction() {
 
-  override val id: String = "ide.editor.lsp.java.diagnostics.removeMethod"
-  override var label: String = ""
-  private val diagnosticCode = DiagnosticCode.UNUSED_METHOD.id
+    override val id: String = "ide.editor.lsp.java.diagnostics.removeMethod"
+    override var label: String = ""
+    private val diagnosticCode = DiagnosticCode.UNUSED_METHOD.id
 
-  override val titleTextRes: Int = R.string.action_remove_method
+    override val titleTextRes: Int = R.string.action_remove_method
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(RemoveMethodAction::class.java)
-  }
-
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-
-    if (!visible || !data.hasRequiredData(
-        com.itsaky.androidide.lsp.models.DiagnosticItem::class.java)
-    ) {
-      markInvisible()
-      return
+        private val log = LoggerFactory.getLogger(RemoveMethodAction::class.java)
     }
 
-    val diagnostic = data[com.itsaky.androidide.lsp.models.DiagnosticItem::class.java]!!
-    if (diagnosticCode != diagnostic.code) {
-      markInvisible()
-      return
-    }
-  }
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
 
-  override suspend fun execAction(data: ActionData): Any {
-    val diagnostic = data[com.itsaky.androidide.lsp.models.DiagnosticItem::class.java]!!
-    val compiler =
-      JavaCompilerProvider.get(
-        IProjectManager.getInstance().getWorkspace()?.findModuleForFile(data.requireFile(), false)
-          ?: return Any()
-      )
-    val file = data.requirePath()
+        if (
+            !visible ||
+                !data.hasRequiredData(com.itsaky.androidide.lsp.models.DiagnosticItem::class.java)
+        ) {
+            markInvisible()
+            return
+        }
 
-    return compiler.compile(file).get {
-      val unusedMethod = findMethod(it, diagnostic.range)
-      RemoveMethod(
-        unusedMethod.className,
-        unusedMethod.methodName,
-        unusedMethod.erasedParameterTypes
-      )
-    }
-  }
-
-  override fun postExec(data: ActionData, result: Any) {
-    if (result !is RemoveMethod) {
-      log.warn("Unable to remove method")
-      return
+        val diagnostic = data[com.itsaky.androidide.lsp.models.DiagnosticItem::class.java]!!
+        if (diagnosticCode != diagnostic.code) {
+            markInvisible()
+            return
+        }
     }
 
-    performCodeAction(data, result)
-  }
+    override suspend fun execAction(data: ActionData): Any {
+        val diagnostic = data[com.itsaky.androidide.lsp.models.DiagnosticItem::class.java]!!
+        val compiler =
+            JavaCompilerProvider.get(
+                IProjectManager.getInstance()
+                    .getWorkspace()
+                    ?.findModuleForFile(data.requireFile(), false) ?: return Any()
+            )
+        val file = data.requirePath()
+
+        return compiler.compile(file).get {
+            val unusedMethod = findMethod(it, diagnostic.range)
+            RemoveMethod(
+                unusedMethod.className,
+                unusedMethod.methodName,
+                unusedMethod.erasedParameterTypes,
+            )
+        }
+    }
+
+    override fun postExec(data: ActionData, result: Any) {
+        if (result !is RemoveMethod) {
+            log.warn("Unable to remove method")
+            return
+        }
+
+        performCodeAction(data, result)
+    }
 }

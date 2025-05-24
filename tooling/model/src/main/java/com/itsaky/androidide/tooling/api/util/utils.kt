@@ -21,45 +21,45 @@ import com.android.builder.model.v2.ide.LibraryType.ANDROID_LIBRARY
 import com.itsaky.androidide.builder.model.DefaultLibrary
 import com.itsaky.androidide.builder.model.UNKNOWN_PACKAGE
 import com.itsaky.androidide.tooling.api.IAndroidProject
+import java.io.File
 import org.eclipse.lemminx.dom.DOMParser
 import org.eclipse.lemminx.uriresolver.URIResolverExtensionManager
-import java.io.File
 
 /**
  * Find the package name for this library. If this library is not an [ANDROID_LIBRARY] or if error
  * occurs while extracting the package name, [UNKNOWN_PACKAGE] is returned.
  */
 fun DefaultLibrary.findPackageName(): String {
-  if (!lookupPackage) {
+    if (!lookupPackage) {
+        return this.packageName
+    }
+
+    if (type != ANDROID_LIBRARY) {
+        this.lookupPackage = false
+        return UNKNOWN_PACKAGE
+    }
+
+    val manifestFile = androidLibraryData!!.manifest
+    if (!manifestFile.exists()) {
+        this.lookupPackage = false
+        return UNKNOWN_PACKAGE
+    }
+
+    this.lookupPackage = false
+    this.packageName = extractPackageName(manifestFile) ?: UNKNOWN_PACKAGE
     return this.packageName
-  }
-
-  if (type != ANDROID_LIBRARY) {
-    this.lookupPackage = false
-    return UNKNOWN_PACKAGE
-  }
-
-  val manifestFile = androidLibraryData!!.manifest
-  if (!manifestFile.exists()) {
-    this.lookupPackage = false
-    return UNKNOWN_PACKAGE
-  }
-
-  this.lookupPackage = false
-  this.packageName = extractPackageName(manifestFile) ?: UNKNOWN_PACKAGE
-  return this.packageName
 }
 
 /** Extracts package name from the given `AndroidManifest.xml` file. */
 fun extractPackageName(manifestFile: File): String? {
-  val content = manifestFile.readText()
-  val document =
-    DOMParser.getInstance()
-      .parse(content, IAndroidProject.ANDROID_NAMESPACE, URIResolverExtensionManager())
-  val manifest = document.children.first { it.nodeName == "manifest" } ?: return null
-  val packageAttr = manifest.attributes.getNamedItem("package")
-  if (packageAttr != null) {
-    return packageAttr.nodeValue
-  }
-  return null
+    val content = manifestFile.readText()
+    val document =
+        DOMParser.getInstance()
+            .parse(content, IAndroidProject.ANDROID_NAMESPACE, URIResolverExtensionManager())
+    val manifest = document.children.first { it.nodeName == "manifest" } ?: return null
+    val packageAttr = manifest.attributes.getNamedItem("package")
+    if (packageAttr != null) {
+        return packageAttr.nodeValue
+    }
+    return null
 }

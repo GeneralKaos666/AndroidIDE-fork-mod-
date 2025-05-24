@@ -41,71 +41,71 @@ import org.slf4j.LoggerFactory
  */
 class ShowXmlActivity : BaseIDEActivity() {
 
-  private var editor: CodeEditor? = null
-  private var unsubscribe: Unsubscribe? = null
-  private var binding: ActivityShowXmlBinding? = null
+    private var editor: CodeEditor? = null
+    private var unsubscribe: Unsubscribe? = null
+    private var binding: ActivityShowXmlBinding? = null
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(ShowXmlActivity::class.java)
+        private val log = LoggerFactory.getLogger(ShowXmlActivity::class.java)
 
-    const val KEY_XML = "ide.uidesigner.viewXml.Xml"
-  }
+        const val KEY_XML = "ide.uidesigner.viewXml.Xml"
+    }
 
-  override fun bindLayout(): View {
-    this.binding = ActivityShowXmlBinding.inflate(layoutInflater)
-    this.editor = IDEEditor(this)
+    override fun bindLayout(): View {
+        this.binding = ActivityShowXmlBinding.inflate(layoutInflater)
+        this.editor = IDEEditor(this)
 
-    setSupportActionBar(this.binding!!.toolbar)
-    supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setSupportActionBar(this.binding!!.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-    this.binding!!.toolbar.setNavigationOnClickListener { finish() }
+        this.binding!!.toolbar.setNavigationOnClickListener { finish() }
 
-    this.editor?.let { editor ->
-      editor.colorScheme = SchemeAndroidIDE.newInstance(this@ShowXmlActivity)
-      editor.editable = false
-      editor.typefaceText = jetbrainsMono()
-      editor.typefaceLineNumber = jetbrainsMono()
-      editor.setText(intent?.getStringExtra(KEY_XML) ?: "")
-      editor.setTextSize(EditorPreferences.fontSize)
+        this.editor?.let { editor ->
+            editor.colorScheme = SchemeAndroidIDE.newInstance(this@ShowXmlActivity)
+            editor.editable = false
+            editor.typefaceText = jetbrainsMono()
+            editor.typefaceLineNumber = jetbrainsMono()
+            editor.setText(intent?.getStringExtra(KEY_XML) ?: "")
+            editor.setTextSize(EditorPreferences.fontSize)
 
-      IDEColorSchemeProvider.readSchemeAsync(
-        context = this,
-        coroutineScope = activityScope,
-        type = XMLLanguage.TS_TYPE
-      ) {
-        if (it == null) {
-          log.error("Unable to load color sheme")
-          return@readSchemeAsync
+            IDEColorSchemeProvider.readSchemeAsync(
+                context = this,
+                coroutineScope = activityScope,
+                type = XMLLanguage.TS_TYPE,
+            ) {
+                if (it == null) {
+                    log.error("Unable to load color sheme")
+                    return@readSchemeAsync
+                }
+
+                editor.colorScheme = it
+                editor.setEditorLanguage(XMLLanguage(this))
+            }
+
+            binding!!.editorContainer.let { container ->
+                container.removeAllViews()
+                container.addView(editor, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+            }
         }
 
-        editor.colorScheme = it
-        editor.setEditorLanguage(XMLLanguage(this))
-      }
+        this.binding?.copy?.setOnClickListener {
+            this.editor?.copyText(false)
+            flashInfo(R.string.copied)
+        }
 
-      binding!!.editorContainer.let { container ->
-        container.removeAllViews()
-        container.addView(editor, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
-      }
+        return this.binding!!.root
     }
 
-    this.binding?.copy?.setOnClickListener {
-      this.editor?.copyText(false)
-      flashInfo(R.string.copied)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
     }
 
-    return this.binding!!.root
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    this.binding = null
-    this.unsubscribe?.unsubscribe()
-    this.editor?.release()
-    this.editor = null
-  }
+    override fun onDestroy() {
+        super.onDestroy()
+        this.binding = null
+        this.unsubscribe?.unsubscribe()
+        this.editor?.release()
+        this.editor = null
+    }
 }

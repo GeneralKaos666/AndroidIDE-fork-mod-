@@ -27,40 +27,38 @@ import com.itsaky.androidide.xml.versions.ApiVersions
  */
 internal class DefaultApiVersions : ApiVersions {
 
-  val classes = HashMap<String, Pair<ApiVersion?, HashMap<String, ApiVersion>>>()
+    val classes = HashMap<String, Pair<ApiVersion?, HashMap<String, ApiVersion>>>()
 
-  private fun String.flatten() = replace('.', '/')
+    private fun String.flatten() = replace('.', '/')
 
-  override fun classInfo(name: String): ApiVersion? {
-    return classes[name.flatten()]?.first
-  }
-
-  override fun memberInfo(className: String, identifier: String): ApiVersion? {
-    return classes[className.flatten()]?.second?.get(identifier)
-  }
-
-  fun containsClass(name: String): Boolean {
-    return classes.containsKey(name.flatten())
-  }
-
-  fun containsClassMember(name: String, member: String): Boolean {
-    return classes[name.flatten()]?.second?.containsKey(member) ?: false
-  }
-
-  fun putClass(name: String, version: ApiVersion) {
-    computeClass(name, version)
-  }
-
-  fun putMember(className: String, identifier: String, version: ApiVersion) {
-    computeClass(className).second[identifier] = version
-  }
-
-  private fun computeClass(
-    name: String,
-    version: ApiVersion? = null
-  ): Pair<ApiVersion?, HashMap<String, ApiVersion>> {
-    return classes.computeIfAbsent(name.flatten()) {
-      version to hashMapOf()
+    override fun classInfo(name: String): ApiVersion? {
+        return classes[name.flatten()]?.first
     }
-  }
+
+    override fun memberInfo(className: String, identifier: String): ApiVersion? {
+        return classes[className.flatten()]?.second?.get(identifier)
+    }
+
+    fun containsClass(name: String): Boolean {
+        return classes.containsKey(name.flatten())
+    }
+
+    fun containsClassMember(name: String, member: String): Boolean {
+        return classes[name.flatten()]?.second?.containsKey(member) ?: false
+    }
+
+    fun putClass(name: String, version: ApiVersion) {
+        computeClass(name, version)
+    }
+
+    fun putMember(className: String, identifier: String, version: ApiVersion) {
+        computeClass(className).second[identifier] = version
+    }
+
+    private fun computeClass(
+        name: String,
+        version: ApiVersion? = null,
+    ): Pair<ApiVersion?, HashMap<String, ApiVersion>> {
+        return classes.computeIfAbsent(name.flatten()) { version to hashMapOf() }
+    }
 }

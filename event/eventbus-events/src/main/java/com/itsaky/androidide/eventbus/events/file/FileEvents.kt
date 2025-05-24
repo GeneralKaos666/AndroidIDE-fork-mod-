@@ -22,7 +22,7 @@ import java.io.File
 
 /** Base class for file events. */
 abstract class FileEvent : Event() {
-  abstract val file: File
+    abstract val file: File
 }
 
 /**

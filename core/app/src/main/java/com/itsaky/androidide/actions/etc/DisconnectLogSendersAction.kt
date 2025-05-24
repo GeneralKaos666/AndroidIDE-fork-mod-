@@ -30,35 +30,37 @@ import com.itsaky.androidide.services.log.lookupLogService
  *
  * @author Akash Yadav
  */
-class DisconnectLogSendersAction(context: Context, override val order: Int) : EditorActivityAction() {
+class DisconnectLogSendersAction(context: Context, override val order: Int) :
+    EditorActivityAction() {
 
-  override val id: String = "ide.editor.service.logreceiver.disconnectSenders"
+    override val id: String = "ide.editor.service.logreceiver.disconnectSenders"
 
-  init {
-    label = context.getString(R.string.title_disconnect_log_senders)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_logs_disconnect)
-  }
-
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-    data.getActivity() ?: run {
-      markInvisible()
-      return
+    init {
+        label = context.getString(R.string.title_disconnect_log_senders)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_logs_disconnect)
     }
 
-    val receiverService = lookupLogService()
-    if (receiverService == null) {
-      markInvisible()
-      return
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
+        data.getActivity()
+            ?: run {
+                markInvisible()
+                return
+            }
+
+        val receiverService = lookupLogService()
+        if (receiverService == null) {
+            markInvisible()
+            return
+        }
     }
-  }
 
-  override suspend fun execAction(data: ActionData): Any {
-    val receiverService = lookupLogService()
-    receiverService?.disconnectAll()
+    override suspend fun execAction(data: ActionData): Any {
+        val receiverService = lookupLogService()
+        receiverService?.disconnectAll()
 
-    markInvisible()
-    data.getActivity()?.invalidateOptionsMenu()
-    return true
-  }
+        markInvisible()
+        data.getActivity()?.invalidateOptionsMenu()
+        return true
+    }
 }

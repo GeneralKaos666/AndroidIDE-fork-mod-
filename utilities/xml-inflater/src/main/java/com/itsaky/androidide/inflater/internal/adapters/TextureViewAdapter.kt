@@ -37,25 +37,29 @@ import com.itsaky.androidide.resources.R.string
 @IncludeInDesigner(group = WIDGETS)
 open class TextureViewAdapter<T : TextureView> : ViewAdapter<T>() {
 
-  private val unsupportedAttrs = arrayOf("background", "foreground")
+    private val unsupportedAttrs = arrayOf("background", "foreground")
 
-  override fun postCreateAttrHandlers(
-    handlers: MutableMap<String, AttributeHandlerScope<T>.() -> Unit>) {
+    override fun postCreateAttrHandlers(
+        handlers: MutableMap<String, AttributeHandlerScope<T>.() -> Unit>
+    ) {
 
-    unsupportedAttrs.forEach(handlers::remove)
-  }
-
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(DesignerTextureView::class.java, string.widget_textureview,
-        drawable.ic_widget_textureview)
-    )
-  }
-
-  override fun onCreateView(name: String, context: Context): View? {
-    if (name == TextureView::class.java.name) {
-      return DesignerTextureView(context)
+        unsupportedAttrs.forEach(handlers::remove)
     }
-    return super.onCreateView(name, context)
-  }
+
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                DesignerTextureView::class.java,
+                string.widget_textureview,
+                drawable.ic_widget_textureview,
+            )
+        )
+    }
+
+    override fun onCreateView(name: String, context: Context): View? {
+        if (name == TextureView::class.java.name) {
+            return DesignerTextureView(context)
+        }
+        return super.onCreateView(name, context)
+    }
 }

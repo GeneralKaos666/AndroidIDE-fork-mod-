@@ -19,17 +19,16 @@ package com.itsaky.androidide.services.builder
 import android.os.Binder
 
 /**
- * [Binder] implementation for [GradleBuildService] which provides instance of the
- * service.
+ * [Binder] implementation for [GradleBuildService] which provides instance of the service.
  *
  * @author Akash Yadav
  */
 internal class GradleServiceBinder(service: GradleBuildService?) : Binder() {
 
-  var service: GradleBuildService? = service
-    private set
+    var service: GradleBuildService? = service
+        private set
 
-  fun release() {
-    service = null
-  }
+    fun release() {
+        service = null
+    }
 }

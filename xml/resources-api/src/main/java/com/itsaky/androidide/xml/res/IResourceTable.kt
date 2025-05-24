@@ -19,23 +19,21 @@ package com.itsaky.androidide.xml.res
 
 import com.android.aaptcompiler.ResourceName
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 interface IResourceTable {
 
-  val packages: Collection<IResourceTablePackage>
+    val packages: Collection<IResourceTablePackage>
 
-  fun findResource(name: ResourceName): ISearchResult?
+    fun findResource(name: ResourceName): ISearchResult?
 
-  /**
-   * Returns the package struct with the given name, or null if such a package does not
-   * exist. The empty string is a valid package and typically is used to represent the
-   * 'current' package before it is known to the ResourceTable.
-   *
-   * @param name the name of the package.
-   * @return the [IResourceTablePackage] with the requested name or {@code null} if that package
-   *   does not exist in the table.
-   */
-  fun findPackage(name: String): IResourceTablePackage?
+    /**
+     * Returns the package struct with the given name, or null if such a package does not exist. The
+     * empty string is a valid package and typically is used to represent the 'current' package
+     * before it is known to the ResourceTable.
+     *
+     * @param name the name of the package.
+     * @return the [IResourceTablePackage] with the requested name or {@code null} if that package
+     *   does not exist in the table.
+     */
+    fun findPackage(name: String): IResourceTablePackage?
 }

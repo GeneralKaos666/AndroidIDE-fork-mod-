@@ -24,10 +24,12 @@ import com.itsaky.androidide.uidesigner.models.UiAttribute
  *
  * @author Akash Yadav
  */
-internal abstract class AttrAction(protected val view: com.itsaky.androidide.inflater.IView, protected val attr: UiAttribute) :
-  IUiAction {
-  
-  override fun toString(): String {
-    return "${javaClass.simpleName}(view=$view, attr=$attr)"
-  }
+internal abstract class AttrAction(
+    protected val view: com.itsaky.androidide.inflater.IView,
+    protected val attr: UiAttribute,
+) : IUiAction {
+
+    override fun toString(): String {
+        return "${javaClass.simpleName}(view=$view, attr=$attr)"
+    }
 }

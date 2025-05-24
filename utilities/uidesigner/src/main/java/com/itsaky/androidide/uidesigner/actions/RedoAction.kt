@@ -28,23 +28,23 @@ import com.itsaky.androidide.uidesigner.R
  * @author Akash Yadav
  */
 class RedoAction(context: Context) : UiDesignerAction() {
-  
-  override val id: String = "ide.uidesigner.redo"
-  
-  init {
-    label = context.getString(R.string.redo)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_redo)
-  }
-  
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-    visible = true
-    enabled = data.requireWorkspace().undoManager.canRedo()
-  }
-  
-  override suspend fun execAction(data: ActionData): Any {
-    data.requireWorkspace().undoManager.redo()
-    data.requireActivity().invalidateOptionsMenu()
-    return true
-  }
+
+    override val id: String = "ide.uidesigner.redo"
+
+    init {
+        label = context.getString(R.string.redo)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_redo)
+    }
+
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
+        visible = true
+        enabled = data.requireWorkspace().undoManager.canRedo()
+    }
+
+    override suspend fun execAction(data: ActionData): Any {
+        data.requireWorkspace().undoManager.redo()
+        data.requireActivity().invalidateOptionsMenu()
+        return true
+    }
 }

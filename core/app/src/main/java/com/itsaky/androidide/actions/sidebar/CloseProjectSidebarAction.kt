@@ -32,19 +32,19 @@ import kotlin.reflect.KClass
  * @author Akash Yadav
  */
 class CloseProjectSidebarAction(context: Context, override val order: Int) :
-  AbstractSidebarAction() {
+    AbstractSidebarAction() {
 
-  override val id: String = "ide.editor.sidebar.closeProject"
-  override val fragmentClass: KClass<out Fragment>? = null
+    override val id: String = "ide.editor.sidebar.closeProject"
+    override val fragmentClass: KClass<out Fragment>? = null
 
-  init {
-    label = context.getString(R.string.title_close_project)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_folder_close)
-  }
+    init {
+        label = context.getString(R.string.title_close_project)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_folder_close)
+    }
 
-  override suspend fun execAction(data: ActionData): Any {
-    val context = data.requireContext() as BaseEditorActivity
-    context.doConfirmProjectClose()
-    return true
-  }
+    override suspend fun execAction(data: ActionData): Any {
+        val context = data.requireContext() as BaseEditorActivity
+        context.doConfirmProjectClose()
+        return true
+    }
 }

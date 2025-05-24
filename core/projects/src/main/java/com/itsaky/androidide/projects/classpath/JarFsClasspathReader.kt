@@ -33,62 +33,63 @@ import kotlin.io.path.pathString
 /** @author Akash Yadav */
 class JarFsClasspathReader : IClasspathReader {
 
-  override fun listClasses(files: Collection<File>): ImmutableSet<ClassInfo> {
-    val builder = ImmutableSet.builder<ClassInfo>()
-    for (path in files.map(File::toPath)) {
-      if (!Files.exists(path)) {
-        continue
-      }
-
-      val fs = CachingJarFileSystemProvider.newFileSystem(path) as CachedJarFileSystem
-      for (rootDirectory in fs.rootDirectories) {
-        Files.walkFileTree(
-          rootDirectory,
-          emptySet(),
-          Int.MAX_VALUE,
-          object : SimpleFileVisitor<Path>() {
-
-            override fun preVisitDirectory(
-              dir: Path?,
-              attrs: BasicFileAttributes?
-            ): FileVisitResult {
-              return if (fs.storeJARPackageDir(dir)) {
-                CONTINUE
-              } else {
-                SKIP_SUBTREE
-              }
+    override fun listClasses(files: Collection<File>): ImmutableSet<ClassInfo> {
+        val builder = ImmutableSet.builder<ClassInfo>()
+        for (path in files.map(File::toPath)) {
+            if (!Files.exists(path)) {
+                continue
             }
 
-            override fun visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult {
-              var name = file.pathString
-              if (name.endsWith("/package-info.class") || !name.endsWith(".class")) {
-                return CONTINUE
-              }
+            val fs = CachingJarFileSystemProvider.newFileSystem(path) as CachedJarFileSystem
+            for (rootDirectory in fs.rootDirectories) {
+                Files.walkFileTree(
+                    rootDirectory,
+                    emptySet(),
+                    Int.MAX_VALUE,
+                    object : SimpleFileVisitor<Path>() {
 
-              name = name.substringBeforeLast(".class")
+                        override fun preVisitDirectory(
+                            dir: Path?,
+                            attrs: BasicFileAttributes?,
+                        ): FileVisitResult {
+                            return if (fs.storeJARPackageDir(dir)) {
+                                CONTINUE
+                            } else {
+                                SKIP_SUBTREE
+                            }
+                        }
 
-              if (name.isBlank()) {
-                return CONTINUE
-              }
+                        override fun visitFile(
+                            file: Path,
+                            attrs: BasicFileAttributes,
+                        ): FileVisitResult {
+                            var name = file.pathString
+                            if (name.endsWith("/package-info.class") || !name.endsWith(".class")) {
+                                return CONTINUE
+                            }
 
-              if (name.startsWith('/')) {
-                name = name.substring(1)
-              }
+                            name = name.substringBeforeLast(".class")
 
-              if (name.contains('/')) {
-                name = name.replace('/', '.')
-              }
+                            if (name.isBlank()) {
+                                return CONTINUE
+                            }
 
-              ClassInfo.create(name)?.also {
-                builder.add(it)
-              }
+                            if (name.startsWith('/')) {
+                                name = name.substring(1)
+                            }
 
-              return super.visitFile(file, attrs)
+                            if (name.contains('/')) {
+                                name = name.replace('/', '.')
+                            }
+
+                            ClassInfo.create(name)?.also { builder.add(it) }
+
+                            return super.visitFile(file, attrs)
+                        }
+                    },
+                )
             }
-          }
-        )
-      }
+        }
+        return builder.build()
     }
-    return builder.build()
-  }
 }

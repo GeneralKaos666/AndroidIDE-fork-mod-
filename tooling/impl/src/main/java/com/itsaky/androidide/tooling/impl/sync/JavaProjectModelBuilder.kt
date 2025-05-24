@@ -31,33 +31,35 @@ import org.gradle.tooling.model.idea.IdeaProject
  * @author Akash Yadav
  */
 class JavaProjectModelBuilder(initializationParams: InitializeProjectParams) :
-  AbstractModelBuilder<JavaProjectModelBuilderParams, IJavaProject>(initializationParams) {
+    AbstractModelBuilder<JavaProjectModelBuilderParams, IJavaProject>(initializationParams) {
 
-  override fun build(param: JavaProjectModelBuilderParams): IJavaProject {
-    val compilerSettings = createCompilerSettings(param.project, param.module)
-    return JavaProjectImpl(param.module, compilerSettings, param.modulePaths)
-  }
-
-  private fun createCompilerSettings(
-    ideaProject: IdeaProject, module: IdeaModule): IJavaCompilerSettings {
-    val javaLanguageSettings = module.javaLanguageSettings
-      ?: return createCompilerSettings(ideaProject)
-    val languageLevel = javaLanguageSettings.languageLevel
-    val targetBytecodeVersion = javaLanguageSettings.targetBytecodeVersion
-    if (languageLevel == null || targetBytecodeVersion == null) {
-      return createCompilerSettings(ideaProject)
+    override fun build(param: JavaProjectModelBuilderParams): IJavaProject {
+        val compilerSettings = createCompilerSettings(param.project, param.module)
+        return JavaProjectImpl(param.module, compilerSettings, param.modulePaths)
     }
-    val source = languageLevel.toString()
-    val target = targetBytecodeVersion.toString()
-    return JavaModuleCompilerSettings(source, target)
-  }
 
-  private fun createCompilerSettings(ideaProject: IdeaProject): IJavaCompilerSettings {
-    val settings = ideaProject.javaLanguageSettings ?: return JavaModuleCompilerSettings()
-    val source = settings.languageLevel
-    val target = settings.targetBytecodeVersion
-    return if (source == null || target == null) {
-      JavaModuleCompilerSettings()
-    } else JavaModuleCompilerSettings(source.toString(), target.toString())
-  }
+    private fun createCompilerSettings(
+        ideaProject: IdeaProject,
+        module: IdeaModule,
+    ): IJavaCompilerSettings {
+        val javaLanguageSettings =
+            module.javaLanguageSettings ?: return createCompilerSettings(ideaProject)
+        val languageLevel = javaLanguageSettings.languageLevel
+        val targetBytecodeVersion = javaLanguageSettings.targetBytecodeVersion
+        if (languageLevel == null || targetBytecodeVersion == null) {
+            return createCompilerSettings(ideaProject)
+        }
+        val source = languageLevel.toString()
+        val target = targetBytecodeVersion.toString()
+        return JavaModuleCompilerSettings(source, target)
+    }
+
+    private fun createCompilerSettings(ideaProject: IdeaProject): IJavaCompilerSettings {
+        val settings = ideaProject.javaLanguageSettings ?: return JavaModuleCompilerSettings()
+        val source = settings.languageLevel
+        val target = settings.targetBytecodeVersion
+        return if (source == null || target == null) {
+            JavaModuleCompilerSettings()
+        } else JavaModuleCompilerSettings(source.toString(), target.toString())
+    }
 }

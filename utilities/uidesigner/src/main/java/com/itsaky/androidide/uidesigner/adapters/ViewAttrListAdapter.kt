@@ -38,66 +38,72 @@ import com.itsaky.androidide.utils.DialogUtils
  * @author Akash Yadav
  */
 internal class ViewAttrListAdapter(
-  attributes: List<com.itsaky.androidide.inflater.IAttribute>,
-  private val viewModel: WorkspaceViewModel?,
-  private val onDeleteAttr: (com.itsaky.androidide.inflater.IAttribute) -> Boolean,
-  private val onClick: (com.itsaky.androidide.inflater.IAttribute) -> Unit
+    attributes: List<com.itsaky.androidide.inflater.IAttribute>,
+    private val viewModel: WorkspaceViewModel?,
+    private val onDeleteAttr: (com.itsaky.androidide.inflater.IAttribute) -> Boolean,
+    private val onClick: (com.itsaky.androidide.inflater.IAttribute) -> Unit,
 ) : RecyclerView.Adapter<VH>() {
 
-  private val attributes = attributes.sortedBy { it.name }.toMutableList()
+    private val attributes = attributes.sortedBy { it.name }.toMutableList()
 
-  class VH(val binding: LayoutViewattrItemBinding) : RecyclerView.ViewHolder(binding.root)
+    class VH(val binding: LayoutViewattrItemBinding) : RecyclerView.ViewHolder(binding.root)
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-    return VH(LayoutViewattrItemBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-  }
-
-  override fun getItemCount(): Int {
-    return attributes.size
-  }
-
-  @SuppressLint("SetTextI18n")
-  override fun onBindViewHolder(holder: VH, position: Int) {
-    val binding = holder.binding
-    val attr = this.attributes[position] as UiAttribute
-  
-    val ns = attr.namespace?.prefix?.let { "${it}:" } ?: ""
-    binding.attrName.text = "${ns}${attr.name}"
-    binding.attrValue.text = attr.value
-
-    if (!attr.isRequired) {
-      binding.deleteAttr.visibility = View.VISIBLE
-      binding.deleteAttr.setOnClickListener {
-        confirmDeleteAttr(binding.deleteAttr.context, attr, position)
-      }
-    } else binding.deleteAttr.visibility = View.INVISIBLE
-
-    binding.root.setOnClickListener {
-      onClick(attr)
-      val viewModel = this.viewModel ?: return@setOnClickListener
-      val attrUpdateListener =
-        object : SingleAttributeChangeListener() {
-          override fun onAttributeUpdated(view: com.itsaky.androidide.inflater.IView, attribute: com.itsaky.androidide.inflater.IAttribute, oldValue: String) {
-            binding.attrValue.text = attribute.value
-          }
-        }
-      viewModel.view?.registerAttributeChangeListener(attrUpdateListener)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        return VH(
+            LayoutViewattrItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        )
     }
-  }
 
-  private fun confirmDeleteAttr(context: Context, attribute: UiAttribute, position: Int) {
-    DialogUtils.newYesNoDialog(
-        context = context,
-        title = context.getString(R.string.title_confirm_delete),
-        message = context.getString(R.string.msg_confirm_delete, attribute.qualifiedName),
-        positiveClickListener = { dialog, _ ->
-          dialog.dismiss()
-          if (onDeleteAttr(attribute)) {
-            this.attributes.removeAt(position)
-            notifyItemRemoved(position)
-          }
+    override fun getItemCount(): Int {
+        return attributes.size
+    }
+
+    @SuppressLint("SetTextI18n")
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        val binding = holder.binding
+        val attr = this.attributes[position] as UiAttribute
+
+        val ns = attr.namespace?.prefix?.let { "${it}:" } ?: ""
+        binding.attrName.text = "${ns}${attr.name}"
+        binding.attrValue.text = attr.value
+
+        if (!attr.isRequired) {
+            binding.deleteAttr.visibility = View.VISIBLE
+            binding.deleteAttr.setOnClickListener {
+                confirmDeleteAttr(binding.deleteAttr.context, attr, position)
+            }
+        } else binding.deleteAttr.visibility = View.INVISIBLE
+
+        binding.root.setOnClickListener {
+            onClick(attr)
+            val viewModel = this.viewModel ?: return@setOnClickListener
+            val attrUpdateListener =
+                object : SingleAttributeChangeListener() {
+                    override fun onAttributeUpdated(
+                        view: com.itsaky.androidide.inflater.IView,
+                        attribute: com.itsaky.androidide.inflater.IAttribute,
+                        oldValue: String,
+                    ) {
+                        binding.attrValue.text = attribute.value
+                    }
+                }
+            viewModel.view?.registerAttributeChangeListener(attrUpdateListener)
         }
-      )
-      .show()
-  }
+    }
+
+    private fun confirmDeleteAttr(context: Context, attribute: UiAttribute, position: Int) {
+        DialogUtils.newYesNoDialog(
+                context = context,
+                title = context.getString(R.string.title_confirm_delete),
+                message = context.getString(R.string.msg_confirm_delete, attribute.qualifiedName),
+                positiveClickListener = { dialog, _ ->
+                    dialog.dismiss()
+                    if (onDeleteAttr(attribute)) {
+                        this.attributes.removeAt(position)
+                        notifyItemRemoved(position)
+                    }
+                },
+            )
+            .show()
+    }
 }

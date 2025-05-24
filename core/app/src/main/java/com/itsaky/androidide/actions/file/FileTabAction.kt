@@ -31,31 +31,31 @@ import com.itsaky.androidide.activities.editor.EditorHandlerActivity
  */
 abstract class FileTabAction : EditorActivityAction() {
 
-  override var location: Location = EDITOR_FILE_TABS
-  override var requiresUIThread: Boolean = true
+    override var location: Location = EDITOR_FILE_TABS
+    override var requiresUIThread: Boolean = true
 
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
 
-    if (!visible) {
-      return
-    }
-
-    val activity =
-      data.getActivity()
-        ?: run {
-          markInvisible()
-          return
+        if (!visible) {
+            return
         }
 
-    visible = activity.editorViewModel.getOpenedFiles().isNotEmpty()
-    enabled = visible && !activity.areFilesSaving()
-  }
+        val activity =
+            data.getActivity()
+                ?: run {
+                    markInvisible()
+                    return
+                }
 
-  override suspend fun execAction(data: ActionData): Any {
-    val activity = data.getActivity() ?: return false
-    return activity.doAction(data)
-  }
+        visible = activity.editorViewModel.getOpenedFiles().isNotEmpty()
+        enabled = visible && !activity.areFilesSaving()
+    }
 
-  abstract fun EditorHandlerActivity.doAction(data: ActionData): Boolean
+    override suspend fun execAction(data: ActionData): Any {
+        val activity = data.getActivity() ?: return false
+        return activity.doAction(data)
+    }
+
+    abstract fun EditorHandlerActivity.doAction(data: ActionData): Boolean
 }

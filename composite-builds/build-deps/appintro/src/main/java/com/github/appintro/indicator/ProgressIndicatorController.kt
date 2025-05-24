@@ -11,15 +11,16 @@ import com.github.appintro.internal.LayoutUtil
 internal const val DEFAULT_COLOR = 1
 
 /**
- * An [IndicatorController] that shows a [ProgressBar] for express the number of
- * page that have been completed.
- * Use this when the number of page is higher and the [DotIndicatorController]
- * would not fit in the screen.
+ * An [IndicatorController] that shows a [ProgressBar] for express the number of page that have been
+ * completed. Use this when the number of page is higher and the [DotIndicatorController] would not
+ * fit in the screen.
  */
-class ProgressIndicatorController @JvmOverloads constructor(
+class ProgressIndicatorController
+@JvmOverloads
+constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = android.R.attr.progressBarStyleHorizontal
+    defStyleAttr: Int = android.R.attr.progressBarStyleHorizontal,
 ) : IndicatorController, ProgressBar(context, attrs, defStyleAttr) {
 
     override var selectedIndicatorColor = DEFAULT_COLOR
@@ -28,7 +29,7 @@ class ProgressIndicatorController @JvmOverloads constructor(
             progressDrawable.colorFilter =
                 BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
                     value,
-                    BlendModeCompat.SRC_ATOP
+                    BlendModeCompat.SRC_ATOP,
                 )
         }
 
@@ -38,7 +39,7 @@ class ProgressIndicatorController @JvmOverloads constructor(
             progressDrawable.colorFilter =
                 BlendModeColorFilterCompat.createBlendModeColorFilterCompat(
                     value,
-                    BlendModeCompat.SRC_ATOP
+                    BlendModeCompat.SRC_ATOP,
                 )
         }
 
@@ -56,12 +57,14 @@ class ProgressIndicatorController @JvmOverloads constructor(
     }
 
     override fun selectPosition(index: Int) {
-        this.progress = if (isRtl) {
-            max - index
-        } else {
-            index + 1
-        }
+        this.progress =
+            if (isRtl) {
+                max - index
+            } else {
+                index + 1
+            }
     }
 
-    private val isRtl: Boolean get() = LayoutUtil.isRtl(this.context)
+    private val isRtl: Boolean
+        get() = LayoutUtil.isRtl(this.context)
 }

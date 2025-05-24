@@ -24,12 +24,12 @@ import com.itsaky.androidide.lsp.models.CompletionItem
 import com.itsaky.androidide.lsp.models.CompletionResult
 import com.itsaky.androidide.lsp.models.MatchLevel.NO_MATCH
 import com.itsaky.androidide.progress.ProgressManager.Companion.abortIfCancelled
+import java.nio.file.Path
 import openjdk.source.tree.ClassTree
 import openjdk.source.tree.CompilationUnitTree
 import openjdk.source.tree.MethodTree
 import openjdk.source.tree.Tree
 import openjdk.source.util.TreePath
-import java.nio.file.Path
 
 /**
  * Provides keyword completions.
@@ -37,54 +37,58 @@ import java.nio.file.Path
  * @author Akash Yadav
  */
 class KeywordCompletionProvider(
-  completingFile: Path,
-  cursor: Long,
-  compiler: JavaCompilerService,
-  settings: IServerSettings
+    completingFile: Path,
+    cursor: Long,
+    compiler: JavaCompilerService,
+    settings: IServerSettings,
 ) : IJavaCompletionProvider(cursor, completingFile, compiler, settings) {
 
-  override fun doComplete(
-    task: CompileTask,
-    path: TreePath,
-    partial: String,
-    endsWithParen: Boolean,
-  ): CompletionResult {
+    override fun doComplete(
+        task: CompileTask,
+        path: TreePath,
+        partial: String,
+        endsWithParen: Boolean,
+    ): CompletionResult {
 
-    if (partial.isBlank()) {
-      return CompletionResult.EMPTY
+        if (partial.isBlank()) {
+            return CompletionResult.EMPTY
+        }
+
+        val level: Tree = findKeywordLevel(path)
+        var keywords = arrayOf<String>()
+        when (level) {
+            is CompilationUnitTree -> keywords = TOP_LEVEL_KEYWORDS
+            is ClassTree -> keywords = CLASS_BODY_KEYWORDS
+            is MethodTree -> keywords = METHOD_BODY_KEYWORDS
+        }
+
+        abortIfCancelled()
+        abortCompletionIfCancelled()
+        val list = mutableListOf<CompletionItem>()
+        for (k in keywords) {
+            val matchLevel = matchLevel(k, partial)
+            if (matchLevel == NO_MATCH) {
+                continue
+            }
+
+            list.add(keyword(k, partial, 100))
+        }
+
+        return CompletionResult(list)
     }
 
-    val level: Tree = findKeywordLevel(path)
-    var keywords = arrayOf<String>()
-    when (level) {
-      is CompilationUnitTree -> keywords = TOP_LEVEL_KEYWORDS
-      is ClassTree -> keywords = CLASS_BODY_KEYWORDS
-      is MethodTree -> keywords = METHOD_BODY_KEYWORDS
+    private fun findKeywordLevel(treePath: TreePath): Tree {
+        var path: TreePath? = treePath
+        while (path != null) {
+            if (
+                path.leaf is CompilationUnitTree ||
+                    path.leaf is ClassTree ||
+                    path.leaf is MethodTree
+            ) {
+                return path.leaf
+            }
+            path = path.parentPath
+        }
+        throw RuntimeException("empty path")
     }
-
-    abortIfCancelled()
-    abortCompletionIfCancelled()
-    val list = mutableListOf<CompletionItem>()
-    for (k in keywords) {
-      val matchLevel = matchLevel(k, partial)
-      if (matchLevel == NO_MATCH) {
-        continue
-      }
-
-      list.add(keyword(k, partial, 100))
-    }
-
-    return CompletionResult(list)
-  }
-
-  private fun findKeywordLevel(treePath: TreePath): Tree {
-    var path: TreePath? = treePath
-    while (path != null) {
-      if (path.leaf is CompilationUnitTree || path.leaf is ClassTree || path.leaf is MethodTree) {
-        return path.leaf
-      }
-      path = path.parentPath
-    }
-    throw RuntimeException("empty path")
-  }
 }

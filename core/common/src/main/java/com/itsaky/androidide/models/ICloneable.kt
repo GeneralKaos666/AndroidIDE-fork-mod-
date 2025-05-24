@@ -23,5 +23,5 @@ package com.itsaky.androidide.models
  * @author Akash Yadav
  */
 interface ICloneable {
-  fun clone(): ICloneable
+    fun clone(): ICloneable
 }

@@ -26,18 +26,18 @@ import android.view.View
  * @author Akash Yadav
  */
 class WidgetDragShadowBuilder(view: View) : View.DragShadowBuilder(view) {
-  companion object {
-    const val TOUCH_Y_OFFSET = 0.3
-  }
-
-  override fun onProvideShadowMetrics(outShadowSize: Point, outShadowTouchPoint: Point) {
-    if (view != null) {
-      val width = view.width
-      val height = view.height
-      outShadowSize.set(width, height)
-      outShadowTouchPoint.set(width / 2, height + (height * TOUCH_Y_OFFSET).toInt())
-    } else {
-      super.onProvideShadowMetrics(outShadowSize, outShadowTouchPoint)
+    companion object {
+        const val TOUCH_Y_OFFSET = 0.3
     }
-  }
+
+    override fun onProvideShadowMetrics(outShadowSize: Point, outShadowTouchPoint: Point) {
+        if (view != null) {
+            val width = view.width
+            val height = view.height
+            outShadowSize.set(width, height)
+            outShadowTouchPoint.set(width / 2, height + (height * TOUCH_Y_OFFSET).toInt())
+        } else {
+            super.onProvideShadowMetrics(outShadowSize, outShadowTouchPoint)
+        }
+    }
 }

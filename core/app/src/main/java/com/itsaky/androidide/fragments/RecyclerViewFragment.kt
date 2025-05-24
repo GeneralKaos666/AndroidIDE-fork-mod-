@@ -30,55 +30,47 @@ import com.itsaky.androidide.databinding.FragmentRecyclerviewBinding
  * @author Akash Yadav
  */
 abstract class RecyclerViewFragment<A : RecyclerView.Adapter<*>> :
-  EmptyStateFragment<FragmentRecyclerviewBinding>(FragmentRecyclerviewBinding::inflate) {
+    EmptyStateFragment<FragmentRecyclerviewBinding>(FragmentRecyclerviewBinding::inflate) {
 
-  private var unsavedAdapter: A? = null
+    private var unsavedAdapter: A? = null
 
-  /**
-   * Creates the adapter for the [RecyclerView].
-   */
-  protected abstract fun onCreateAdapter(): RecyclerView.Adapter<*>
+    /** Creates the adapter for the [RecyclerView]. */
+    protected abstract fun onCreateAdapter(): RecyclerView.Adapter<*>
 
-  /**
-   * Creates the layout manager for the [RecyclerView].
-   */
-  protected open fun onCreateLayoutManager(): LayoutManager {
-    return LinearLayoutManager(requireContext())
-  }
-
-  /**
-   * Sets up the recycler view in the fragment.
-   */
-  protected open fun onSetupRecyclerView() {
-    binding.root.apply {
-      layoutManager = onCreateLayoutManager()
-      adapter = unsavedAdapter ?: onCreateAdapter()
+    /** Creates the layout manager for the [RecyclerView]. */
+    protected open fun onCreateLayoutManager(): LayoutManager {
+        return LinearLayoutManager(requireContext())
     }
-  }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    onSetupRecyclerView()
+    /** Sets up the recycler view in the fragment. */
+    protected open fun onSetupRecyclerView() {
+        binding.root.apply {
+            layoutManager = onCreateLayoutManager()
+            adapter = unsavedAdapter ?: onCreateAdapter()
+        }
+    }
 
-    unsavedAdapter = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        onSetupRecyclerView()
 
-    checkIsEmpty()
-  }
+        unsavedAdapter = null
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    unsavedAdapter = null
-  }
+        checkIsEmpty()
+    }
 
-  /**
-   * Set the adapter for the [RecyclerView].
-   */
-  fun setAdapter(adapter: A) {
-    _binding?.root?.let { list -> list.adapter = adapter } ?: run { unsavedAdapter = adapter }
-    checkIsEmpty()
-  }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        unsavedAdapter = null
+    }
 
-  private fun checkIsEmpty() {
-    emptyStateViewModel.isEmpty.value = _binding?.root?.adapter?.itemCount == 0
-  }
+    /** Set the adapter for the [RecyclerView]. */
+    fun setAdapter(adapter: A) {
+        _binding?.root?.let { list -> list.adapter = adapter } ?: run { unsavedAdapter = adapter }
+        checkIsEmpty()
+    }
+
+    private fun checkIsEmpty() {
+        emptyStateViewModel.isEmpty.value = _binding?.root?.adapter?.itemCount == 0
+    }
 }

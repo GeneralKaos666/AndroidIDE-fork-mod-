@@ -22,8 +22,9 @@ import androidx.navigation.fragment.FragmentNavigatorDestinationBuilder
 import kotlin.reflect.KClass
 
 /**
- * An [ActionItem] that is shown in the editor activity's sidebar. If the action's [fragmentClass] is null,
- * the [ActionItem.execAction] is called when the user clicks on the navigation item in the navigation rail.
+ * An [ActionItem] that is shown in the editor activity's sidebar. If the action's [fragmentClass]
+ * is null, the [ActionItem.execAction] is called when the user clicks on the navigation item in the
+ * navigation rail.
  *
  * The [id] property of the action is used as the route for the navigation graph.
  *
@@ -31,15 +32,15 @@ import kotlin.reflect.KClass
  */
 interface SidebarActionItem : ActionItem {
 
-  /**
-   * The fragment class for this action item. Implementations can provide a fragment class which
-   * will be shown when this action item is selected.
-   */
-  val fragmentClass: KClass<out Fragment>?
+    /**
+     * The fragment class for this action item. Implementations can provide a fragment class which
+     * will be shown when this action item is selected.
+     */
+    val fragmentClass: KClass<out Fragment>?
 
-  /**
-   * Build/setup the fragment navigation for this action item. This method is called only if the [fragmentClass] property
-   * is non-null.
-   */
-  fun FragmentNavigatorDestinationBuilder.buildNavigation() {}
+    /**
+     * Build/setup the fragment navigation for this action item. This method is called only if the
+     * [fragmentClass] property is non-null.
+     */
+    fun FragmentNavigatorDestinationBuilder.buildNavigation() {}
 }

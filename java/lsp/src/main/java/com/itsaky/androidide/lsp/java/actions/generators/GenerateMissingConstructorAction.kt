@@ -33,55 +33,57 @@ import org.slf4j.LoggerFactory
 /** @author Akash Yadav */
 class GenerateMissingConstructorAction : BaseJavaCodeAction() {
 
-  override val id = "ide.editor.lsp.java.generator.missingConstructor"
-  override var label: String = ""
-  private val diagnosticCode = DiagnosticCode.MISSING_CONSTRUCTOR.id
-  override val titleTextRes: Int = R.string.action_generate_missing_constructor
+    override val id = "ide.editor.lsp.java.generator.missingConstructor"
+    override var label: String = ""
+    private val diagnosticCode = DiagnosticCode.MISSING_CONSTRUCTOR.id
+    override val titleTextRes: Int = R.string.action_generate_missing_constructor
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(GenerateMissingConstructorAction::class.java)
-  }
-
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-
-    if (
-      !visible ||
-      !data.hasRequiredData(com.itsaky.androidide.lsp.models.DiagnosticItem::class.java)
-    ) {
-      markInvisible()
-      return
+        private val log = LoggerFactory.getLogger(GenerateMissingConstructorAction::class.java)
     }
 
-    val diagnostic = data[com.itsaky.androidide.lsp.models.DiagnosticItem::class.java]!!
-    if (diagnosticCode != diagnostic.code) {
-      markInvisible()
-      return
-    }
-  }
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
 
-  override suspend fun execAction(data: ActionData): Any {
-    val diagnostic = data[com.itsaky.androidide.lsp.models.DiagnosticItem::class.java]!!
-    val compiler =
-      JavaCompilerProvider.get(
-        IProjectManager.getInstance().getWorkspace()?.findModuleForFile(data.requireFile(), false)
-          ?: return Any()
-      )
-    val file = data.requirePath()
-    return compiler.compile(file).get { task ->
-      val needsConstructor =
-        CodeActionUtils.findClassNeedingConstructor(task, diagnostic.range) ?: return@get false
-      return@get GenerateRecordConstructor(needsConstructor)
-    }
-  }
+        if (
+            !visible ||
+                !data.hasRequiredData(com.itsaky.androidide.lsp.models.DiagnosticItem::class.java)
+        ) {
+            markInvisible()
+            return
+        }
 
-  override fun postExec(data: ActionData, result: Any) {
-    if (result !is GenerateRecordConstructor) {
-      log.warn("Unable to generate constructor")
-      return
+        val diagnostic = data[com.itsaky.androidide.lsp.models.DiagnosticItem::class.java]!!
+        if (diagnosticCode != diagnostic.code) {
+            markInvisible()
+            return
+        }
     }
 
-    performCodeAction(data, result)
-  }
+    override suspend fun execAction(data: ActionData): Any {
+        val diagnostic = data[com.itsaky.androidide.lsp.models.DiagnosticItem::class.java]!!
+        val compiler =
+            JavaCompilerProvider.get(
+                IProjectManager.getInstance()
+                    .getWorkspace()
+                    ?.findModuleForFile(data.requireFile(), false) ?: return Any()
+            )
+        val file = data.requirePath()
+        return compiler.compile(file).get { task ->
+            val needsConstructor =
+                CodeActionUtils.findClassNeedingConstructor(task, diagnostic.range)
+                    ?: return@get false
+            return@get GenerateRecordConstructor(needsConstructor)
+        }
+    }
+
+    override fun postExec(data: ActionData, result: Any) {
+        if (result !is GenerateRecordConstructor) {
+            log.warn("Unable to generate constructor")
+            return
+        }
+
+        performCodeAction(data, result)
+    }
 }

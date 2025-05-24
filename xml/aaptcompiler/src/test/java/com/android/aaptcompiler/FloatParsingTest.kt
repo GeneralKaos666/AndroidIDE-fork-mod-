@@ -114,7 +114,7 @@ class FloatParsingTest {
         // Basic Sub-Integer parsing
         testParseDecSupported(".1", .1.toFloat())
 
-        //testParseDecSupported("2.25", 2.25.toFloat())
+        // testParseDecSupported("2.25", 2.25.toFloat())
         testParseDecSupported("-2.25", (-2.25).toFloat())
 
         // Minimum normal float value
@@ -258,16 +258,20 @@ class FloatParsingTest {
     }
 
     private fun needsModificationForKotlin(hexText: String): Boolean {
-        return !hexText.lowercase().contains('p') && hexText.all {
-            when (it) {
-                in '0'..'9' -> true
-                in 'a'..'f' -> true
-                in 'A'..'F' -> true
-                'x', 'X' -> true
-                '.', '-', '+' -> true
-                else -> false
+        return !hexText.lowercase().contains('p') &&
+            hexText.all {
+                when (it) {
+                    in '0'..'9' -> true
+                    in 'a'..'f' -> true
+                    in 'A'..'F' -> true
+                    'x',
+                    'X' -> true
+                    '.',
+                    '-',
+                    '+' -> true
+                    else -> false
+                }
             }
-        }
     }
 
     private fun testParseDecSupported(text: String, expected: Float) {
@@ -290,25 +294,26 @@ class FloatParsingTest {
 
     /**
      * Tests a parseHex value that is expected to succeed. This must have the same result as the
-     * String.toFloat() method, with the possible addition of a "p0" to the text to make it compatible
-     * with Kotlin's toFloat method.
+     * String.toFloat() method, with the possible addition of a "p0" to the text to make it
+     * compatible with Kotlin's toFloat method.
      *
      * Specifically, the hex parsing functionality works for all "normal" floating point numbers.
      * (i.e.) floating point values that do not have a special value in the exponent to force
-     **/
+     */
     private fun testParseHexNormal(text: String, expected: Float) {
         val parsedFloat = parseFloat(text)
         Truth.assertThat(parsedFloat).isEqualTo(expected)
-        // We need to append p0 for default float parsing that doesn't already have an exponent marker.
+        // We need to append p0 for default float parsing that doesn't already have an exponent
+        // marker.
         // As this is how Kotlin does it normally.
         val modifiedText = if (needsModificationForKotlin(text)) text + "p0" else text
         Truth.assertThat(parsedFloat).isEqualTo(modifiedText.toFloat())
     }
 
     /**
-     * Tests a parseHex value with a subnormal (denormal) or special values. parseFloat() should fail
-     * in these cases, but the text (with the possible addition of "p0") should succeed when parsing
-     * normally in Kotlin's String.toFloat() method.
+     * Tests a parseHex value with a subnormal (denormal) or special values. parseFloat() should
+     * fail in these cases, but the text (with the possible addition of "p0") should succeed when
+     * parsing normally in Kotlin's String.toFloat() method.
      */
     private fun testParseHexNonnormal(text: String, expected: Float) {
         val parsedFloat = parseFloat(text)
@@ -322,14 +327,10 @@ class FloatParsingTest {
         }
     }
 
-    /**
-     * Tests a failure to parse and ensures Kotlin has the same behavior.
-     */
+    /** Tests a failure to parse and ensures Kotlin has the same behavior. */
     private fun testHexFailure(text: String) {
         Truth.assertThat(parseFloat(text)).isNull()
         val modifiedText = if (needsModificationForKotlin(text)) text + "p0" else text
         Truth.assertThat(modifiedText.toFloatOrNull()).isNull()
     }
-
-
 }

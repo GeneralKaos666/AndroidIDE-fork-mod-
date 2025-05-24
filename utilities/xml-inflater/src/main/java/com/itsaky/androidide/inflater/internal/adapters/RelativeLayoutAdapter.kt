@@ -35,19 +35,19 @@ import com.itsaky.androidide.resources.R.string
 @IncludeInDesigner(group = LAYOUTS)
 open class RelativeLayoutAdapter<T : RelativeLayout> : ViewGroupAdapter<T>() {
 
-  override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
-    super.createAttrHandlers(create)
-    create("gravity") { view.gravity = parseGravity(value) }
-    create("ignoreGravity") { view.ignoreGravity = parseId(file.resName, value) }
-  }
+    override fun createAttrHandlers(create: (String, AttributeHandlerScope<T>.() -> Unit) -> Unit) {
+        super.createAttrHandlers(create)
+        create("gravity") { view.gravity = parseGravity(value) }
+        create("ignoreGravity") { view.ignoreGravity = parseId(file.resName, value) }
+    }
 
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(
-        RelativeLayout::class.java,
-        string.widget_relative_layout,
-        drawable.ic_widget_relative_layout
-      )
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                RelativeLayout::class.java,
+                string.widget_relative_layout,
+                drawable.ic_widget_relative_layout,
+            )
+        )
+    }
 }

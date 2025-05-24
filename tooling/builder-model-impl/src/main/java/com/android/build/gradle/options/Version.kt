@@ -26,7 +26,7 @@ enum class Version(
      * getDeprecationTargetMessage()/getRemovedVersionMessage() instead to ensure consistent message
      * format.
      */
-     val versionString: String?
+    val versionString: String?
 ) {
 
     /**
@@ -34,7 +34,6 @@ enum class Version(
      * guaranteed to be before 4.0.
      */
     VERSION_BEFORE_4_0(null),
-
     VERSION_3_5("3.5"),
     VERSION_3_6("3.6"),
     VERSION_4_0("4.0"),
@@ -47,9 +46,7 @@ enum class Version(
     VERSION_8_1("8.1"),
     VERSION_8_2("8.2"),
     VERSION_8_3("8.3"),
-    VERSION_9_0("9.0"),
-
-    ; // end of enums
+    VERSION_9_0("9.0"); // end of enums
 
     fun getDeprecationTargetMessage(): String {
         check(this != VERSION_BEFORE_4_0)

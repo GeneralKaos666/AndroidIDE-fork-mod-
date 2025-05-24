@@ -29,20 +29,20 @@ import org.slf4j.LoggerFactory
  */
 class PrintingVisitor : TreeScanner() {
 
-  companion object {
+    companion object {
 
-    private val log = LoggerFactory.getLogger(PrintingVisitor::class.java)
-  }
-
-  override fun scan(tree: JCTree?) {
-    log.debug(if (tree != null) tree::class.java.name else "NullClass", tree)
-    super.scan(tree)
-  }
-
-  override fun visitErroneous(tree: JCErroneous?) {
-    if (tree?.errs != null) {
-      tree.errs.forEach { scan(it) }
+        private val log = LoggerFactory.getLogger(PrintingVisitor::class.java)
     }
-    super.visitErroneous(tree)
-  }
+
+    override fun scan(tree: JCTree?) {
+        log.debug(if (tree != null) tree::class.java.name else "NullClass", tree)
+        super.scan(tree)
+    }
+
+    override fun visitErroneous(tree: JCErroneous?) {
+        if (tree?.errs != null) {
+            tree.errs.forEach { scan(it) }
+        }
+        super.visitErroneous(tree)
+    }
 }

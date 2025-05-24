@@ -29,39 +29,39 @@ import java.io.Closeable
  * @author Akash Yadav
  */
 class TreeSitterLanguageSpec
-@JvmOverloads constructor(
-  val spec: TsLanguageSpec,
-  indentsQueryScm: String = ""
-) : Closeable {
+@JvmOverloads
+constructor(val spec: TsLanguageSpec, indentsQueryScm: String = "") : Closeable {
 
-  // <editor-fold desc="Proxy properties">
-  val language: TSLanguage
-    get() = spec.language
-  // </editor-fold>
+    // <editor-fold desc="Proxy properties">
+    val language: TSLanguage
+        get() = spec.language
 
-  val indentsQuery: TSQuery? = if (indentsQueryScm.isBlank()) {
-    TSQuery.EMPTY
-  } else {
-    TSQuery.create(language, indentsQueryScm)
-      .let { if (it.canAccess()) it else null }
-  }
+    // </editor-fold>
 
-  init {
-    indentsQuery?.validateOrThrow(name = "indents")
-  }
+    val indentsQuery: TSQuery? =
+        if (indentsQueryScm.isBlank()) {
+            TSQuery.EMPTY
+        } else {
+            TSQuery.create(language, indentsQueryScm).let { if (it.canAccess()) it else null }
+        }
 
-  override fun close() {
-    indentsQuery?.close()
-    if (spec.language.isExternal) {
-      spec.language.close()
+    init {
+        indentsQuery?.validateOrThrow(name = "indents")
     }
-    spec.close()
-  }
+
+    override fun close() {
+        indentsQuery?.close()
+        if (spec.language.isExternal) {
+            spec.language.close()
+        }
+        spec.close()
+    }
 }
 
 private fun TSQuery.validateOrThrow(name: String) {
-  if (errorType != TSQueryError.None) {
-    throw IllegalArgumentException(
-      "query(name:$name) parsing failed: ${errorType.name} at text offset $errorOffset")
-  }
+    if (errorType != TSQueryError.None) {
+        throw IllegalArgumentException(
+            "query(name:$name) parsing failed: ${errorType.name} at text offset $errorOffset"
+        )
+    }
 }

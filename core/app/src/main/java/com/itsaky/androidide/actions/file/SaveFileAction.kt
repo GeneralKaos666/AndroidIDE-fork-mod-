@@ -31,75 +31,78 @@ import org.slf4j.LoggerFactory
 /** @author Akash Yadav */
 class SaveFileAction(context: Context, override val order: Int) : EditorRelatedAction() {
 
-  override val id: String = "ide.editor.files.saveAll"
-  override var requiresUIThread: Boolean = false
+    override val id: String = "ide.editor.files.saveAll"
+    override var requiresUIThread: Boolean = false
 
-  companion object {
-    private val log = LoggerFactory.getLogger(SaveFileAction::class.java)
-  }
-
-  init {
-    label = context.getString(R.string.save)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_save)
-  }
-
-  override fun prepare(data: ActionData) {
-    super.prepare(data)
-    val context = data.getActivity() ?: run {
-      visible = false
-      enabled = false
-      return
+    companion object {
+        private val log = LoggerFactory.getLogger(SaveFileAction::class.java)
     }
 
-    visible = context.editorViewModel.getOpenedFiles().isNotEmpty()
-    enabled = context.areFilesModified() && !context.areFilesSaving()
-  }
-
-  override suspend fun execAction(data: ActionData): ResultWrapper {
-    val context = data.getActivity() ?: return ResultWrapper()
-
-    if (context.areFilesSaving()) {
-      return ResultWrapper(isAlreadySaving = true)
+    init {
+        label = context.getString(R.string.save)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_save)
     }
 
-    return try {
-      // Cannot use context.saveAll() because this.execAction is called on non-UI thread
-      // and saveAll call will result in UI actions
-      ResultWrapper(result = context.saveAllResult())
-    } catch (error: Throwable) {
-      log.error("Failed to save file", error)
-      ResultWrapper()
+    override fun prepare(data: ActionData) {
+        super.prepare(data)
+        val context =
+            data.getActivity()
+                ?: run {
+                    visible = false
+                    enabled = false
+                    return
+                }
+
+        visible = context.editorViewModel.getOpenedFiles().isNotEmpty()
+        enabled = context.areFilesModified() && !context.areFilesSaving()
     }
-  }
 
-  override fun postExec(data: ActionData, result: Any) {
-    if (result is ResultWrapper && result.result != null) {
-      val context = data.requireActivity()
+    override suspend fun execAction(data: ActionData): ResultWrapper {
+        val context = data.getActivity() ?: return ResultWrapper()
 
-      if (result.isAlreadySaving) {
-        context.flashError(R.string.msg_files_being_saved)
-        return
-      }
+        if (context.areFilesSaving()) {
+            return ResultWrapper(isAlreadySaving = true)
+        }
 
-      // show save notification before calling 'notifySyncNeeded' so that the file save notification
-      // does not overlap the sync notification
-      context.flashSuccess(R.string.all_saved)
-
-      val saveResult = result.result
-      if (saveResult.xmlSaved) {
-        ProjectManagerImpl.getInstance().generateSources()
-      }
-
-      if (saveResult.gradleSaved) {
-        context.editorViewModel.isSyncNeeded = true
-      }
-
-      context.invalidateOptionsMenu()
-    } else {
-      log.error("Failed to save file")
-      flashError(R.string.save_failed)
+        return try {
+            // Cannot use context.saveAll() because this.execAction is called on non-UI thread
+            // and saveAll call will result in UI actions
+            ResultWrapper(result = context.saveAllResult())
+        } catch (error: Throwable) {
+            log.error("Failed to save file", error)
+            ResultWrapper()
+        }
     }
-  }
 
-  inner class ResultWrapper(val isAlreadySaving: Boolean = false, val result: SaveResult? = null)
+    override fun postExec(data: ActionData, result: Any) {
+        if (result is ResultWrapper && result.result != null) {
+            val context = data.requireActivity()
+
+            if (result.isAlreadySaving) {
+                context.flashError(R.string.msg_files_being_saved)
+                return
+            }
+
+            // show save notification before calling 'notifySyncNeeded' so that the file save
+            // notification
+            // does not overlap the sync notification
+            context.flashSuccess(R.string.all_saved)
+
+            val saveResult = result.result
+            if (saveResult.xmlSaved) {
+                ProjectManagerImpl.getInstance().generateSources()
+            }
+
+            if (saveResult.gradleSaved) {
+                context.editorViewModel.isSyncNeeded = true
+            }
+
+            context.invalidateOptionsMenu()
+        } else {
+            log.error("Failed to save file")
+            flashError(R.string.save_failed)
+        }
+    }
+
+    inner class ResultWrapper(val isAlreadySaving: Boolean = false, val result: SaveResult? = null)
 }

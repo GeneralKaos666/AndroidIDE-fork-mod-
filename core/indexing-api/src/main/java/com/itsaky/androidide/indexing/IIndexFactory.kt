@@ -28,134 +28,126 @@ import com.itsaky.androidide.utils.ServiceLoader
  */
 interface IIndexFactory<I : IIndexable, P : IIndexParams> {
 
-  /**
-   * The parameters used to create the index.
-   */
-  var params: P?
+    /** The parameters used to create the index. */
+    var params: P?
 
-  /**
-   * Get the indexable type for the index.
-   */
-  fun indexableType(): Class<out I>
+    /** Get the indexable type for the index. */
+    fun indexableType(): Class<out I>
 
-  /**
-   * Get the parameter type for the index.
-   */
-  fun paramType(): Class<out P>
-
-  /**
-   * Create the index.
-   *
-   * @return The created [IIndex].
-   */
-  @Throws(NotFoundException::class)
-  fun create(): IIndex<I>
-
-  companion object {
-
-    private val factoryCache =
-      mutableMapOf<Class<out IIndexable>, IIndexFactory<out IIndexable, out IIndexParams>>()
+    /** Get the parameter type for the index. */
+    fun paramType(): Class<out P>
 
     /**
-     * Finds the index factory for the given symbol type returning `null` if not found.
+     * Create the index.
      *
-     * @param symTyp The symbol type.
-     * @param paramTyp The parameter type.
-     * @return The index factory.
+     * @return The created [IIndex].
      */
-    fun <T : IIndexable, P : IIndexParams> findFactoryForSymType(
-      symTyp: Class<out T>,
-      paramTyp: Class<out P>? = null
-    ) = __findFactoryForSymType(symTyp = symTyp, paramTyp = paramTyp, fail = false)
+    @Throws(NotFoundException::class) fun create(): IIndex<I>
 
-    /**
-     * Get the index factory for the given symbol type failing if not found.
-     *
-     * @param symTyp The symbol type.
-     * @param paramTyp The parameter type.
-     * @return The index factory.
-     */
-    fun <T : IIndexable, P : IIndexParams> getFactoryForSymType(
-      symTyp: Class<out T>,
-      paramTyp: Class<out P>? = null
-    ) = __findFactoryForSymType(symTyp = symTyp, paramTyp = paramTyp, fail = true)!!
+    companion object {
 
-    /**
-     * Finds an index factory for the given symbol type.
-     *
-     * @param symTyp The symbol type.
-     * @param paramTyp The parameter type.
-     * @param fail Whether to fail if no factory is found.
-     * @return The index factory.
-     */
-    @Suppress("UNCHECKED_CAST", "FunctionName")
-    private fun <T : IIndexable, P : IIndexParams> __findFactoryForSymType(
-      symTyp: Class<out T>,
-      paramTyp: Class<out P>?,
-      fail: Boolean = true
-    ): IIndexFactory<T, P>? {
-      var factory: IIndexFactory<T, P>? = this.factoryCache[symTyp] as IIndexFactory<T, P>?
-      if (factory != null) {
-        return factory
-      }
+        private val factoryCache =
+            mutableMapOf<Class<out IIndexable>, IIndexFactory<out IIndexable, out IIndexParams>>()
 
-      val impls = ServiceLoader.load(IIndexFactory::class.java).iterator()
-      while (impls.hasNext()) {
-        val impl = impls.next()
-        if (symTyp == impl.indexableType()) {
-          if (factory == null) {
-            factory = impl as IIndexFactory<T, P>
-            continue
-          }
+        /**
+         * Finds the index factory for the given symbol type returning `null` if not found.
+         *
+         * @param symTyp The symbol type.
+         * @param paramTyp The parameter type.
+         * @return The index factory.
+         */
+        fun <T : IIndexable, P : IIndexParams> findFactoryForSymType(
+            symTyp: Class<out T>,
+            paramTyp: Class<out P>? = null,
+        ) = __findFactoryForSymType(symTyp = symTyp, paramTyp = paramTyp, fail = false)
 
-          if (!fail) {
-            return null
-          }
+        /**
+         * Get the index factory for the given symbol type failing if not found.
+         *
+         * @param symTyp The symbol type.
+         * @param paramTyp The parameter type.
+         * @return The index factory.
+         */
+        fun <T : IIndexable, P : IIndexParams> getFactoryForSymType(
+            symTyp: Class<out T>,
+            paramTyp: Class<out P>? = null,
+        ) = __findFactoryForSymType(symTyp = symTyp, paramTyp = paramTyp, fail = true)!!
 
-          throw MultipleFactoriesException(symTyp)
+        /**
+         * Finds an index factory for the given symbol type.
+         *
+         * @param symTyp The symbol type.
+         * @param paramTyp The parameter type.
+         * @param fail Whether to fail if no factory is found.
+         * @return The index factory.
+         */
+        @Suppress("UNCHECKED_CAST", "FunctionName")
+        private fun <T : IIndexable, P : IIndexParams> __findFactoryForSymType(
+            symTyp: Class<out T>,
+            paramTyp: Class<out P>?,
+            fail: Boolean = true,
+        ): IIndexFactory<T, P>? {
+            var factory: IIndexFactory<T, P>? = this.factoryCache[symTyp] as IIndexFactory<T, P>?
+            if (factory != null) {
+                return factory
+            }
+
+            val impls = ServiceLoader.load(IIndexFactory::class.java).iterator()
+            while (impls.hasNext()) {
+                val impl = impls.next()
+                if (symTyp == impl.indexableType()) {
+                    if (factory == null) {
+                        factory = impl as IIndexFactory<T, P>
+                        continue
+                    }
+
+                    if (!fail) {
+                        return null
+                    }
+
+                    throw MultipleFactoriesException(symTyp)
+                }
+            }
+
+            if (factory != null && paramTyp != null && factory.paramType() != paramTyp) {
+                if (!fail) {
+                    return null
+                }
+                throw InvalidParamTypeException(factory, paramTyp)
+            }
+
+            if (factory == null) {
+                if (!fail) {
+                    return null
+                }
+
+                throw NotFoundException(symTyp)
+            }
+
+            val typ = factory.indexableType()
+
+            factoryCache.put(typ, factory)?.also {
+                throw IllegalStateException("Invalid cache state")
+            }
+
+            return factory
         }
-      }
-
-      if (factory != null && paramTyp != null && factory.paramType() != paramTyp) {
-        if (!fail) {
-          return null
-        }
-        throw InvalidParamTypeException(factory, paramTyp)
-      }
-
-      if (factory == null) {
-        if (!fail) {
-          return null
-        }
-
-        throw NotFoundException(symTyp)
-      }
-
-      val typ = factory.indexableType()
-
-      factoryCache.put(typ, factory)?.also {
-        throw IllegalStateException("Invalid cache state")
-      }
-
-      return factory
     }
-  }
 
-  /**
-   * Exception thrown when an [IIndexFactory] cannot be found.
-   */
-  class NotFoundException(sym: Class<out IIndexable>) :
-    RuntimeException("No index factory found for ${sym.name}")
+    /** Exception thrown when an [IIndexFactory] cannot be found. */
+    class NotFoundException(sym: Class<out IIndexable>) :
+        RuntimeException("No index factory found for ${sym.name}")
 
-  /**
-   * Exception thrown when multiple [IIndexFactory]s are found for a single symbol type.
-   */
-  class MultipleFactoriesException(sym: Class<out IIndexable>) :
-    RuntimeException("Multiple index factories found for ${sym.name}")
+    /** Exception thrown when multiple [IIndexFactory]s are found for a single symbol type. */
+    class MultipleFactoriesException(sym: Class<out IIndexable>) :
+        RuntimeException("Multiple index factories found for ${sym.name}")
 
-  /**
-   * Exception thrown when the index parameters of a factory are of invalid type.
-   */
-  class InvalidParamTypeException(factory: IIndexFactory<*, *>, paramTyp: Class<out IIndexParams>) :
-    RuntimeException("Factory ${factory.javaClass} expected parameters of type ${factory.paramType()} but an instance of $paramTyp was provided")
+    /** Exception thrown when the index parameters of a factory are of invalid type. */
+    class InvalidParamTypeException(
+        factory: IIndexFactory<*, *>,
+        paramTyp: Class<out IIndexParams>,
+    ) :
+        RuntimeException(
+            "Factory ${factory.javaClass} expected parameters of type ${factory.paramType()} but an instance of $paramTyp was provided"
+        )
 }

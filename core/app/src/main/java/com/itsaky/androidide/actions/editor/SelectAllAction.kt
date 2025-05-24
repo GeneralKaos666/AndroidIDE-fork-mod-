@@ -24,21 +24,22 @@ import com.itsaky.androidide.actions.BaseEditorAction
 /** @author Akash Yadav */
 class SelectAllAction(context: Context, override val order: Int) : BaseEditorAction() {
 
-  init {
-    label = context.getString(android.R.string.selectAll)
+    init {
+        label = context.getString(android.R.string.selectAll)
 
-    val arr = context.obtainStyledAttributes(intArrayOf(android.R.attr.actionModeSelectAllDrawable))
-    icon = arr.getDrawable(0)?.let { tintDrawable(context, it) }
-    arr.recycle()
-  }
+        val arr =
+            context.obtainStyledAttributes(intArrayOf(android.R.attr.actionModeSelectAllDrawable))
+        icon = arr.getDrawable(0)?.let { tintDrawable(context, it) }
+        arr.recycle()
+    }
 
-  override val id: String = "ide.editor.code.text.selectAll"
+    override val id: String = "ide.editor.code.text.selectAll"
 
-  override suspend fun execAction(data: ActionData): Boolean {
-    val editor = getEditor(data) ?: return false
-    editor.selectAll()
-    return true
-  }
+    override suspend fun execAction(data: ActionData): Boolean {
+        val editor = getEditor(data) ?: return false
+        editor.selectAll()
+        return true
+    }
 
-  override fun dismissOnAction() = false
+    override fun dismissOnAction() = false
 }

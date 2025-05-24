@@ -28,23 +28,24 @@ import com.itsaky.androidide.utils.DialogUtils
  */
 abstract class DialogPreference : SimplePreference() {
 
-  open val dialogTitle: Int
-    get() = this.title
+    open val dialogTitle: Int
+        get() = this.title
 
-  open val dialogMessage: Int? = null
-  open val dialogCancellable: Boolean = false
+    open val dialogMessage: Int? = null
+    open val dialogCancellable: Boolean = false
 
-  override fun onPreferenceClick(preference: Preference): Boolean {
-    val dialog = DialogUtils.newMaterialDialogBuilder(preference.context)
-    dialog.setTitle(this.dialogTitle)
-    dialogMessage?.let { dialog.setMessage(it) }
-    dialog.setCancelable(this.dialogCancellable)
-    onConfigureDialog(preference, dialog)
-    dialog.show()
-    return true
-  }
+    override fun onPreferenceClick(preference: Preference): Boolean {
+        val dialog = DialogUtils.newMaterialDialogBuilder(preference.context)
+        dialog.setTitle(this.dialogTitle)
+        dialogMessage?.let { dialog.setMessage(it) }
+        dialog.setCancelable(this.dialogCancellable)
+        onConfigureDialog(preference, dialog)
+        dialog.show()
+        return true
+    }
 
-  protected open fun onConfigureDialog(preference: Preference,
-    dialog: MaterialAlertDialogBuilder) {
-  }
+    protected open fun onConfigureDialog(
+        preference: Preference,
+        dialog: MaterialAlertDialogBuilder,
+    ) {}
 }

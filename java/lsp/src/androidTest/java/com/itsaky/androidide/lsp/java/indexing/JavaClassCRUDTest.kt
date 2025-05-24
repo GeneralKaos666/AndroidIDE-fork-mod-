@@ -29,91 +29,88 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 @RunWith(AndroidJUnit4::class)
 class JavaClassCRUDTest {
 
-  @Rule
-  @JvmField
-  val dbTestRule = RealmDBTestRule(JavaIndexingRealmModule())
+    @Rule @JvmField val dbTestRule = RealmDBTestRule(JavaIndexingRealmModule())
 
-  @Test
-  fun testSimpleJavaClassCRUD() {
-    dbTestRule.withDb("java-class-CRUD") {
-      val klass = ModelBuilderTestUtil.createTestClass()
+    @Test
+    fun testSimpleJavaClassCRUD() {
+        dbTestRule.withDb("java-class-CRUD") {
+            val klass = ModelBuilderTestUtil.createTestClass()
 
-      // CREATE
-      executeTransaction {
-        it.insert(klass)
-      }
+            // CREATE
+            executeTransaction { it.insert(klass) }
 
-      var dbKlass: JavaClass? = null
-      executeTransaction {
-        // READ
-        dbKlass = where(JavaClass::class.java)
-          .equalTo("fqn", "com/itsaky/androidide/indexing/TestClass")
-          .findFirst()
+            var dbKlass: JavaClass? = null
+            executeTransaction {
+                // READ
+                dbKlass =
+                    where(JavaClass::class.java)
+                        .equalTo("fqn", "com/itsaky/androidide/indexing/TestClass")
+                        .findFirst()
 
-        assertThat(dbKlass).isNotNull()
-        assertThat(dbKlass?.fqn).isEqualTo("com/itsaky/androidide/indexing/TestClass")
-        assertThat(dbKlass?.name).isEqualTo("TestClass")
-        assertThat(dbKlass?.packageName).isEqualTo("com/itsaky/androidide/indexing")
-        assertThat(dbKlass?.accessFlags).isEqualTo(AccessFlags.ACC_PUBLIC or AccessFlags.ACC_FINAL)
-        assertThat(dbKlass?.superClassFqn).isEqualTo("java/lang/Object")
-        assertThat(dbKlass?.superInterfacesFqn).isEqualTo(RealmList<String>())
-        assertThat(dbKlass?.fields).isNotEmpty()
-        assertThat(dbKlass?.fields).hasSize(1)
+                assertThat(dbKlass).isNotNull()
+                assertThat(dbKlass?.fqn).isEqualTo("com/itsaky/androidide/indexing/TestClass")
+                assertThat(dbKlass?.name).isEqualTo("TestClass")
+                assertThat(dbKlass?.packageName).isEqualTo("com/itsaky/androidide/indexing")
+                assertThat(dbKlass?.accessFlags)
+                    .isEqualTo(AccessFlags.ACC_PUBLIC or AccessFlags.ACC_FINAL)
+                assertThat(dbKlass?.superClassFqn).isEqualTo("java/lang/Object")
+                assertThat(dbKlass?.superInterfacesFqn).isEqualTo(RealmList<String>())
+                assertThat(dbKlass?.fields).isNotEmpty()
+                assertThat(dbKlass?.fields).hasSize(1)
 
-        dbKlass?.fields?.get(0).apply {
-          assertThat(this).isNotNull()
-          assertThat(this?.name).isEqualTo("someString")
-          assertThat(this?.type).isEqualTo(JavaType.STRING)
-          assertThat(this?.accessFlags).isEqualTo(AccessFlags.ACC_PRIVATE)
+                dbKlass?.fields?.get(0).apply {
+                    assertThat(this).isNotNull()
+                    assertThat(this?.name).isEqualTo("someString")
+                    assertThat(this?.type).isEqualTo(JavaType.STRING)
+                    assertThat(this?.accessFlags).isEqualTo(AccessFlags.ACC_PRIVATE)
+                }
+
+                assertThat(dbKlass?.methods).isNotEmpty()
+                assertThat(dbKlass?.methods).hasSize(1)
+
+                dbKlass?.methods?.get(0).apply {
+                    assertThat(this).isNotNull()
+                    assertThat(this?.name).isEqualTo("getSomeString")
+                    assertThat(this?.paramsTypes).isEqualTo(RealmList<String>())
+                    assertThat(this?.returnType).isEqualTo(JavaType.STRING)
+                    assertThat(this?.accessFlags).isEqualTo(AccessFlags.ACC_PUBLIC)
+                }
+            }
+
+            assertThat(dbKlass).isNotNull()
+
+            // UPDATE
+            executeTransaction {
+                dbKlass?.accessFlags = AccessFlags.ACC_PUBLIC or AccessFlags.ACC_ABSTRACT
+            }
+
+            // verify UPDATE
+            executeTransaction {
+                assertThat(
+                        where(JavaClass::class.java)
+                            .equalTo("fqn", "com/itsaky/androidide/indexing/TestClass")
+                            .findFirst()
+                            ?.accessFlags
+                    )
+                    .isEqualTo(AccessFlags.ACC_PUBLIC or AccessFlags.ACC_ABSTRACT)
+            }
+
+            // DELETE
+            executeTransaction { RealmObject.deleteFromRealm(dbKlass!!) }
+
+            // verify DELTE
+            executeTransaction {
+                assertThat(
+                        where(JavaClass::class.java)
+                            .equalTo("fqn", "com/itsaky/androidide/indexing/TestClass")
+                            .findFirst()
+                    )
+                    .isNull()
+            }
         }
-
-        assertThat(dbKlass?.methods).isNotEmpty()
-        assertThat(dbKlass?.methods).hasSize(1)
-
-        dbKlass?.methods?.get(0).apply {
-          assertThat(this).isNotNull()
-          assertThat(this?.name).isEqualTo("getSomeString")
-          assertThat(this?.paramsTypes).isEqualTo(RealmList<String>())
-          assertThat(this?.returnType).isEqualTo(JavaType.STRING)
-          assertThat(this?.accessFlags).isEqualTo(AccessFlags.ACC_PUBLIC)
-        }
-      }
-
-      assertThat(dbKlass).isNotNull()
-
-      // UPDATE
-      executeTransaction {
-        dbKlass?.accessFlags = AccessFlags.ACC_PUBLIC or AccessFlags.ACC_ABSTRACT
-      }
-
-      // verify UPDATE
-      executeTransaction {
-        assertThat(
-          where(JavaClass::class.java)
-            .equalTo("fqn", "com/itsaky/androidide/indexing/TestClass")
-            .findFirst()?.accessFlags
-        ).isEqualTo(AccessFlags.ACC_PUBLIC or AccessFlags.ACC_ABSTRACT)
-      }
-
-      // DELETE
-      executeTransaction {
-        RealmObject.deleteFromRealm(dbKlass!!)
-      }
-
-      // verify DELTE
-      executeTransaction {
-        assertThat(
-          where(JavaClass::class.java)
-            .equalTo("fqn", "com/itsaky/androidide/indexing/TestClass")
-            .findFirst()
-        ).isNull()
-      }
     }
-  }
 }

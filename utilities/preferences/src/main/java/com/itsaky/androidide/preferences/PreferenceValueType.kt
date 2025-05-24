@@ -24,21 +24,21 @@ package com.itsaky.androidide.preferences
  */
 enum class PreferenceValueType {
 
-  /** A string preference. */
-  STRING,
+    /** A string preference. */
+    STRING,
 
-  /** An integer preference. */
-  INT,
+    /** An integer preference. */
+    INT,
 
-  /** A float preference. */
-  FLOAT,
+    /** A float preference. */
+    FLOAT,
 
-  /** A double preference. */
-  DOUBLE,
+    /** A double preference. */
+    DOUBLE,
 
-  /** A boolean preference. */
-  BOOLEAN,
+    /** A boolean preference. */
+    BOOLEAN,
 
-  /** No preference value is required. */
-  NONE
+    /** No preference value is required. */
+    NONE,
 }

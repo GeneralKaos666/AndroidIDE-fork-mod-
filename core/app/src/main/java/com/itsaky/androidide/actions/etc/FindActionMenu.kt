@@ -26,22 +26,22 @@ import com.itsaky.androidide.actions.EditorActivityAction
 import com.itsaky.androidide.resources.R
 
 /** @author Akash Yadav */
-class FindActionMenu(context: Context, override val order: Int) : EditorActivityAction(),
-  ActionMenu {
+class FindActionMenu(context: Context, override val order: Int) :
+    EditorActivityAction(), ActionMenu {
 
-  override val children: MutableSet<ActionItem> = mutableSetOf()
-  override val id: String = "ide.editor.find"
+    override val children: MutableSet<ActionItem> = mutableSetOf()
+    override val id: String = "ide.editor.find"
 
-  init {
-    label = context.getString(R.string.menu_find)
-    icon = ContextCompat.getDrawable(context, R.drawable.ic_search)
+    init {
+        label = context.getString(R.string.menu_find)
+        icon = ContextCompat.getDrawable(context, R.drawable.ic_search)
 
-    addAction(FindInFileAction(context, 0))
-    addAction(FindInProjectAction(context, 1))
-  }
+        addAction(FindInFileAction(context, 0))
+        addAction(FindInProjectAction(context, 1))
+    }
 
-  override fun prepare(data: ActionData) {
-    super<EditorActivityAction>.prepare(data)
-    super<ActionMenu>.prepare(data)
-  }
+    override fun prepare(data: ActionData) {
+        super<EditorActivityAction>.prepare(data)
+        super<ActionMenu>.prepare(data)
+    }
 }

@@ -33,22 +33,22 @@ import com.itsaky.androidide.actions.FillMenuParams
  */
 object ActionMenuUtils {
 
-  @JvmStatic
-  @JvmOverloads
-  fun createMenu(
-    context: Context,
-    anchor: View,
-    location: ActionItem.Location,
-    dragToOpen: Boolean = false
-  ): PopupMenu {
-    return PopupMenu(context, anchor).apply {
-      val data = ActionData()
-      data.put(Context::class.java, context)
-      ActionsRegistry.getInstance().fillMenu(FillMenuParams(data, location, menu))
+    @JvmStatic
+    @JvmOverloads
+    fun createMenu(
+        context: Context,
+        anchor: View,
+        location: ActionItem.Location,
+        dragToOpen: Boolean = false,
+    ): PopupMenu {
+        return PopupMenu(context, anchor).apply {
+            val data = ActionData()
+            data.put(Context::class.java, context)
+            ActionsRegistry.getInstance().fillMenu(FillMenuParams(data, location, menu))
 
-      if (dragToOpen) {
-        anchor.setOnTouchListener(getDragToOpenListener(this))
-      }
+            if (dragToOpen) {
+                anchor.setOnTouchListener(getDragToOpenListener(this))
+            }
+        }
     }
-  }
 }

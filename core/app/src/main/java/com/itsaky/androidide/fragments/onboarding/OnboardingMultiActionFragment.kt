@@ -26,58 +26,59 @@ import com.itsaky.androidide.databinding.LayoutOnboardingMultiactionBinding
 import com.itsaky.androidide.models.OnboardingItem
 import com.itsaky.androidide.utils.uncheckedCast
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 open class OnboardingMultiActionFragment : OnboardingFragment() {
 
-  protected var recyclerView: RecyclerView? = null
-    private set
+    protected var recyclerView: RecyclerView? = null
+        private set
 
-  companion object {
+    companion object {
 
-    const val KEY_ACTION_ITEMS = "ide.onboarding.multiActionFragment.items"
+        const val KEY_ACTION_ITEMS = "ide.onboarding.multiActionFragment.items"
 
-    @JvmStatic
-    fun newInstance(
-      title: CharSequence,
-      subtitle: CharSequence,
-      items: List<OnboardingItem>
-    ): OnboardingFragment {
-      return OnboardingMultiActionFragment().apply {
-        arguments = Bundle().apply {
-          putCharSequence(KEY_ONBOARDING_TITLE, title)
-          putCharSequence(KEY_ONBOARDING_SUBTITLE, subtitle)
+        @JvmStatic
+        fun newInstance(
+            title: CharSequence,
+            subtitle: CharSequence,
+            items: List<OnboardingItem>,
+        ): OnboardingFragment {
+            return OnboardingMultiActionFragment().apply {
+                arguments =
+                    Bundle().apply {
+                        putCharSequence(KEY_ONBOARDING_TITLE, title)
+                        putCharSequence(KEY_ONBOARDING_SUBTITLE, subtitle)
 
-          val arr = items.toTypedArray()
-          putParcelableArray(KEY_ACTION_ITEMS, arr)
+                        val arr = items.toTypedArray()
+                        putParcelableArray(KEY_ACTION_ITEMS, arr)
+                    }
+            }
         }
-      }
     }
-  }
 
-  override fun createContentView(parent: ViewGroup, attachToParent: Boolean) {
-    val binding = LayoutOnboardingMultiactionBinding.inflate(layoutInflater, parent, attachToParent)
-    binding.onboardingItems.adapter = createAdapter()
-    recyclerView = binding.onboardingItems
-  }
-
-  protected inline fun <reified T : OnboardingItem> getItemsFromArgs(): Array<T> {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-      requireArguments().getParcelableArray(KEY_ACTION_ITEMS, T::class.java)!!
-    } else {
-      uncheckedCast(
-        @Suppress("DEPRECATION") requireArguments().getParcelableArray(KEY_ACTION_ITEMS)!!)
+    override fun createContentView(parent: ViewGroup, attachToParent: Boolean) {
+        val binding =
+            LayoutOnboardingMultiactionBinding.inflate(layoutInflater, parent, attachToParent)
+        binding.onboardingItems.adapter = createAdapter()
+        recyclerView = binding.onboardingItems
     }
-  }
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    recyclerView = null
-  }
+    protected inline fun <reified T : OnboardingItem> getItemsFromArgs(): Array<T> {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireArguments().getParcelableArray(KEY_ACTION_ITEMS, T::class.java)!!
+        } else {
+            uncheckedCast(
+                @Suppress("DEPRECATION") requireArguments().getParcelableArray(KEY_ACTION_ITEMS)!!
+            )
+        }
+    }
 
-  protected open fun createAdapter(): RecyclerView.Adapter<*> {
-    val items = getItemsFromArgs<OnboardingItem>()
-    return DefaultOnboardingItemAdapter(items.toList())
-  }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        recyclerView = null
+    }
+
+    protected open fun createAdapter(): RecyclerView.Adapter<*> {
+        val items = getItemsFromArgs<OnboardingItem>()
+        return DefaultOnboardingItemAdapter(items.toList())
+    }
 }

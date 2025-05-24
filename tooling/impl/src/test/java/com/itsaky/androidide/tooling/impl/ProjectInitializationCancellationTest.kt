@@ -24,30 +24,27 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 @RunWith(JUnit4::class)
 class ProjectInitializationCancellationTest {
 
-  @Test
-  fun `test project initialization cancellation`() {
-    // launch project initialization
-    ToolingApiTestLauncher.launchServerAsync {
+    @Test
+    fun `test project initialization cancellation`() {
+        // launch project initialization
+        ToolingApiTestLauncher.launchServerAsync {
+            Thread.sleep(1000L)
 
-      Thread.sleep(1000L)
+            // cancel initialization request
+            val cancellationResult = server.cancelCurrentBuild().get()
+            println("Cancellation result: $cancellationResult")
+            assertThat(cancellationResult).isNotNull()
+            assertThat(cancellationResult.wasEnqueued).isTrue()
+            assertThat(cancellationResult.failureReason).isNull()
 
-      // cancel initialization request
-      val cancellationResult = server.cancelCurrentBuild().get()
-      println("Cancellation result: $cancellationResult")
-      assertThat(cancellationResult).isNotNull()
-      assertThat(cancellationResult.wasEnqueued).isTrue()
-      assertThat(cancellationResult.failureReason).isNull()
-
-      // verify that the initialization failed with reason BUILD_CANCELLED
-      val initResult = initializeResult.get()
-      assertThat(initResult!!.isSuccessful).isFalse()
-      assertThat(initResult.failure).isEqualTo(TaskExecutionResult.Failure.BUILD_CANCELLED)
+            // verify that the initialization failed with reason BUILD_CANCELLED
+            val initResult = initializeResult.get()
+            assertThat(initResult!!.isSuccessful).isFalse()
+            assertThat(initResult.failure).isEqualTo(TaskExecutionResult.Failure.BUILD_CANCELLED)
+        }
     }
-  }
 }

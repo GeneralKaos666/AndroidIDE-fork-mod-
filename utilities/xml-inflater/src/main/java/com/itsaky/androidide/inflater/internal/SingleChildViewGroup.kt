@@ -26,12 +26,12 @@ import com.itsaky.androidide.inflater.IView
  * @author Akash Yadav
  */
 open class SingleChildViewGroup(file: LayoutFile, name: String, view: ViewGroup) :
-  ViewGroupImpl(file, name, view) {
+    ViewGroupImpl(file, name, view) {
 
-  override fun addChild(index: Int, view: IView) {
-    if (childCount == 1) {
-      throw IllegalStateException("There can be only one child")
+    override fun addChild(index: Int, view: IView) {
+        if (childCount == 1) {
+            throw IllegalStateException("There can be only one child")
+        }
+        super.addChild(index, view)
     }
-    super.addChild(index, view)
-  }
 }

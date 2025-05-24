@@ -26,6 +26,7 @@ import com.itsaky.androidide.lsp.models.CompletionResult
 import com.itsaky.androidide.lsp.models.MatchLevel
 import com.itsaky.androidide.lsp.models.MatchLevel.NO_MATCH
 import com.itsaky.androidide.progress.ProgressManager.Companion.abortIfCancelled
+import java.nio.file.Path
 import jdkx.lang.model.element.ElementKind.CONSTRUCTOR
 import jdkx.lang.model.element.ElementKind.METHOD
 import jdkx.lang.model.element.ExecutableElement
@@ -39,7 +40,6 @@ import openjdk.source.tree.Scope
 import openjdk.source.util.TreePath
 import openjdk.source.util.Trees
 import openjdk.tools.javac.code.Symbol
-import java.nio.file.Path
 
 /**
  * Completions for member select.
@@ -47,187 +47,202 @@ import java.nio.file.Path
  * @author Akash Yadav
  */
 class MemberSelectCompletionProvider(
-  completingFile: Path,
-  cursor: Long,
-  compiler: JavaCompilerService,
-  settings: IServerSettings,
+    completingFile: Path,
+    cursor: Long,
+    compiler: JavaCompilerService,
+    settings: IServerSettings,
 ) : IJavaCompletionProvider(cursor, completingFile, compiler, settings) {
 
-  override fun doComplete(
-    task: CompileTask,
-    path: TreePath,
-    partial: String,
-    endsWithParen: Boolean,
-  ): CompletionResult {
-    val trees = Trees.instance(task.task)
-    val select =
-      path.leaf as? MemberSelectTree
-        ?: run {
-          log.error("A member select tree was expected but was {}", path.leaf.javaClass)
-          return CompletionResult.EMPTY
+    override fun doComplete(
+        task: CompileTask,
+        path: TreePath,
+        partial: String,
+        endsWithParen: Boolean,
+    ): CompletionResult {
+        val trees = Trees.instance(task.task)
+        val select =
+            path.leaf as? MemberSelectTree
+                ?: run {
+                    log.error("A member select tree was expected but was {}", path.leaf.javaClass)
+                    return CompletionResult.EMPTY
+                }
+
+        log.info("...complete members of {}", select.expression)
+
+        val exprPath = TreePath(path, select.expression)
+        val isStatic = trees.getElement(exprPath) is TypeElement
+        val scope = trees.getScope(exprPath)
+
+        abortIfCancelled()
+        abortCompletionIfCancelled()
+        return when (val type = trees.getTypeMirror(exprPath)) {
+            is ArrayType -> completeArrayMemberSelect(isStatic, partial)
+            is TypeVariable ->
+                completeTypeVariableMemberSelect(
+                    task,
+                    scope,
+                    type,
+                    isStatic,
+                    partial,
+                    endsWithParen,
+                )
+
+            is DeclaredType ->
+                completeDeclaredTypeMemberSelect(
+                    task,
+                    scope,
+                    type,
+                    isStatic,
+                    partial,
+                    endsWithParen,
+                )
+
+            else -> CompletionResult.EMPTY
+        }
+    }
+
+    private fun completeArrayMemberSelect(
+        isStatic: Boolean,
+        partialName: CharSequence,
+    ): CompletionResult {
+        return if (isStatic) {
+            abortIfCancelled()
+            abortCompletionIfCancelled()
+            CompletionResult.EMPTY
+        } else {
+            val list = mutableListOf<CompletionItem>()
+            list.add(keyword("length", partialName, 100))
+            CompletionResult(list)
+        }
+    }
+
+    private fun completeTypeVariableMemberSelect(
+        task: CompileTask,
+        scope: Scope,
+        type: TypeVariable,
+        isStatic: Boolean,
+        partial: String,
+        endsWithParen: Boolean,
+    ): CompletionResult {
+        abortIfCancelled()
+        abortCompletionIfCancelled()
+        return when (type.upperBound) {
+            is DeclaredType ->
+                completeDeclaredTypeMemberSelect(
+                    task,
+                    scope,
+                    type.upperBound as DeclaredType,
+                    isStatic,
+                    partial,
+                    endsWithParen,
+                )
+
+            is TypeVariable ->
+                completeTypeVariableMemberSelect(
+                    task,
+                    scope,
+                    type.upperBound as TypeVariable,
+                    isStatic,
+                    partial,
+                    endsWithParen,
+                )
+
+            else -> CompletionResult.EMPTY
+        }
+    }
+
+    private fun completeDeclaredTypeMemberSelect(
+        task: CompileTask,
+        scope: Scope,
+        type: DeclaredType,
+        isStatic: Boolean,
+        partial: String,
+        endsWithParen: Boolean,
+    ): CompletionResult {
+        val trees = Trees.instance(task.task)
+        val typeElement = type.asElement() as TypeElement
+        val list = mutableListOf<CompletionItem>()
+        val methods = mutableMapOf<String, MutableList<ExecutableElement>>()
+        val matchLevels = mutableMapOf<String, MatchLevel>()
+
+        log.debug(
+            "DeclaredType {} with members {} in scope: {}",
+            typeElement,
+            (typeElement as Symbol).members(),
+            scope,
+        )
+
+        abortIfCancelled()
+        abortCompletionIfCancelled()
+        for (member in task.task.elements.getAllMembers(typeElement)) {
+            if (member.kind == CONSTRUCTOR) {
+                continue
+            }
+            val matchLevel = matchLevel(member.simpleName, partial)
+            if (matchLevel == NO_MATCH) {
+                continue
+            }
+
+            if (!trees.isAccessible(scope, member, type)) {
+                continue
+            }
+
+            if (isStatic != member.modifiers.contains(STATIC)) {
+                continue
+            }
+
+            if (member.kind == METHOD) {
+                putMethod((member as ExecutableElement), methods)
+                matchLevels.putIfAbsent(member.getSimpleName().toString(), matchLevel)
+            } else {
+                list.add(item(task, member, matchLevel))
+            }
         }
 
-    log.info("...complete members of {}", select.expression)
+        log.debug("Found {} members along with {} methods", list.size, methods.size)
 
-    val exprPath = TreePath(path, select.expression)
-    val isStatic = trees.getElement(exprPath) is TypeElement
-    val scope = trees.getScope(exprPath)
+        abortIfCancelled()
+        abortCompletionIfCancelled()
+        for ((key, value) in methods) {
+            val matchLevel = matchLevels.getOrDefault(key, NO_MATCH)
+            if (matchLevel == NO_MATCH) {
+                continue
+            }
 
-    abortIfCancelled()
-    abortCompletionIfCancelled()
-    return when (val type = trees.getTypeMirror(exprPath)) {
-      is ArrayType -> completeArrayMemberSelect(isStatic, partial)
-      is TypeVariable ->
-        completeTypeVariableMemberSelect(task, scope, type, isStatic, partial, endsWithParen)
+            list.add(method(task, value, !endsWithParen, matchLevel, partial))
+        }
 
-      is DeclaredType ->
-        completeDeclaredTypeMemberSelect(task, scope, type, isStatic, partial, endsWithParen)
+        if (isStatic) {
+            list.add(keyword("class", partial, 100))
+        }
 
-      else -> CompletionResult.EMPTY
-    }
-  }
+        if (!isStatic && isEnclosingClass(type, scope)) {
+            list.add(keyword("this", partial, 100))
+            list.add(keyword("super", partial, 100))
+        }
 
-  private fun completeArrayMemberSelect(
-    isStatic: Boolean,
-    partialName: CharSequence
-  ): CompletionResult {
-    return if (isStatic) {
-      abortIfCancelled()
-      abortCompletionIfCancelled()
-      CompletionResult.EMPTY
-    } else {
-      val list = mutableListOf<CompletionItem>()
-      list.add(keyword("length", partialName, 100))
-      CompletionResult(list)
-    }
-  }
-
-  private fun completeTypeVariableMemberSelect(
-    task: CompileTask,
-    scope: Scope,
-    type: TypeVariable,
-    isStatic: Boolean,
-    partial: String,
-    endsWithParen: Boolean,
-  ): CompletionResult {
-    abortIfCancelled()
-    abortCompletionIfCancelled()
-    return when (type.upperBound) {
-      is DeclaredType ->
-        completeDeclaredTypeMemberSelect(
-          task,
-          scope,
-          type.upperBound as DeclaredType,
-          isStatic,
-          partial,
-          endsWithParen
-        )
-
-      is TypeVariable ->
-        completeTypeVariableMemberSelect(
-          task,
-          scope,
-          type.upperBound as TypeVariable,
-          isStatic,
-          partial,
-          endsWithParen
-        )
-
-      else -> CompletionResult.EMPTY
-    }
-  }
-
-  private fun completeDeclaredTypeMemberSelect(
-    task: CompileTask,
-    scope: Scope,
-    type: DeclaredType,
-    isStatic: Boolean,
-    partial: String,
-    endsWithParen: Boolean,
-  ): CompletionResult {
-    val trees = Trees.instance(task.task)
-    val typeElement = type.asElement() as TypeElement
-    val list = mutableListOf<CompletionItem>()
-    val methods = mutableMapOf<String, MutableList<ExecutableElement>>()
-    val matchLevels = mutableMapOf<String, MatchLevel>()
-
-    log.debug("DeclaredType {} with members {} in scope: {}",
-      typeElement,
-      (typeElement as Symbol).members(),
-      scope
-    )
-
-    abortIfCancelled()
-    abortCompletionIfCancelled()
-    for (member in task.task.elements.getAllMembers(typeElement)) {
-      if (member.kind == CONSTRUCTOR) {
-        continue
-      }
-      val matchLevel = matchLevel(member.simpleName, partial)
-      if (matchLevel == NO_MATCH) {
-        continue
-      }
-
-      if (!trees.isAccessible(scope, member, type)) {
-        continue
-      }
-
-      if (isStatic != member.modifiers.contains(STATIC)) {
-        continue
-      }
-
-      if (member.kind == METHOD) {
-        putMethod((member as ExecutableElement), methods)
-        matchLevels.putIfAbsent(member.getSimpleName().toString(), matchLevel)
-      } else {
-        list.add(item(task, member, matchLevel))
-      }
+        return CompletionResult(list)
     }
 
-    log.debug("Found {} members along with {} methods", list.size, methods.size)
+    private fun isEnclosingClass(type: DeclaredType, start: Scope): Boolean {
+        for (s in ScopeHelper.fastScopes(start)) {
+            // If we reach a static method, stop looking
+            val method = s.enclosingMethod
+            if (method != null && method.modifiers.contains(STATIC)) {
+                return false
+            }
 
-    abortIfCancelled()
-    abortCompletionIfCancelled()
-    for ((key, value) in methods) {
-      val matchLevel = matchLevels.getOrDefault(key, NO_MATCH)
-      if (matchLevel == NO_MATCH) {
-        continue
-      }
+            // If we find the enclosing class
+            val thisElement = s.enclosingClass
+            if (thisElement != null && thisElement.asType() == type) {
+                return true
+            }
 
-      list.add(method(task, value, !endsWithParen, matchLevel, partial))
-    }
-
-    if (isStatic) {
-      list.add(keyword("class", partial, 100))
-    }
-
-    if (!isStatic && isEnclosingClass(type, scope)) {
-      list.add(keyword("this", partial, 100))
-      list.add(keyword("super", partial, 100))
-    }
-
-    return CompletionResult(list)
-  }
-
-  private fun isEnclosingClass(type: DeclaredType, start: Scope): Boolean {
-    for (s in ScopeHelper.fastScopes(start)) {
-      // If we reach a static method, stop looking
-      val method = s.enclosingMethod
-      if (method != null && method.modifiers.contains(STATIC)) {
+            // If the enclosing class is static, stop looking
+            if (thisElement != null && thisElement.modifiers.contains(STATIC)) {
+                return false
+            }
+        }
         return false
-      }
-
-      // If we find the enclosing class
-      val thisElement = s.enclosingClass
-      if (thisElement != null && thisElement.asType() == type) {
-        return true
-      }
-
-      // If the enclosing class is static, stop looking
-      if (thisElement != null && thisElement.modifiers.contains(STATIC)) {
-        return false
-      }
     }
-    return false
-  }
 }

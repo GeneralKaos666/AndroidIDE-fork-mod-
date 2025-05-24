@@ -26,12 +26,12 @@ import com.itsaky.androidide.models.Location
 import com.itsaky.androidide.models.Position
 import com.itsaky.androidide.progress.ICancelChecker
 import com.itsaky.androidide.utils.DocumentUtils.isSameFile
+import java.nio.file.Path
+import java.nio.file.Paths
 import jdkx.lang.model.element.Element
 import jdkx.lang.model.element.TypeElement
 import jdkx.tools.JavaFileObject
 import openjdk.source.util.Trees
-import java.nio.file.Path
-import java.nio.file.Paths
 
 /**
  * Finds definition for erroneous elements.
@@ -39,52 +39,54 @@ import java.nio.file.Paths
  * @author Akash Yadav
  */
 class ErroneousDefinitionProvider(
-  position: Position,
-  completingFile: Path,
-  compiler: JavaCompilerService,
-  settings: IServerSettings, cancelChecker: ICancelChecker,
+    position: Position,
+    completingFile: Path,
+    compiler: JavaCompilerService,
+    settings: IServerSettings,
+    cancelChecker: ICancelChecker,
 ) : IJavaDefinitionProvider(position, completingFile, compiler, settings, cancelChecker) {
 
-  override fun doFindDefinition(element: Element): List<Location> {
-    val name = element.simpleName ?: return DefinitionProvider.NOT_SUPPORTED
-    val parent = element.enclosingElement as? TypeElement ?: return DefinitionProvider.NOT_SUPPORTED
-    val className = parent.qualifiedName.toString()
-    val memberName = name.toString()
-    return findAllMembers(className, memberName)
-  }
-
-  private fun findAllMembers(className: String, memberName: String): List<Location> {
-    val otherFile = compiler.findAnywhere(className)
-    abortIfCancelled()
-    if (!otherFile.isPresent) {
-      log.error("Cannot find source file for class: {}", className)
-      return emptyList()
+    override fun doFindDefinition(element: Element): List<Location> {
+        val name = element.simpleName ?: return DefinitionProvider.NOT_SUPPORTED
+        val parent =
+            element.enclosingElement as? TypeElement ?: return DefinitionProvider.NOT_SUPPORTED
+        val className = parent.qualifiedName.toString()
+        val memberName = name.toString()
+        return findAllMembers(className, memberName)
     }
 
-    val fileAsSource = SourceFileObject(file)
-    var sources = listOf(fileAsSource, otherFile.get())
-    if (isSameFile(Paths.get(otherFile.get().toUri()), file)) {
-      sources = listOf<JavaFileObject>(fileAsSource)
-    }
-
-    abortIfCancelled()
-
-    return compiler.compile(sources).get { task ->
-      val locations = mutableListOf<Location>()
-      val trees = Trees.instance(task.task)
-      val elements = task.task.elements
-      val parentClass = elements.getTypeElement(className)
-
-      abortIfCancelled()
-      for (member in elements.getAllMembers(parentClass)) {
-        if (!member.simpleName.contentEquals(memberName)) continue
-        val path = trees.getPath(member) ?: continue
-        val location = FindHelper.location(task, path, memberName)
+    private fun findAllMembers(className: String, memberName: String): List<Location> {
+        val otherFile = compiler.findAnywhere(className)
         abortIfCancelled()
-        locations.add(location)
-      }
+        if (!otherFile.isPresent) {
+            log.error("Cannot find source file for class: {}", className)
+            return emptyList()
+        }
 
-      locations
+        val fileAsSource = SourceFileObject(file)
+        var sources = listOf(fileAsSource, otherFile.get())
+        if (isSameFile(Paths.get(otherFile.get().toUri()), file)) {
+            sources = listOf<JavaFileObject>(fileAsSource)
+        }
+
+        abortIfCancelled()
+
+        return compiler.compile(sources).get { task ->
+            val locations = mutableListOf<Location>()
+            val trees = Trees.instance(task.task)
+            val elements = task.task.elements
+            val parentClass = elements.getTypeElement(className)
+
+            abortIfCancelled()
+            for (member in elements.getAllMembers(parentClass)) {
+                if (!member.simpleName.contentEquals(memberName)) continue
+                val path = trees.getPath(member) ?: continue
+                val location = FindHelper.location(task, path, memberName)
+                abortIfCancelled()
+                locations.add(location)
+            }
+
+            locations
+        }
     }
-  }
 }

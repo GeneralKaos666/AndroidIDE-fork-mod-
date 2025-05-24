@@ -26,70 +26,70 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class LookupTest {
 
-  @Test
-  fun `test with class`() {
-    val lookup = Lookup.getDefault()
+    @Test
+    fun `test with class`() {
+        val lookup = Lookup.getDefault()
 
-    // Test register
-    var service = TestServiceImpl()
-    lookup.register(TestService::class.java, service)
-    lookup.lookup(TestService::class.java).apply {
-      assertThat(this).isNotNull()
-      assertThat(this).isEqualTo(service)
+        // Test register
+        var service = TestServiceImpl()
+        lookup.register(TestService::class.java, service)
+        lookup.lookup(TestService::class.java).apply {
+            assertThat(this).isNotNull()
+            assertThat(this).isEqualTo(service)
+        }
+
+        // Test update
+        service = TestServiceImpl()
+        lookup.update(TestService::class.java, service)
+        lookup.lookup(TestService::class.java).apply {
+            assertThat(this).isNotNull()
+            assertThat(this).isEqualTo(service)
+        }
+
+        lookup.unregister(TestService::class.java)
+
+        lookup.lookup(TestService::class.java).apply { assertThat(this).isNull() }
     }
 
-    // Test update
-    service = TestServiceImpl()
-    lookup.update(TestService::class.java, service)
-    lookup.lookup(TestService::class.java).apply {
-      assertThat(this).isNotNull()
-      assertThat(this).isEqualTo(service)
+    @Test
+    fun `test with key`() {
+        val lookup = Lookup.getDefault()
+        val key = Key<TestService>()
+
+        // Test register
+        var service = TestServiceImpl()
+        lookup.register(key, service)
+        lookup.lookup(key).apply {
+            assertThat(this).isNotNull()
+            assertThat(this).isEqualTo(service)
+        }
+
+        // Service not registered with the Class object. Must return null.
+        lookup.lookup(TestService::class.java).apply { assertThat(this).isNull() }
+
+        // Test update
+        service = TestServiceImpl()
+        lookup.update(key, service)
+        lookup.lookup(key).apply {
+            assertThat(this).isNotNull()
+            assertThat(this).isEqualTo(service)
+        }
+
+        // Service not registered with the Class object. Must return null.
+        lookup.lookup(TestService::class.java).apply { assertThat(this).isNull() }
+
+        lookup.unregister(key)
+
+        lookup.lookup(key).apply { assertThat(this).isNull() }
     }
 
-    lookup.unregister(TestService::class.java)
-
-    lookup.lookup(TestService::class.java).apply { assertThat(this).isNull() }
-  }
-
-  @Test
-  fun `test with key`() {
-    val lookup = Lookup.getDefault()
-    val key = Key<TestService>()
-
-    // Test register
-    var service = TestServiceImpl()
-    lookup.register(key, service)
-    lookup.lookup(key).apply {
-      assertThat(this).isNotNull()
-      assertThat(this).isEqualTo(service)
-    }
-  
-    // Service not registered with the Class object. Must return null.
-    lookup.lookup(TestService::class.java).apply { assertThat(this).isNull() }
-
-    // Test update
-    service = TestServiceImpl()
-    lookup.update(key, service)
-    lookup.lookup(key).apply {
-      assertThat(this).isNotNull()
-      assertThat(this).isEqualTo(service)
+    interface TestService {
+        fun doTest()
     }
 
-    // Service not registered with the Class object. Must return null.
-    lookup.lookup(TestService::class.java).apply { assertThat(this).isNull() }
-
-    lookup.unregister(key)
-
-    lookup.lookup(key).apply { assertThat(this).isNull() }
-  }
-
-  interface TestService {
-    fun doTest()
-  }
-
-  class TestServiceImpl : TestService {
-    override fun doTest() {
-      println("From test service")
+    class TestServiceImpl : TestService {
+        override fun doTest() {
+            println("From test service")
+        }
     }
-  }
 }

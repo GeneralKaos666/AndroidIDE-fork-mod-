@@ -28,34 +28,34 @@ import com.itsaky.androidide.inflater.internal.ViewAdapterIndexImpl
  */
 interface IViewAdapterIndex {
 
-  companion object {
-    @JvmField val instance: IViewAdapterIndex = ViewAdapterIndexImpl.INSTANCE
-  }
+    companion object {
+        @JvmField val instance: IViewAdapterIndex = ViewAdapterIndexImpl.INSTANCE
+    }
 
-  /**
-   * Get the adapter for the given fully qualified view name.
-   *
-   * @param view The fully qualified name of the view class.
-   * @return The [IViewAdapter] for the given view name. If no adapter is found for the given view
-   * name, returns adapter for `android.view.View` if available or `null`.
-   */
-  fun getAdapter(view: String): IViewAdapter<out View>?
+    /**
+     * Get the adapter for the given fully qualified view name.
+     *
+     * @param view The fully qualified name of the view class.
+     * @return The [IViewAdapter] for the given view name. If no adapter is found for the given view
+     *   name, returns adapter for `android.view.View` if available or `null`.
+     */
+    fun getAdapter(view: String): IViewAdapter<out View>?
 
-  /**
-   * Get the adapter for the given view.
-   *
-   * @param view The fully qualified name of the view.
-   * @return The view adapter instance or `null` if not found.
-   */
-  fun getViewAdapter(view: String): IViewAdapter<out View>?
+    /**
+     * Get the adapter for the given view.
+     *
+     * @param view The fully qualified name of the view.
+     * @return The view adapter instance or `null` if not found.
+     */
+    fun getViewAdapter(view: String): IViewAdapter<out View>?
 
-  /**
-   * Get the view adapters which provide widgets to the UI designer.
-   *
-   * @param group The group to get widget providers for.
-   * @return The widget providers for the [group].
-   */
-  fun getWidgetProviders(group: IncludeInDesigner.Group): List<IViewAdapter<out View>>?
+    /**
+     * Get the view adapters which provide widgets to the UI designer.
+     *
+     * @param group The group to get widget providers for.
+     * @return The widget providers for the [group].
+     */
+    fun getWidgetProviders(group: IncludeInDesigner.Group): List<IViewAdapter<out View>>?
 }
 
 /**
@@ -63,10 +63,10 @@ interface IViewAdapterIndex {
  *
  * @param view The fully qualified name of the view class.
  * @return The [IViewAdapter] for the given view name. If no adapter is found for the given view
- * name, returns adapter for `android.view.View` if available or `null`.
+ *   name, returns adapter for `android.view.View` if available or `null`.
  */
 fun getAdapter(view: String): IViewAdapter<out View>? {
-  return IViewAdapterIndex.instance.getAdapter(view)
+    return IViewAdapterIndex.instance.getAdapter(view)
 }
 
 /**
@@ -76,9 +76,9 @@ fun getAdapter(view: String): IViewAdapter<out View>? {
  * @return The view adapter instance or `null` if not found.
  */
 fun getViewAdapter(view: String): IViewAdapter<out View>? {
-  return IViewAdapterIndex.instance.getViewAdapter(view)
+    return IViewAdapterIndex.instance.getViewAdapter(view)
 }
 
 /** The view adapter for this view. */
 val IView.viewAdapter: IViewAdapter<out View>?
-  get() = IViewAdapterIndex.instance.getAdapter(this.name)
+    get() = IViewAdapterIndex.instance.getAdapter(this.name)

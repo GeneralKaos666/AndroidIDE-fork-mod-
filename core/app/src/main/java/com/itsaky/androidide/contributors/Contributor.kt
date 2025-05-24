@@ -24,23 +24,15 @@ package com.itsaky.androidide.contributors
  */
 interface Contributor {
 
-  /**
-   * Unique integer ID.
-   */
-  val id: Int
+    /** Unique integer ID. */
+    val id: Int
 
-  /**
-   * Unique username.
-   */
-  val username: String
+    /** Unique username. */
+    val username: String
 
-  /**
-   * URL for the contributor's avatar.
-   */
-  val avatarUrl: String
+    /** URL for the contributor's avatar. */
+    val avatarUrl: String
 
-  /**
-   * URL for the contributor's profile.
-   */
-  val profileUrl: String
+    /** URL for the contributor's profile. */
+    val profileUrl: String
 }

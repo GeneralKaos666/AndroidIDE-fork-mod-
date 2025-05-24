@@ -31,78 +31,79 @@ import com.itsaky.androidide.editor.schemes.StyleDef
  */
 class LanguageParser(private var reader: JsonReader) {
 
-  fun parseLang(scheme: IDEColorScheme): LanguageScheme {
-    return scheme.run {
-      doParseLang()
+    fun parseLang(scheme: IDEColorScheme): LanguageScheme {
+        return scheme.run { doParseLang() }
     }
-  }
 
-  private fun IDEColorScheme.doParseLang(): LanguageScheme {
-    reader.beginObject()
-    val lang = LanguageScheme()
-    while (reader.hasNext()) {
-      var name = reader.nextName()
-      when (name) {
-        "types" -> parseLangTypes(lang)
-        "local.scopes" -> parseLangLocalScopes(lang)
-        "local.scopes.members" -> parseLangLocalsMembersScopes(lang)
-        "local.definitions" -> parseLocalLangDefs(lang)
-        "local.definitions.values" -> parseLocalLangDefVals(lang)
-        "local.references" -> parseLocalLangRefs(lang)
-        "styles" -> {
-          reader.beginObject()
-          while (reader.hasNext()) {
-            name = reader.nextName()
-            if (reader.peek() == BEGIN_OBJECT) {
-              lang.styles[name] = parseStyleDef(reader)
-            } else if (reader.peek() == STRING) {
-              val color = parseColorValue(reader.nextString())
-              lang.styles[name] = StyleDef(fg = color)
-            } else throw ParseException("A style definition must an object or a string value")
-          }
-          reader.endObject()
+    private fun IDEColorScheme.doParseLang(): LanguageScheme {
+        reader.beginObject()
+        val lang = LanguageScheme()
+        while (reader.hasNext()) {
+            var name = reader.nextName()
+            when (name) {
+                "types" -> parseLangTypes(lang)
+                "local.scopes" -> parseLangLocalScopes(lang)
+                "local.scopes.members" -> parseLangLocalsMembersScopes(lang)
+                "local.definitions" -> parseLocalLangDefs(lang)
+                "local.definitions.values" -> parseLocalLangDefVals(lang)
+                "local.references" -> parseLocalLangRefs(lang)
+                "styles" -> {
+                    reader.beginObject()
+                    while (reader.hasNext()) {
+                        name = reader.nextName()
+                        if (reader.peek() == BEGIN_OBJECT) {
+                            lang.styles[name] = parseStyleDef(reader)
+                        } else if (reader.peek() == STRING) {
+                            val color = parseColorValue(reader.nextString())
+                            lang.styles[name] = StyleDef(fg = color)
+                        } else
+                            throw ParseException(
+                                "A style definition must an object or a string value"
+                            )
+                    }
+                    reader.endObject()
+                }
+                else -> throw ParseException("Unexpected key '$name' in language object")
+            }
         }
-        else -> throw ParseException("Unexpected key '$name' in language object")
-      }
+        reader.endObject()
+
+        if (lang.files.isEmpty()) {
+            throw ParseException("A language must specify the file types")
+        }
+
+        return lang
     }
-    reader.endObject()
 
-    if (lang.files.isEmpty()) {
-      throw ParseException("A language must specify the file types")
+    private fun parseLocalLangRefs(lang: LanguageScheme) {
+        addArrStrings(lang.localRefs)
     }
 
-    return lang
-  }
-
-  private fun parseLocalLangRefs(lang: LanguageScheme) {
-    addArrStrings(lang.localRefs)
-  }
-
-  private fun parseLocalLangDefVals(lang: LanguageScheme) {
-    addArrStrings(lang.localDefVals)
-  }
-
-  private fun parseLocalLangDefs(lang: LanguageScheme) {
-    addArrStrings(lang.localDefs)
-  }
-
-  private fun parseLangLocalScopes(lang: LanguageScheme) {
-    addArrStrings(lang.localScopes)
-  }
-  
-  private fun parseLangLocalsMembersScopes(lang: LanguageScheme) {
-    addArrStrings(lang.localMembersScopes)
-  }
-
-  private fun parseLangTypes(lang: LanguageScheme) {
-    addArrStrings(lang.files)
-  }
-
-  private fun addArrStrings(collection: MutableCollection<String>) {
-    reader.beginArray()
-    while (reader.hasNext()) {
-      collection.add(reader.nextString())
+    private fun parseLocalLangDefVals(lang: LanguageScheme) {
+        addArrStrings(lang.localDefVals)
     }
-    reader.endArray()
-  }
+
+    private fun parseLocalLangDefs(lang: LanguageScheme) {
+        addArrStrings(lang.localDefs)
+    }
+
+    private fun parseLangLocalScopes(lang: LanguageScheme) {
+        addArrStrings(lang.localScopes)
+    }
+
+    private fun parseLangLocalsMembersScopes(lang: LanguageScheme) {
+        addArrStrings(lang.localMembersScopes)
+    }
+
+    private fun parseLangTypes(lang: LanguageScheme) {
+        addArrStrings(lang.files)
+    }
+
+    private fun addArrStrings(collection: MutableCollection<String>) {
+        reader.beginArray()
+        while (reader.hasNext()) {
+            collection.add(reader.nextString())
+        }
+        reader.endArray()
+    }
 }

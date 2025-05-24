@@ -27,64 +27,61 @@ import jdkx.lang.model.element.Modifier.PROTECTED
 import jdkx.lang.model.element.Modifier.PUBLIC
 
 object JavaClassBuilder {
-  @JvmStatic
-  fun createClass(packageName: String, className: String): String {
-    return toJavaFile(packageName, newClassSpec(className)).toString()
-  }
+    @JvmStatic
+    fun createClass(packageName: String, className: String): String {
+        return toJavaFile(packageName, newClassSpec(className)).toString()
+    }
 
-  @JvmStatic
-  fun createInterface(packageName: String, className: String): String {
-    return toJavaFile(packageName, newInterfaceSpec(className)).toString()
-  }
+    @JvmStatic
+    fun createInterface(packageName: String, className: String): String {
+        return toJavaFile(packageName, newInterfaceSpec(className)).toString()
+    }
 
-  @JvmStatic
-  fun createEnum(packageName: String, className: String): String {
-    return toJavaFile(packageName, newEnumSpec(className)).toString()
-  }
+    @JvmStatic
+    fun createEnum(packageName: String, className: String): String {
+        return toJavaFile(packageName, newEnumSpec(className)).toString()
+    }
 
-  @JvmStatic
-  fun createActivity(packageName: String, className: String): String {
-    val onCreate =
-      MethodSpec.methodBuilder("onCreate")
-        .addAnnotation(Override::class.java)
-        .addModifiers(PROTECTED)
-        .addParameter(Bundle::class.java, "savedInstanceState")
-        .addStatement("super.onCreate(savedInstanceState)")
-        .build()
-    val activity =
-      newClassSpec(className)
-        .toBuilder()
-        .superclass(AppCompatActivity::class.java)
-        .addMethod(onCreate)
-    return toJavaFile(packageName, activity.build()) {
-        skipJavaLangImports(true)
-      }
-      .toString()
-  }
+    @JvmStatic
+    fun createActivity(packageName: String, className: String): String {
+        val onCreate =
+            MethodSpec.methodBuilder("onCreate")
+                .addAnnotation(Override::class.java)
+                .addModifiers(PROTECTED)
+                .addParameter(Bundle::class.java, "savedInstanceState")
+                .addStatement("super.onCreate(savedInstanceState)")
+                .build()
+        val activity =
+            newClassSpec(className)
+                .toBuilder()
+                .superclass(AppCompatActivity::class.java)
+                .addMethod(onCreate)
+        return toJavaFile(packageName, activity.build()) { skipJavaLangImports(true) }.toString()
+    }
 
-  private fun toJavaFile(
-    packageName: String,
-    type: TypeSpec,
-    block: JavaFile.Builder.() -> Unit = {},
-  ): JavaFile {
-    return JavaFile.builder(packageName, type)
-      .indent(indentationString)
-      .apply { block(this) }
-      .build()
-  }
+    private fun toJavaFile(
+        packageName: String,
+        type: TypeSpec,
+        block: JavaFile.Builder.() -> Unit = {},
+    ): JavaFile {
+        return JavaFile.builder(packageName, type)
+            .indent(indentationString)
+            .apply { block(this) }
+            .build()
+    }
 
-  private fun newClassSpec(className: String): TypeSpec {
-    return TypeSpec.classBuilder(className).addModifiers(PUBLIC).build()
-  }
+    private fun newClassSpec(className: String): TypeSpec {
+        return TypeSpec.classBuilder(className).addModifiers(PUBLIC).build()
+    }
 
-  private fun newInterfaceSpec(className: String): TypeSpec {
-    return TypeSpec.interfaceBuilder(className).addModifiers(PUBLIC).build()
-  }
+    private fun newInterfaceSpec(className: String): TypeSpec {
+        return TypeSpec.interfaceBuilder(className).addModifiers(PUBLIC).build()
+    }
 
-  private fun newEnumSpec(className: String): TypeSpec {
-    return TypeSpec.enumBuilder(className)
-      .addModifiers(PUBLIC)
-      .addEnumConstant("ENUM_DECLARED")
-      .build()
-  }
+    private fun newEnumSpec(className: String): TypeSpec {
+        return TypeSpec.enumBuilder(className)
+            .addModifiers(PUBLIC)
+            .addEnumConstant("ENUM_DECLARED")
+            .build()
+    }
 }

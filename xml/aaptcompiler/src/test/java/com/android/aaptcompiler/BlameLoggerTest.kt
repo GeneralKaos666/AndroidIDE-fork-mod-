@@ -46,7 +46,7 @@ class BlameLoggerTest {
         assertThat(loggedError.second).isNull()
     }
 
-    class MockLogger: ILogger {
+    class MockLogger : ILogger {
         val warnings: MutableList<String> = mutableListOf()
         val infos: MutableList<String> = mutableListOf()
         val errors: MutableList<Pair<String, Throwable?>> = mutableListOf()
@@ -71,8 +71,4 @@ class BlameLoggerTest {
 }
 
 fun getMockBlameLogger(mockLogger: BlameLoggerTest.MockLogger) =
-    BlameLogger(
-        mockLogger
-    ) {
-        Source(it.sourcePath + ".rewritten", it.line + 1, it.column + 2)
-    }
+    BlameLogger(mockLogger) { Source(it.sourcePath + ".rewritten", it.line + 1, it.column + 2) }

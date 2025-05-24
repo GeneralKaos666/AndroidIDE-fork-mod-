@@ -31,66 +31,60 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/**
- * @author Akash Yadav
- */
+/** @author Akash Yadav */
 class ContributorsViewModel : ViewModel() {
 
-  internal val _crowdinTranslators = MutableLiveData(emptyList<CrowdinTranslator>())
-  internal val _githubContributors = MutableLiveData(emptyList<GitHubContributor>())
+    internal val _crowdinTranslators = MutableLiveData(emptyList<CrowdinTranslator>())
+    internal val _githubContributors = MutableLiveData(emptyList<GitHubContributor>())
 
-  private val _crowdinTranslatorsLoading = MutableLiveData(false)
-  private val _githubContributorsLoading = MutableLiveData(false)
+    private val _crowdinTranslatorsLoading = MutableLiveData(false)
+    private val _githubContributorsLoading = MutableLiveData(false)
 
-  val isLoading: Boolean
-    get() = _githubContributorsLoading.value!! || _crowdinTranslatorsLoading.value!!
+    val isLoading: Boolean
+        get() = _githubContributorsLoading.value!! || _crowdinTranslatorsLoading.value!!
 
-  companion object {
+    companion object {
 
-    private const val CONTRIBUTORS_MAX_SIZE = 30
-  }
-
-  fun observeLoadingState(owner: LifecycleOwner, observer: Observer<Boolean>) {
-    _crowdinTranslatorsLoading.observe(owner) {
-      observer.onChanged(isLoading)
+        private const val CONTRIBUTORS_MAX_SIZE = 30
     }
-    _githubContributorsLoading.observe(owner) {
-      observer.onChanged(isLoading)
-    }
-  }
 
-  fun fetchCrowdinTranslators() {
-    _crowdinTranslatorsLoading.value = true
-    viewModelScope.launch(Dispatchers.Default) {
-      val translators = CrowdinTranslators.getAllTranslators()
-      withContext(Dispatchers.Main) {
-        _crowdinTranslators.value = translators.trimToMaxSize()
-        _crowdinTranslatorsLoading.value = false
-      }
+    fun observeLoadingState(owner: LifecycleOwner, observer: Observer<Boolean>) {
+        _crowdinTranslatorsLoading.observe(owner) { observer.onChanged(isLoading) }
+        _githubContributorsLoading.observe(owner) { observer.onChanged(isLoading) }
     }
-  }
 
-  fun fetchGitHubTranslators() {
-    _githubContributorsLoading.value = true
-    viewModelScope.launch(Dispatchers.Default) {
-      val contributors = GitHubContributors.getAllContributors()
-      withContext(Dispatchers.Main) {
-        _githubContributors.value = contributors.trimToMaxSize()
-        _githubContributorsLoading.value = false
-      }
+    fun fetchCrowdinTranslators() {
+        _crowdinTranslatorsLoading.value = true
+        viewModelScope.launch(Dispatchers.Default) {
+            val translators = CrowdinTranslators.getAllTranslators()
+            withContext(Dispatchers.Main) {
+                _crowdinTranslators.value = translators.trimToMaxSize()
+                _crowdinTranslatorsLoading.value = false
+            }
+        }
     }
-  }
 
-  fun fetchAll() {
-    fetchCrowdinTranslators()
-    fetchGitHubTranslators()
-  }
-
-  private fun <T : Contributor> List<T>.trimToMaxSize(): List<T> {
-    return if (size > CONTRIBUTORS_MAX_SIZE) {
-      subList(0, CONTRIBUTORS_MAX_SIZE)
-    } else {
-      this
+    fun fetchGitHubTranslators() {
+        _githubContributorsLoading.value = true
+        viewModelScope.launch(Dispatchers.Default) {
+            val contributors = GitHubContributors.getAllContributors()
+            withContext(Dispatchers.Main) {
+                _githubContributors.value = contributors.trimToMaxSize()
+                _githubContributorsLoading.value = false
+            }
+        }
     }
-  }
+
+    fun fetchAll() {
+        fetchCrowdinTranslators()
+        fetchGitHubTranslators()
+    }
+
+    private fun <T : Contributor> List<T>.trimToMaxSize(): List<T> {
+        return if (size > CONTRIBUTORS_MAX_SIZE) {
+            subList(0, CONTRIBUTORS_MAX_SIZE)
+        } else {
+            this
+        }
+    }
 }

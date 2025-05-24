@@ -18,10 +18,10 @@
 package com.itsaky.androidide.plugins
 
 import com.itsaky.androidide.plugins.util.DownloadUtils
+import java.io.File
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.internal.os.OperatingSystem
-import java.io.File
 
 /**
  * Gradle plugin which downloads the bootstrap packages for the terminal.
@@ -30,49 +30,51 @@ import java.io.File
  */
 class TerminalBootstrapPackagesPlugin : Plugin<Project> {
 
-  companion object {
+    companion object {
 
-    /**
-     * The bootstrap packages, mapped with the CPU ABI as the key and the ZIP file's sha256sum as the value.
-     */
-    private val BOOTSTRAP_PACKAGES = mapOf(
-      "aarch64" to "677e225717cf1642a8fc23894f0857e694344cda45ede4ace5de334180ce278b",
-      "arm" to "50024d392ad784dabc39f2b0f159e78fbd7247d76d438a4194fadac96448d6a0",
-      "x86_64" to "7e8a76a594005b38817a1fe6ff0f1293d2e4ca6a5bccdbb457a631fe27b98a55"
-    )
+        /**
+         * The bootstrap packages, mapped with the CPU ABI as the key and the ZIP file's sha256sum
+         * as the value.
+         */
+        private val BOOTSTRAP_PACKAGES =
+            mapOf(
+                "aarch64" to "677e225717cf1642a8fc23894f0857e694344cda45ede4ace5de334180ce278b",
+                "arm" to "50024d392ad784dabc39f2b0f159e78fbd7247d76d438a4194fadac96448d6a0",
+                "x86_64" to "7e8a76a594005b38817a1fe6ff0f1293d2e4ca6a5bccdbb457a631fe27b98a55",
+            )
 
-    /**
-     * The bootstrap packages version, basically the tag name of the GitHub release.
-     */
-    private const val BOOTSTRAP_PACKAGES_VERSION = "16.12.2023"
+        /** The bootstrap packages version, basically the tag name of the GitHub release. */
+        private const val BOOTSTRAP_PACKAGES_VERSION = "16.12.2023"
 
-    private const val PACKAGES_DOWNLOAD_URL =
-      "https://github.com/Visual-Code-Space/terminal-packages/releases/download/bootstrap-%1\$s/bootstrap-%2\$s.zip"
+        private const val PACKAGES_DOWNLOAD_URL =
+            "https://github.com/Visual-Code-Space/terminal-packages/releases/download/bootstrap-%1\$s/bootstrap-%2\$s.zip"
+    }
 
-  }
+    override fun apply(target: Project) {
+        target.run {
+            val bootstrapOut = project.layout.buildDirectory.dir("bootstrap-packages").get().asFile
 
-  override fun apply(target: Project) {
-    target.run {
+            val files =
+                BOOTSTRAP_PACKAGES.map { (arch, sha256) ->
+                        val file = File(bootstrapOut, "bootstrap-${arch}.zip")
+                        file.parentFile.mkdirs()
 
-      val bootstrapOut = project.layout.buildDirectory.dir("bootstrap-packages")
-        .get().asFile
+                        DownloadUtils.doDownload(
+                            file = file,
+                            remoteUrl =
+                                PACKAGES_DOWNLOAD_URL.format(BOOTSTRAP_PACKAGES_VERSION, arch),
+                            expectedChecksum = sha256,
+                            logger = logger,
+                        )
 
-      val files = BOOTSTRAP_PACKAGES.map { (arch, sha256) ->
-        val file = File(bootstrapOut, "bootstrap-${arch}.zip")
-        file.parentFile.mkdirs()
+                        return@map arch to file
+                    }
+                    .toMap()
 
-        DownloadUtils.doDownload(
-          file = file,
-          remoteUrl = PACKAGES_DOWNLOAD_URL.format(BOOTSTRAP_PACKAGES_VERSION, arch),
-          expectedChecksum = sha256,
-          logger = logger
-        )
-
-        return@map arch to file
-      }.toMap()
-
-      project.file("src/main/cpp/termux-bootstrap-zip.S").writeText(
-        """
+            project
+                .file("src/main/cpp/termux-bootstrap-zip.S")
+                .writeText(
+                    """
              .global blob
              .global blob_size
              .section .rodata
@@ -90,17 +92,18 @@ class TerminalBootstrapPackagesPlugin : Plugin<Project> {
          blob_size:
              .int 1b - blob
          
-      """.trimIndent()
-      )
-    }
-  }
-
-  private fun escapePathOnWindows(path: String): String {
-    if (OperatingSystem.current().isWindows) {
-      // escape backslashes when building on Windows
-      return path.replace("\\", "\\\\")
+      """
+                        .trimIndent()
+                )
+        }
     }
 
-    return path
-  }
+    private fun escapePathOnWindows(path: String): String {
+        if (OperatingSystem.current().isWindows) {
+            // escape backslashes when building on Windows
+            return path.replace("\\", "\\\\")
+        }
+
+        return path
+    }
 }

@@ -23,30 +23,30 @@ import com.itsaky.androidide.resources.R
 
 /** @author Akash Yadav */
 class UncommentAction : BaseJavaCodeAction() {
-  override val id: String = "ide.editor.lsp.java.uncommentLine"
-  override var label: String = ""
+    override val id: String = "ide.editor.lsp.java.uncommentLine"
+    override var label: String = ""
 
-  override val titleTextRes: Int = R.string.action_uncomment_line
-  
-  override var requiresUIThread: Boolean = true
-  
-  override suspend fun execAction(data: ActionData): Boolean {
-    val editor = data.requireEditor()
-    val text = editor.text
-    val cursor = editor.cursor
-    
-    text.beginBatchEdit()
-    for (line in cursor.leftLine..cursor.rightLine) {
-      val l = text.getLineString(line)
-      if (l.trim().startsWith("//")) {
-        val i = l.indexOf("//")
-        text.delete(line, i, line, i + 2)
-      }
+    override val titleTextRes: Int = R.string.action_uncomment_line
+
+    override var requiresUIThread: Boolean = true
+
+    override suspend fun execAction(data: ActionData): Boolean {
+        val editor = data.requireEditor()
+        val text = editor.text
+        val cursor = editor.cursor
+
+        text.beginBatchEdit()
+        for (line in cursor.leftLine..cursor.rightLine) {
+            val l = text.getLineString(line)
+            if (l.trim().startsWith("//")) {
+                val i = l.indexOf("//")
+                text.delete(line, i, line, i + 2)
+            }
+        }
+        text.endBatchEdit()
+
+        return true
     }
-    text.endBatchEdit()
 
-    return true
-  }
-  
-  override fun dismissOnAction() = false
+    override fun dismissOnAction() = false
 }

@@ -18,9 +18,9 @@
 package com.itsaky.androidide.lsp.java.compiler
 
 import com.itsaky.androidide.utils.StopWatch
+import java.util.function.Consumer
 import openjdk.source.tree.CompilationUnitTree
 import openjdk.tools.javac.api.JavacTaskImpl
-import java.util.function.Consumer
 
 /**
  * Default implementation of [CompilationTaskProcessor].
@@ -29,19 +29,22 @@ import java.util.function.Consumer
  */
 class DefaultCompilationTaskProcessor : CompilationTaskProcessor {
 
-  override fun process(task: JavacTaskImpl, processCompilationUnit: Consumer<CompilationUnitTree>) {
-    val watch = StopWatch("Process compilation task")
-    val trees = task.parse()
-    watch.lapFromLast("Parsed treees")
+    override fun process(
+        task: JavacTaskImpl,
+        processCompilationUnit: Consumer<CompilationUnitTree>,
+    ) {
+        val watch = StopWatch("Process compilation task")
+        val trees = task.parse()
+        watch.lapFromLast("Parsed treees")
 
-    trees.forEach(processCompilationUnit::accept)
-    watch.lapFromLast("Processed trees")
-    
-//    val entered = JavacTaskUtil.enterTrees(task, trees)
-//    watch.lapFromLast("Entered trees")
-//
-//    val analyzed = JavacTaskUtil.analyze(task, entered)
-    task.analyze()
-    watch.lapFromLast("Analyzed all trees")
-  }
+        trees.forEach(processCompilationUnit::accept)
+        watch.lapFromLast("Processed trees")
+
+        //    val entered = JavacTaskUtil.enterTrees(task, trees)
+        //    watch.lapFromLast("Entered trees")
+        //
+        //    val analyzed = JavacTaskUtil.analyze(task, entered)
+        task.analyze()
+        watch.lapFromLast("Analyzed all trees")
+    }
 }

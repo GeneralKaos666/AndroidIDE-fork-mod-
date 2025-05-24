@@ -21,7 +21,7 @@ import com.itsaky.androidide.templates.Language
 import com.itsaky.androidide.templates.base.ProjectTemplateBuilder
 
 internal fun ProjectTemplateBuilder.buildGradleSrcKts(): String {
-  return """
+    return """
     // Top-level build file where you can add configuration options common to all sub-projects/modules.
     plugins {
         id("com.android.application") version "${data.version.gradlePlugin}" apply false
@@ -32,11 +32,12 @@ internal fun ProjectTemplateBuilder.buildGradleSrcKts(): String {
     tasks.register<Delete>("clean") {
         delete(rootProject.buildDir)
     }
-  """.trimIndent()
+  """
+        .trimIndent()
 }
 
 internal fun ProjectTemplateBuilder.buildGradleSrcGroovy(): String {
-  return """
+    return """
     // Top-level build file where you can add configuration options common to all sub-projects/modules.
     plugins {
         id 'com.android.application' version '${data.version.gradlePlugin}' apply false
@@ -47,17 +48,19 @@ internal fun ProjectTemplateBuilder.buildGradleSrcGroovy(): String {
     task clean(type: Delete) {
         delete rootProject.buildDir
     }
-  """.trimIndent()
+  """
+        .trimIndent()
 }
 
-private fun ProjectTemplateBuilder.ktPlugin() = if (data.language == Language.Kotlin) {
-  if (data.useKts) ktPluginKts() else ktPluginGroovy()
-} else ""
+private fun ProjectTemplateBuilder.ktPlugin() =
+    if (data.language == Language.Kotlin) {
+        if (data.useKts) ktPluginKts() else ktPluginGroovy()
+    } else ""
 
 private fun ProjectTemplateBuilder.ktPluginKts(): String {
-  return """id("org.jetbrains.kotlin.android") version "${data.version.kotlin}" apply false"""
+    return """id("org.jetbrains.kotlin.android") version "${data.version.kotlin}" apply false"""
 }
 
 private fun ProjectTemplateBuilder.ktPluginGroovy(): String {
-  return "id 'org.jetbrains.kotlin.android' version '${data.version.kotlin}' apply false"
+    return "id 'org.jetbrains.kotlin.android' version '${data.version.kotlin}' apply false"
 }

@@ -32,9 +32,13 @@ import com.itsaky.androidide.resources.R.string
 @com.itsaky.androidide.annotations.inflater.ViewAdapter(SurfaceView::class)
 @IncludeInDesigner(group = WIDGETS)
 open class SurfaceViewAdapter<T : SurfaceView> : ViewAdapter<T>() {
-  override fun createUiWidgets(): List<UiWidget> {
-    return listOf(
-      UiWidget(SurfaceView::class.java, string.widget_surfaceview, drawable.ic_widget_surface_view)
-    )
-  }
+    override fun createUiWidgets(): List<UiWidget> {
+        return listOf(
+            UiWidget(
+                SurfaceView::class.java,
+                string.widget_surfaceview,
+                drawable.ic_widget_surface_view,
+            )
+        )
+    }
 }

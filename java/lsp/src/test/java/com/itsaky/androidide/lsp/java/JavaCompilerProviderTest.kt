@@ -32,36 +32,36 @@ import org.robolectric.annotation.Config
 @Config(manifest = Config.DEFAULT_VALUE_STRING)
 class JavaCompilerProviderTest {
 
-  @Before
-  fun setup() {
-    JavaLSPTest.setup()
-  }
-
-  @Test
-  fun `test module specific compilers`() {
-    val workspace = IProjectManager.getInstance().getWorkspace()!!
-    val appModule = workspace.getProject(":app") as ModuleProject
-    val androidLib = workspace.getProject(":android-library") as ModuleProject
-    val anotherAndroidLib = workspace.getProject(":another-android-library") as ModuleProject
-    val javaLib = workspace.getProject(":java-library") as ModuleProject
-    val anotherJavaLib = workspace.getProject(":another-java-library") as ModuleProject
-
-    val compilers = mutableSetOf<JavaCompilerService>()
-    for (module in listOf(appModule, androidLib, anotherAndroidLib, javaLib, anotherJavaLib)) {
-      compilers.add(JavaCompilerProvider.get(module))
+    @Before
+    fun setup() {
+        JavaLSPTest.setup()
     }
 
-    assertThat(compilers).hasSize(5)
+    @Test
+    fun `test module specific compilers`() {
+        val workspace = IProjectManager.getInstance().getWorkspace()!!
+        val appModule = workspace.getProject(":app") as ModuleProject
+        val androidLib = workspace.getProject(":android-library") as ModuleProject
+        val anotherAndroidLib = workspace.getProject(":another-android-library") as ModuleProject
+        val javaLib = workspace.getProject(":java-library") as ModuleProject
+        val anotherJavaLib = workspace.getProject(":another-java-library") as ModuleProject
 
-    val appCompiler = JavaCompilerProvider.get(appModule)
-    compilers.add(appCompiler)
-    compilers.add(JavaCompilerProvider.get(javaLib))
+        val compilers = mutableSetOf<JavaCompilerService>()
+        for (module in listOf(appModule, androidLib, anotherAndroidLib, javaLib, anotherJavaLib)) {
+            compilers.add(JavaCompilerProvider.get(module))
+        }
 
-    assertThat(compilers).hasSize(5)
+        assertThat(compilers).hasSize(5)
 
-    compilers.clear()
-    JavaCompilerProvider.getInstance().destroy()
+        val appCompiler = JavaCompilerProvider.get(appModule)
+        compilers.add(appCompiler)
+        compilers.add(JavaCompilerProvider.get(javaLib))
 
-    assertThat(JavaCompilerProvider.get(appModule)).isNotEqualTo(appCompiler)
-  }
+        assertThat(compilers).hasSize(5)
+
+        compilers.clear()
+        JavaCompilerProvider.getInstance().destroy()
+
+        assertThat(JavaCompilerProvider.get(appModule)).isNotEqualTo(appCompiler)
+    }
 }

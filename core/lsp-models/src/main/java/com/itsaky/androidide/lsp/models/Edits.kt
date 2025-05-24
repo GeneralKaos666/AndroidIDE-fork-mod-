@@ -24,18 +24,19 @@ import com.itsaky.androidide.models.Range
  * [newText].
  */
 data class TextEdit(var range: Range, var newText: String) {
-  companion object {
-    @JvmField val NONE: TextEdit = TextEdit(Range.NONE, "")
-  }
+    companion object {
+        @JvmField val NONE: TextEdit = TextEdit(Range.NONE, "")
+    }
 }
 
 /**
  * Represents an index-based text edit. The text from index [start] to [end] must be replaced with
  * [newText].
  */
-data class IndexedTextEdit @JvmOverloads constructor(var start: Int = -1, var end: Int = -1, var newText: CharSequence = "") {
-  companion object {
-    @JvmStatic
-    val NONE = IndexedTextEdit()
-  }
+data class IndexedTextEdit
+@JvmOverloads
+constructor(var start: Int = -1, var end: Int = -1, var newText: CharSequence = "") {
+    companion object {
+        @JvmStatic val NONE = IndexedTextEdit()
+    }
 }

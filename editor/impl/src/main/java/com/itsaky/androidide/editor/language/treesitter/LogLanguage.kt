@@ -27,13 +27,12 @@ import com.itsaky.androidide.treesitter.log.TSLanguageLog
  * @author Akash Yadav
  */
 class LogLanguage(context: Context) :
-  TreeSitterLanguage(context, TSLanguageLog.getInstance(), TS_TYPE) {
+    TreeSitterLanguage(context, TSLanguageLog.getInstance(), TS_TYPE) {
 
-  companion object {
+    companion object {
 
-    const val TS_TYPE = "log"
+        const val TS_TYPE = "log"
 
-    @JvmField
-    val FACTORY = Factory { LogLanguage(it) }
-  }
+        @JvmField val FACTORY = Factory { LogLanguage(it) }
+    }
 }

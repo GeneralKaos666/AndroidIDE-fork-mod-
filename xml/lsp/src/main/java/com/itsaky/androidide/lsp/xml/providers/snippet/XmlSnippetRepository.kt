@@ -27,10 +27,10 @@ import com.itsaky.androidide.lsp.snippets.SnippetParser
  */
 object XmlSnippetRepository {
 
-  lateinit var snippets: Map<IXmlSnippetScope, List<ISnippet>>
-    private set
+    lateinit var snippets: Map<IXmlSnippetScope, List<ISnippet>>
+        private set
 
-  fun init() {
-    this.snippets = SnippetParser.parse("xml", XML_SNIPPET_SCOPES)
-  }
+    fun init() {
+        this.snippets = SnippetParser.parse("xml", XML_SNIPPET_SCOPES)
+    }
 }

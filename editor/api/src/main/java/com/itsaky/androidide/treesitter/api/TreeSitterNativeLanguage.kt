@@ -21,35 +21,33 @@ import com.itsaky.androidide.treesitter.TSLanguage
 import com.itsaky.androidide.utils.DefaultRecyclable
 import com.itsaky.androidide.utils.RecyclableObjectPool
 
-/**
- * @author Akash Yadav
- */
-class TreeSitterNativeLanguage @JvmOverloads internal constructor(
-  name: String? = null,
-  pointers: LongArray? = longArrayOf(0, 0)
-) : TSLanguage(name, pointers), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
+/** @author Akash Yadav */
+class TreeSitterNativeLanguage
+@JvmOverloads
+internal constructor(name: String? = null, pointers: LongArray? = longArrayOf(0, 0)) :
+    TSLanguage(name, pointers), RecyclableObjectPool.Recyclable by DefaultRecyclable() {
 
-  companion object {
+    companion object {
 
-    @JvmStatic
-    fun obtain(name: String?, pointers: LongArray?): TreeSitterNativeLanguage {
-      return obtainFromPool<TreeSitterNativeLanguage>().apply {
-        this.name = name
-        this.nativeObject = pointers?.get(0) ?: 0
-        this.libHandle = pointers?.get(1) ?: 0
-      }
+        @JvmStatic
+        fun obtain(name: String?, pointers: LongArray?): TreeSitterNativeLanguage {
+            return obtainFromPool<TreeSitterNativeLanguage>().apply {
+                this.name = name
+                this.nativeObject = pointers?.get(0) ?: 0
+                this.libHandle = pointers?.get(1) ?: 0
+            }
+        }
     }
-  }
 
-  override fun close() {
-    super.close()
-    recycle()
-  }
+    override fun close() {
+        super.close()
+        recycle()
+    }
 
-  override fun recycle() {
-    this.nativeObject = 0
-    this.name = null
-    this.libHandle = 0
-    returnToPool()
-  }
+    override fun recycle() {
+        this.nativeObject = 0
+        this.name = null
+        this.libHandle = 0
+        returnToPool()
+    }
 }

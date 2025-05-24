@@ -29,26 +29,31 @@ import com.itsaky.androidide.models.IconTitleDescriptionItem
  * @author Akash Yadav
  */
 abstract class IconTitleDescriptionAdapter() :
-  RecyclerView.Adapter<IconTitleDescriptionAdapter.ViewHolder>() {
+    RecyclerView.Adapter<IconTitleDescriptionAdapter.ViewHolder>() {
 
-  class ViewHolder(val binding: LayoutIconTitleDescriptionBinding) :
-    RecyclerView.ViewHolder(binding.root)
+    class ViewHolder(val binding: LayoutIconTitleDescriptionBinding) :
+        RecyclerView.ViewHolder(binding.root)
 
-  abstract fun getItem(position: Int): IconTitleDescriptionItem
+    abstract fun getItem(position: Int): IconTitleDescriptionItem
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-    return ViewHolder(
-      LayoutIconTitleDescriptionBinding.inflate(LayoutInflater.from(parent.context), parent, false))
-  }
-
-  override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val binding = holder.binding
-    val item = getItem(position)
-
-    binding.apply {
-      icon.setImageDrawable(item.icon)
-      title.text = item.title
-      description.text = item.description
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder(
+            LayoutIconTitleDescriptionBinding.inflate(
+                LayoutInflater.from(parent.context),
+                parent,
+                false,
+            )
+        )
     }
-  }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val binding = holder.binding
+        val item = getItem(position)
+
+        binding.apply {
+            icon.setImageDrawable(item.icon)
+            title.text = item.title
+            description.text = item.description
+        }
+    }
 }

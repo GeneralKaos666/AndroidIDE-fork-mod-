@@ -20,10 +20,10 @@ package com.itsaky.androidide.plugins.util
 import org.gradle.api.Project
 
 val Project.isAndroidModule: Boolean
-  get() = isAndroidApplication || isAndroidLibrary
+    get() = isAndroidApplication || isAndroidLibrary
 
 val Project.isAndroidApplication: Boolean
-  get() = plugins.hasPlugin("com.android.application")
+    get() = plugins.hasPlugin("com.android.application")
 
 val Project.isAndroidLibrary: Boolean
-  get() = plugins.hasPlugin("com.android.library")
+    get() = plugins.hasPlugin("com.android.library")

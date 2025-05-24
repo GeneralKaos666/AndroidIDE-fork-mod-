@@ -28,89 +28,89 @@ import androidx.fragment.app.Fragment
 import com.itsaky.androidide.common.R
 import com.itsaky.androidide.resources.R.string
 import com.itsaky.androidide.utils.flashError
+import java.io.File
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
-import java.io.File
 
 open class BaseFragment @JvmOverloads constructor(contentLayoutId: Int = 0) :
-  Fragment(contentLayoutId) {
+    Fragment(contentLayoutId) {
 
-  private var callback: OnDirectoryPickedCallback? = null
-  private val allowedAuthorities =
-    setOf(ANDROID_DOCS_AUTHORITY, ANDROIDIDE_DOCS_AUTHORITY)
+    private var callback: OnDirectoryPickedCallback? = null
+    private val allowedAuthorities = setOf(ANDROID_DOCS_AUTHORITY, ANDROIDIDE_DOCS_AUTHORITY)
 
-  protected val viewLifecycleScope = CoroutineScope(Dispatchers.Default + CoroutineName(javaClass.simpleName))
+    protected val viewLifecycleScope =
+        CoroutineScope(Dispatchers.Default + CoroutineName(javaClass.simpleName))
 
-  companion object {
-    const val ANDROID_DOCS_AUTHORITY = "com.android.externalstorage.documents"
-    const val ANDROIDIDE_DOCS_AUTHORITY = "com.itsaky.androidide.documents"
-  }
+    companion object {
+        const val ANDROID_DOCS_AUTHORITY = "com.android.externalstorage.documents"
+        const val ANDROIDIDE_DOCS_AUTHORITY = "com.itsaky.androidide.documents"
+    }
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    viewLifecycleScope.cancel("${javaClass.simpleName} is being destroyed")
-  }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewLifecycleScope.cancel("${javaClass.simpleName} is being destroyed")
+    }
 
-  private val startForResult =
-    registerForActivityResult(StartActivityForResult()) {
-      val context = requireContext()
-      val uri = it?.data?.data ?: return@registerForActivityResult
-      val pickedDir = DocumentFile.fromTreeUri(context, uri)
+    private val startForResult =
+        registerForActivityResult(StartActivityForResult()) {
+            val context = requireContext()
+            val uri = it?.data?.data ?: return@registerForActivityResult
+            val pickedDir = DocumentFile.fromTreeUri(context, uri)
 
-      if (pickedDir == null) {
-        flashError(string.err_invalid_data_by_intent)
-        return@registerForActivityResult
-      }
+            if (pickedDir == null) {
+                flashError(string.err_invalid_data_by_intent)
+                return@registerForActivityResult
+            }
 
-      if (!pickedDir.exists()) {
-        flashError(getString(string.msg_picked_isnt_dir))
-        return@registerForActivityResult
-      }
+            if (!pickedDir.exists()) {
+                flashError(getString(string.msg_picked_isnt_dir))
+                return@registerForActivityResult
+            }
 
-      val docUri = buildDocumentUriUsingTree(uri, getTreeDocumentId(uri)!!)!!
-      val docId = DocumentsContractCompat.getDocumentId(docUri)!!
-      val authority = docUri.authority
+            val docUri = buildDocumentUriUsingTree(uri, getTreeDocumentId(uri)!!)!!
+            val docId = DocumentsContractCompat.getDocumentId(docUri)!!
+            val authority = docUri.authority
 
-      if (!allowedAuthorities.contains(authority)) {
-        flashError(getString(string.err_authority_not_allowed, authority))
-        return@registerForActivityResult
-      }
+            if (!allowedAuthorities.contains(authority)) {
+                flashError(getString(string.err_authority_not_allowed, authority))
+                return@registerForActivityResult
+            }
 
-      val dir =
-        if (authority == ANDROIDIDE_DOCS_AUTHORITY) {
-          File(docId)
-        } else {
-          val split = docId.split(':')
-          if ("primary" != split[0]) {
-            flashError(getString(string.msg_select_from_primary_storage))
-            return@registerForActivityResult
-          }
+            val dir =
+                if (authority == ANDROIDIDE_DOCS_AUTHORITY) {
+                    File(docId)
+                } else {
+                    val split = docId.split(':')
+                    if ("primary" != split[0]) {
+                        flashError(getString(string.msg_select_from_primary_storage))
+                        return@registerForActivityResult
+                    }
 
-          File(Environment.getExternalStorageDirectory(), split[1])
+                    File(Environment.getExternalStorageDirectory(), split[1])
+                }
+
+            if (!dir.exists() || !dir.isDirectory) {
+                flashError(getString(string.err_invalid_data_by_intent))
+                return@registerForActivityResult
+            }
+
+            if (callback != null) {
+                callback!!.onDirectoryPicked(dir)
+            }
         }
 
-      if (!dir.exists() || !dir.isDirectory) {
-        flashError(getString(string.err_invalid_data_by_intent))
-        return@registerForActivityResult
-      }
-
-      if (callback != null) {
-        callback!!.onDirectoryPicked(dir)
-      }
+    protected fun pickDirectory(dirCallback: OnDirectoryPickedCallback?) {
+        this.callback = dirCallback
+        try {
+            this.startForResult.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
+        } catch (e: Exception) {
+            requireActivity().flashError(getString(R.string.msg_dir_picker_failed, e.message))
+        }
     }
 
-  protected fun pickDirectory(dirCallback: OnDirectoryPickedCallback?) {
-    this.callback = dirCallback
-    try {
-      this.startForResult.launch(Intent(Intent.ACTION_OPEN_DOCUMENT_TREE))
-    } catch (e: Exception) {
-      requireActivity().flashError(getString(R.string.msg_dir_picker_failed, e.message))
+    fun interface OnDirectoryPickedCallback {
+        fun onDirectoryPicked(file: File)
     }
-  }
-
-  fun interface OnDirectoryPickedCallback {
-    fun onDirectoryPicked(file: File)
-  }
 }

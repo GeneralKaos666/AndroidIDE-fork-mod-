@@ -18,8 +18,8 @@
 package com.itsaky.androidide.lsp.java.parser.ts
 
 import com.itsaky.androidide.treesitter.TSTree
-import jdkx.tools.JavaFileObject
 import java.net.URI
+import jdkx.tools.JavaFileObject
 
 /**
  * Parse result of [TSJavaParser].
@@ -27,10 +27,10 @@ import java.net.URI
  * @author Akash Yadav
  */
 class TSParseResult(file: JavaFileObject, val tree: TSTree) : AutoCloseable {
-  val uri: URI = file.toUri()
-  val fileModified: Long = file.lastModified
+    val uri: URI = file.toUri()
+    val fileModified: Long = file.lastModified
 
-  override fun close() {
-    tree.close()
-  }
+    override fun close() {
+        tree.close()
+    }
 }

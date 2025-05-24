@@ -15,9 +15,8 @@ private const val MIN_ALPHA_SLIDE = 0.35f
 
 private const val FLOW_ROTATION_ANGLE = -30f
 
-internal class ViewPagerTransformer(
-    private val transformType: AppIntroPageTransformerType
-) : ViewPager2.PageTransformer {
+internal class ViewPagerTransformer(private val transformType: AppIntroPageTransformerType) :
+    ViewPager2.PageTransformer {
 
     private var titlePF: Double = 0.0
     private var imagePF: Double = 0.0
@@ -41,7 +40,7 @@ internal class ViewPagerTransformer(
                     page,
                     transformType.titleViewId,
                     transformType.imageViewId,
-                    transformType.descriptionViewId
+                    transformType.descriptionViewId,
                 )
             }
         }
@@ -52,7 +51,7 @@ internal class ViewPagerTransformer(
         page: View,
         titleViewId: Int,
         imageViewId: Int,
-        descriptionViewId: Int
+        descriptionViewId: Int,
     ) {
         if (position > -1 && position < 1) {
             try {
@@ -70,17 +69,18 @@ internal class ViewPagerTransformer(
         position: Float,
         viewId: Int,
         parallaxFactor: Double,
-        logLabel: String
+        logLabel: String,
     ) {
         page.findViewById<View>(viewId)?.let {
             it.translationX = computeParallax(page, position, parallaxFactor)
-        } ?: {
-            LogHelper.e(
-                TAG,
-                "Could not parallax animate view '$logLabel' as " +
-                    "the provided view ID can't be found in the layout"
-            )
         }
+            ?: {
+                LogHelper.e(
+                    TAG,
+                    "Could not parallax animate view '$logLabel' as " +
+                        "the provided view ID can't be found in the layout",
+                )
+            }
     }
 
     private fun computeParallax(page: View, position: Float, parallaxFactor: Double): Float {
@@ -106,8 +106,9 @@ internal class ViewPagerTransformer(
     private fun transformZoom(position: Float, page: View) {
         if (position >= -1 && position <= 1) {
             page.scaleXY = max(MIN_SCALE_ZOOM, 1 - abs(position))
-            page.alpha = MIN_ALPHA_ZOOM + (page.scaleXY - MIN_SCALE_ZOOM) /
-                (1 - MIN_SCALE_ZOOM) * (1 - MIN_ALPHA_ZOOM)
+            page.alpha =
+                MIN_ALPHA_ZOOM +
+                    (page.scaleXY - MIN_SCALE_ZOOM) / (1 - MIN_SCALE_ZOOM) * (1 - MIN_ALPHA_ZOOM)
             val vMargin = page.height * (1 - page.scaleXY) / 2
             val hMargin = page.width * (1 - page.scaleXY) / 2
             if (position < 0) {

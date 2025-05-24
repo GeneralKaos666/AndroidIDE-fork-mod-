@@ -26,26 +26,26 @@ import org.eclipse.lemminx.dom.builder.EmptyElements.Collapse
  */
 open class BaseXmlFormattingOptions {
 
-  open val isTrimFinalNewLine: Boolean = false
-  open val isInsertFinalNewLine: Boolean = true
-  open val isSplitAttributes: Boolean = true
-  open val isJoinCDataLines: Boolean = false
-  open val isJoinCommentLines: Boolean = true
-  open val isJoinContentLines: Boolean = false
-  open val isSpaceBeforeEmptyCloseTag: Boolean = true
-  open val isPreserveEmptyContent: Boolean = true
-  open val isPreserveAttributeLineBreaks: Boolean = true
-  open val isClosingBracketNewLine: Boolean = false
-  open val isTrimTrailingWhitespace: Boolean = true
-  open val isUseSoftTab: Boolean = true
+    open val isTrimFinalNewLine: Boolean = false
+    open val isInsertFinalNewLine: Boolean = true
+    open val isSplitAttributes: Boolean = true
+    open val isJoinCDataLines: Boolean = false
+    open val isJoinCommentLines: Boolean = true
+    open val isJoinContentLines: Boolean = false
+    open val isSpaceBeforeEmptyCloseTag: Boolean = true
+    open val isPreserveEmptyContent: Boolean = true
+    open val isPreserveAttributeLineBreaks: Boolean = true
+    open val isClosingBracketNewLine: Boolean = false
+    open val isTrimTrailingWhitespace: Boolean = true
+    open val isUseSoftTab: Boolean = true
 
-  open val tabSize = 4
-  open val maxLineWidth: Int = 80
-  open val preservedNewLines: Int = 2
+    open val tabSize = 4
+    open val maxLineWidth: Int = 80
+    open val preservedNewLines: Int = 2
 
-  open val splitAttributesIndentSize: Int
-    get() = tabSize / 2
+    open val splitAttributesIndentSize: Int
+        get() = tabSize / 2
 
-  open val emptyElementsBehavior: EmptyElements
-    get() = Collapse
+    open val emptyElementsBehavior: EmptyElements
+        get() = Collapse
 }

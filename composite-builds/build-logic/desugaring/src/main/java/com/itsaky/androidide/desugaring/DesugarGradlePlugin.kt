@@ -27,31 +27,30 @@ import org.gradle.kotlin.dsl.create
 
 class DesugarGradlePlugin : Plugin<Project> {
 
-  override fun apply(target: Project) {
-    target.run {
-      logger.trace("Creating desugaring extension")
-      val extension = extensions.create<DesugarExtension>("desugaring")
-      extension.enabled.convention(true)
+    override fun apply(target: Project) {
+        target.run {
+            logger.trace("Creating desugaring extension")
+            val extension = extensions.create<DesugarExtension>("desugaring")
+            extension.enabled.convention(true)
 
-      val androidComponents =
-        extensions.findByType(AndroidComponentsExtension::class.java) ?: run {
-          logger.warn("Could not find androidComponents extension")
-          return
+            val androidComponents =
+                extensions.findByType(AndroidComponentsExtension::class.java)
+                    ?: run {
+                        logger.warn("Could not find androidComponents extension")
+                        return
+                    }
+
+            androidComponents.onVariants { variant ->
+                logger.debug("Applying desugaring to ${variant.name}")
+
+                variant.instrumentation.apply {
+                    transformClassesWith(DesugarClassVisitorFactory::class.java, ALL) { params ->
+                        params.setFrom(extension)
+                    }
+
+                    setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
+                }
+            }
         }
-
-      androidComponents.onVariants { variant ->
-        logger.debug("Applying desugaring to ${variant.name}")
-
-        variant.instrumentation.apply {
-          transformClassesWith(
-            DesugarClassVisitorFactory::class.java, ALL
-          ) { params ->
-            params.setFrom(extension)
-          }
-
-          setAsmFramesComputationMode(FramesComputationMode.COPY_FRAMES)
-        }
-      }
     }
-  }
 }

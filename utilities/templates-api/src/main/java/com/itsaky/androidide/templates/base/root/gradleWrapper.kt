@@ -21,20 +21,21 @@ import com.itsaky.androidide.templates.base.ProjectTemplateBuilder
 import java.io.File
 
 internal fun ProjectTemplateBuilder.gradleWrapperProps() {
-  val name = "gradle-wrapper.properties"
-  val wrapperProps = File(data.projectDir, "gradle/wrapper/${name}")
-  wrapperProps.parentFile!!.mkdirs()
+    val name = "gradle-wrapper.properties"
+    val wrapperProps = File(data.projectDir, "gradle/wrapper/${name}")
+    wrapperProps.parentFile!!.mkdirs()
 
-  executor.save(gradleWrapperPropsSrc(), wrapperProps)
+    executor.save(gradleWrapperPropsSrc(), wrapperProps)
 }
 
 internal fun ProjectTemplateBuilder.gradleWrapperPropsSrc(): String {
-  return """
+    return """
     distributionBase=GRADLE_USER_HOME
     distributionPath=wrapper/dists
     distributionUrl=https\://services.gradle.org/distributions/gradle-${data.version.gradle}-bin.zip
     networkTimeout=10000
     zipStoreBase=GRADLE_USER_HOME
     zipStorePath=wrapper/dists
-  """.trimIndent()
+  """
+        .trimIndent()
 }

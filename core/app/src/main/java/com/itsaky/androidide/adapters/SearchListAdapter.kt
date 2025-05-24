@@ -34,65 +34,66 @@ import java.io.File
 import java.util.concurrent.CompletableFuture
 
 class SearchListAdapter(
-  private val results: Map<File, List<SearchResult>?>,
-  private val onFileClick: (File) -> Unit,
-  private val onMatchClick: (SearchResult) -> Unit,
-  private val keys: List<File>
+    private val results: Map<File, List<SearchResult>?>,
+    private val onFileClick: (File) -> Unit,
+    private val onMatchClick: (SearchResult) -> Unit,
+    private val keys: List<File>,
 ) : Adapter<VH>() {
 
-  constructor(
-    results: Map<File, List<SearchResult>?>,
-    onFileClick: (File) -> Unit,
-    onMatchClick: (SearchResult) -> Unit
-  ) : this(results, onFileClick, onMatchClick, results.keys.toList())
+    constructor(
+        results: Map<File, List<SearchResult>?>,
+        onFileClick: (File) -> Unit,
+        onMatchClick: (SearchResult) -> Unit,
+    ) : this(results, onFileClick, onMatchClick, results.keys.toList())
 
-  override fun onCreateViewHolder(p1: ViewGroup, p2: Int): VH {
-    return VH(LayoutSearchResultGroupBinding.inflate(LayoutInflater.from(p1.context)))
-  }
-
-  override fun onBindViewHolder(p1: VH, p2: Int) {
-    val binding = p1.binding
-    val file = keys[p2]
-    val matches = results[file] ?: listOf()
-    val color = binding.icon.context.resolveAttr(R.attr.colorPrimary)
-    binding.title.text = file.name
-    binding.icon.setImageResource(FileExtension.Factory.forFile(file).icon)
-    binding.icon.setColorFilter(color, SRC_ATOP)
-    binding.items.layoutManager = LinearLayoutManager(binding.items.context)
-    binding.items.adapter = ChildAdapter(matches)
-    binding.root.setOnClickListener { onFileClick(file) }
-  }
-
-  override fun getItemCount(): Int {
-    return results.size
-  }
-
-  inner class ChildAdapter(val matches: List<SearchResult>) : Adapter<ChildVH>() {
-
-    override fun onCreateViewHolder(p1: ViewGroup, p2: Int): ChildVH {
-      return ChildVH(LayoutSearchResultItemBinding.inflate(LayoutInflater.from(p1.context)))
+    override fun onCreateViewHolder(p1: ViewGroup, p2: Int): VH {
+        return VH(LayoutSearchResultGroupBinding.inflate(LayoutInflater.from(p1.context)))
     }
 
-    override fun onBindViewHolder(p1: ChildVH, p2: Int) {
-      val match = matches[p2]
-      val binding = p1.binding
-      CompletableFuture.runAsync {
-        try {
-          val scheme = SchemeAndroidIDE.newInstance(binding.text.context)
-          val sb = JavaHighlighter().highlight(scheme, match.line, match.match)
-          ThreadUtils.runOnUiThread { binding.text.text = sb }
-        } catch (e: Exception) {
-          ThreadUtils.runOnUiThread { binding.text.text = match.match }
-        }
-      }
-      binding.root.setOnClickListener { onMatchClick(match) }
+    override fun onBindViewHolder(p1: VH, p2: Int) {
+        val binding = p1.binding
+        val file = keys[p2]
+        val matches = results[file] ?: listOf()
+        val color = binding.icon.context.resolveAttr(R.attr.colorPrimary)
+        binding.title.text = file.name
+        binding.icon.setImageResource(FileExtension.Factory.forFile(file).icon)
+        binding.icon.setColorFilter(color, SRC_ATOP)
+        binding.items.layoutManager = LinearLayoutManager(binding.items.context)
+        binding.items.adapter = ChildAdapter(matches)
+        binding.root.setOnClickListener { onFileClick(file) }
     }
 
     override fun getItemCount(): Int {
-      return matches.size
+        return results.size
     }
-  }
 
-  class VH(val binding: LayoutSearchResultGroupBinding) : ViewHolder(binding.root)
-  class ChildVH(val binding: LayoutSearchResultItemBinding) : ViewHolder(binding.root)
+    inner class ChildAdapter(val matches: List<SearchResult>) : Adapter<ChildVH>() {
+
+        override fun onCreateViewHolder(p1: ViewGroup, p2: Int): ChildVH {
+            return ChildVH(LayoutSearchResultItemBinding.inflate(LayoutInflater.from(p1.context)))
+        }
+
+        override fun onBindViewHolder(p1: ChildVH, p2: Int) {
+            val match = matches[p2]
+            val binding = p1.binding
+            CompletableFuture.runAsync {
+                try {
+                    val scheme = SchemeAndroidIDE.newInstance(binding.text.context)
+                    val sb = JavaHighlighter().highlight(scheme, match.line, match.match)
+                    ThreadUtils.runOnUiThread { binding.text.text = sb }
+                } catch (e: Exception) {
+                    ThreadUtils.runOnUiThread { binding.text.text = match.match }
+                }
+            }
+            binding.root.setOnClickListener { onMatchClick(match) }
+        }
+
+        override fun getItemCount(): Int {
+            return matches.size
+        }
+    }
+
+    class VH(val binding: LayoutSearchResultGroupBinding) : ViewHolder(binding.root)
+
+    class ChildVH(val binding: LayoutSearchResultItemBinding) : ViewHolder(binding.root)
 }

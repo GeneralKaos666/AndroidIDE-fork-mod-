@@ -25,16 +25,15 @@ import org.antlr.v4.runtime.Lexer
  * @param state The state of the line.
  * @param hasBraces `true` if the line has braces. `false` otherwise.
  * @param lexerMode The mode of the lexer. This MUST be preserved in the lexer.
- *
  * @author Akash Yadav
  */
 data class LineState(
-  @JvmField var state: Int = NORMAL,
-  @JvmField var hasBraces: Boolean = false,
-  @JvmField var lexerMode: Int = Lexer.DEFAULT_MODE
+    @JvmField var state: Int = NORMAL,
+    @JvmField var hasBraces: Boolean = false,
+    @JvmField var lexerMode: Int = Lexer.DEFAULT_MODE,
 ) {
-  companion object {
-    const val NORMAL = 0
-    const val INCOMPLETE = 1
-  }
+    companion object {
+        const val NORMAL = 0
+        const val INCOMPLETE = 1
+    }
 }

@@ -30,40 +30,40 @@ import com.itsaky.androidide.uidesigner.viewmodel.WorkspaceViewModel
 
 /** @author Akash Yadav */
 internal class WidgetsItemAdapter(
-  private val widgets: List<UiWidget>,
-  private val viewModel : WorkspaceViewModel
+    private val widgets: List<UiWidget>,
+    private val viewModel: WorkspaceViewModel,
 ) : RecyclerView.Adapter<VH>() {
 
-  inner class VH(val binding: LayoutUiWidgetsItemBinding) : RecyclerView.ViewHolder(binding.root)
+    inner class VH(val binding: LayoutUiWidgetsItemBinding) : RecyclerView.ViewHolder(binding.root)
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-    return VH(
-      LayoutUiWidgetsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-    )
-  }
-
-  override fun getItemCount(): Int {
-    return widgets.size
-  }
-
-  override fun onBindViewHolder(holder: VH, position: Int) {
-    val binding = holder.binding
-    val widget = widgets[position]
-
-    binding.name.setText(widget.label)
-    binding.icon.setImageResource(widget.icon)
-    binding.root.setOnLongClickListener {
-      val shadow = WidgetDragShadowBuilder(binding.icon)
-      val dataItem = ClipData.Item(DesignerWorkspaceFragment.DRAGGING_WIDGET)
-      val data =
-        ClipData(
-          DesignerWorkspaceFragment.DRAGGING_WIDGET,
-          arrayOf(DesignerWorkspaceFragment.DRAGGING_WIDGET_MIME),
-          dataItem
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+        return VH(
+            LayoutUiWidgetsItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
-      return@setOnLongClickListener binding.icon.startDragAndDrop(data, shadow, widget, 0).also {
-        viewModel.drawerOpened = !it
-      }
     }
-  }
+
+    override fun getItemCount(): Int {
+        return widgets.size
+    }
+
+    override fun onBindViewHolder(holder: VH, position: Int) {
+        val binding = holder.binding
+        val widget = widgets[position]
+
+        binding.name.setText(widget.label)
+        binding.icon.setImageResource(widget.icon)
+        binding.root.setOnLongClickListener {
+            val shadow = WidgetDragShadowBuilder(binding.icon)
+            val dataItem = ClipData.Item(DesignerWorkspaceFragment.DRAGGING_WIDGET)
+            val data =
+                ClipData(
+                    DesignerWorkspaceFragment.DRAGGING_WIDGET,
+                    arrayOf(DesignerWorkspaceFragment.DRAGGING_WIDGET_MIME),
+                    dataItem,
+                )
+            return@setOnLongClickListener binding.icon
+                .startDragAndDrop(data, shadow, widget, 0)
+                .also { viewModel.drawerOpened = !it }
+        }
+    }
 }

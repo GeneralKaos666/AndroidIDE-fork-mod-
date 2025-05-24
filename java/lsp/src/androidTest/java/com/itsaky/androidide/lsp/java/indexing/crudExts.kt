@@ -23,50 +23,46 @@ import io.realm.RealmModel
 import io.realm.RealmResults
 
 inline fun <reified T : RealmModel> Realm.assertInsertion(
-  vararg models: T,
-  crossinline verify: Realm.(models: RealmResults<T>) -> Unit
+    vararg models: T,
+    crossinline verify: Realm.(models: RealmResults<T>) -> Unit,
 ) {
-  assertInsertion(false, *models, verify = verify)
+    assertInsertion(false, *models, verify = verify)
 }
 
 inline fun <reified T : RealmModel> Realm.assertInsertion(
-  allowUpdate: Boolean = false,
-  vararg models: T,
-  crossinline verify: Realm.(models: RealmResults<T>) -> Unit
+    allowUpdate: Boolean = false,
+    vararg models: T,
+    crossinline verify: Realm.(models: RealmResults<T>) -> Unit,
 ) {
-  val modelList = models.toList()
-  assertThat(modelList).isNotEmpty()
+    val modelList = models.toList()
+    assertThat(modelList).isNotEmpty()
 
-  executeTransaction {
-    if (allowUpdate) {
-      it.insertOrUpdate(modelList)
-    } else {
-      it.insert(modelList)
+    executeTransaction {
+        if (allowUpdate) {
+            it.insertOrUpdate(modelList)
+        } else {
+            it.insert(modelList)
+        }
     }
-  }
 
-  executeTransaction {
-    verify(it.where(modelList[0].javaClass).findAll())
-  }
+    executeTransaction { verify(it.where(modelList[0].javaClass).findAll()) }
 }
 
 fun Realm.assertInsertSingle(model: RealmModel) {
-  assertInsertion(model) { models ->
-    assertThat(models).isNotNull()
-    assertThat(models).isNotEmpty()
-    assertThat(models).hasSize(1)
-    assertThat(models[0]).isEqualTo(model)
-  }
+    assertInsertion(model) { models ->
+        assertThat(models).isNotNull()
+        assertThat(models).isNotEmpty()
+        assertThat(models).hasSize(1)
+        assertThat(models[0]).isEqualTo(model)
+    }
 }
 
 fun Realm.assertInsertUnique(model: RealmModel) {
-  assertInsertSingle(model)
-  assertInsertion(true, model) { models ->
-    assertThat(models).isNotNull()
-    assertThat(models).isNotEmpty()
-    assertThat(models).hasSize(1)
-    assertThat(models[0]).isEqualTo(model)
-  }
+    assertInsertSingle(model)
+    assertInsertion(true, model) { models ->
+        assertThat(models).isNotNull()
+        assertThat(models).isNotEmpty()
+        assertThat(models).hasSize(1)
+        assertThat(models[0]).isEqualTo(model)
+    }
 }
-
-

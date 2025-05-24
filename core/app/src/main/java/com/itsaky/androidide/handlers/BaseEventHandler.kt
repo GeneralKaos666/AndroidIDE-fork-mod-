@@ -31,17 +31,19 @@ import org.slf4j.LoggerFactory
  */
 abstract class BaseEventHandler : EventReceiver {
 
-  companion object {
+    companion object {
 
-    @JvmStatic
-    protected val log: Logger = LoggerFactory.getLogger(BaseEventHandler::class.java)
-  }
+        @JvmStatic protected val log: Logger = LoggerFactory.getLogger(BaseEventHandler::class.java)
+    }
 
-  protected open fun checkIsEditorActivity(event: Event): Boolean {
-    return event.get(Context::class.java) is EditorHandlerActivity
-  }
+    protected open fun checkIsEditorActivity(event: Event): Boolean {
+        return event.get(Context::class.java) is EditorHandlerActivity
+    }
 
-  protected open fun logCannotHandle(event: Event) {
-    log.warn("Context is not EditorActivity. Cannot handle {} event.", event.javaClass.simpleName)
-  }
+    protected open fun logCannotHandle(event: Event) {
+        log.warn(
+            "Context is not EditorActivity. Cannot handle {} event.",
+            event.javaClass.simpleName,
+        )
+    }
 }
