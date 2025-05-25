@@ -36,8 +36,8 @@ jobs:
 
       - name: Commit and Push changes to branch master
         run: |
-          git config --global user.name "scto"
-          git config --global user.email "tschmid35@gmail.com"
+          git config --global user.name "GeneralKaos666"
+          git config --global user.email "xkiller1177@gmail.com"
           git add .
           git commit -m "chore: Format Code on branch master" -m "fornat code with ktfmt with github actions"
           git branch -M main
@@ -71,8 +71,8 @@ jobs:
       - name: Commit and Push changes
         run: |
           rm google-java-format.jar
-          git config --global user.name "scto"
-          git config --global user.email "tschmid35@gmail.com"
+          git config --global user.name "GeneralKaos666"
+          git config --global user.email "xkiller1177@gmail.com"
           git fetch origin ${GITHUB_REF_NAME}:temp
           git add .
           git commit -m "chore: Format Java Code" -m "format code with google java format in github actions"
