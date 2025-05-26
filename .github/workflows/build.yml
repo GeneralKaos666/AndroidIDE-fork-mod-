@@ -43,3 +43,7 @@ jobs:
       # Step 5: Run tests
       - name: Run tests
         run: ./gradlew test
+
+      # Step 6: assemble debug
+      - name: assemble debug
+        run: ./gradlew assembleDebug
